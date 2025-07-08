@@ -1,0 +1,28 @@
+
+.page-link{
+    background-color: rgb(60, 114, 114);
+    color:white;
+    transition: all 0.35 ease;
+    
+}
+.page-link:hover{
+    background-color:rgb(93, 151, 151) ;
+    color: white;
+    box-shadow:none
+}
+.page-link:focus{
+    background-color: rgb(47, 71, 71);
+    box-shadow:none;
+    outline: none;
+}
+.registro{
+    background-color: rgb(60, 114, 114);
+}.registro:hover{
+    background-color:rgb(93, 151, 151) ;
+    color: white;
+    box-shadow:none
+}
+.busqueda:focus{
+    box-shadow: 10px 7px 5px rgb(47, 71, 71);
+    outline: none;
+}

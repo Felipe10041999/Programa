@@ -3,43 +3,57 @@ import { UsuariosService } from '../services/usuarios-service';
 import { Usuariosmodel } from '../modelos/usuariosmodel';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-usuarios',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './usuarios.html',
-  styleUrls: ['./usuarios.css'],  // corregido aquí
+  styleUrls: ['./usuarios.css'],
 })
-
 export class Usuarios implements OnInit {
-  usuarios: Usuariosmodel[] = [];
-  usuariosPaginados: Usuariosmodel[] = [];
-  
+  usuarios: Usuariosmodel[] = [];             
+  usuariosFiltrados: Usuariosmodel[] = [];    
+  usuariosPaginados: Usuariosmodel[] = [];    
+
   paginaActual: number = 1;
   registrosPorPagina: number = 7;
   totalPaginas: number = 0;
+  terminoBusqueda: string = ''; 
 
-  constructor(private usuariosService: UsuariosService, private router :Router) {}
+  constructor(private usuariosService: UsuariosService, private router: Router) {}
 
   ngOnInit(): void {
     this.usuariosService.getUsuarios().subscribe({
       next: (data) => {
         this.usuarios = data;
-        this.totalPaginas = Math.ceil(this.usuarios.length / this.registrosPorPagina);
-        this.actualizarPaginacion();
+        this.filtrarUsuarios(); 
       },
       error: (error) => {
         console.error('Error al cargar usuarios:', error);
       }
     });
   }
-  
+
+  filtrarUsuarios(): void {
+    const termino = this.terminoBusqueda.toLowerCase().trim();
+
+    this.usuariosFiltrados = this.usuarios.filter(usuario =>
+      usuario.nombres.toLowerCase().includes(termino) ||
+      usuario.apellidos.toLowerCase().includes(termino) ||
+      usuario.cartera.toLowerCase().includes
+    );
+
+    this.totalPaginas = Math.ceil(this.usuariosFiltrados.length / this.registrosPorPagina);
+    this.paginaActual = 1;
+    this.actualizarPaginacion();
+  }
 
   actualizarPaginacion(): void {
     const inicio = (this.paginaActual - 1) * this.registrosPorPagina;
     const fin = inicio + this.registrosPorPagina;
-    this.usuariosPaginados = this.usuarios.slice(inicio, fin);
+    this.usuariosPaginados = this.usuariosFiltrados.slice(inicio, fin);
   }
 
   cambiarPagina(nuevaPagina: number): void {
@@ -56,22 +70,19 @@ export class Usuarios implements OnInit {
     this.usuariosService.eliminarUsuario(id).subscribe({
       next: () => {
         this.usuarios = this.usuarios.filter(usuario => usuario.id !== id);
-        this.totalPaginas = Math.ceil(this.usuarios.length / this.registrosPorPagina);
-        if (this.paginaActual > this.totalPaginas) this.paginaActual = this.totalPaginas;
-        this.actualizarPaginacion();
+        this.filtrarUsuarios(); 
       },
       error: (error) => {
         console.error('Error al eliminar usuario:', error);
       }
     });
   }
-  
+
   editarUsuario(id: number) {
     this.router.navigate(['/editar', id]);
   }
-  
-   IRRegistro() {
+
+  IRRegistro() {
     this.router.navigate(['/registro']);
   }
-} 
-
+}

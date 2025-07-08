@@ -18,7 +18,7 @@ class UsuarioController extends Controller
         return response()->json([
             'message' => 'No se encontraron usuarios',
             'status' => 200
-        ], 200); // <-- Código HTTP 200
+        ], 200); 
     }
 
     return response()->json($usuario, 200);

@@ -3,17 +3,23 @@
   <img class="m-4" src="../../assets/imagenes/crear_usuario.png" 
     alt="image" height="100px">
     
-  <button (click)="IRRegistro()" class="btn btn-success shadow">Nuevo usuario</button>
+  <button (click)="IRRegistro()" class="btn btn-success shadow registro">Nuevo usuario</button>
     
+</div>
+
+<div class="text-center mb-3 ">
+  <input type="text" [(ngModel)]="terminoBusqueda" (input)="filtrarUsuarios()"
+   placeholder="Buscar por nombre o apellido " 
+    class="form-control w-50 mx-auto busqueda ">
 </div>
 
 <div class="container">
   <div class="table-responsive">
-    <table class="table table-bordered table-striped text-center mx-auto w-auto">
+    <table class="table table-bordered table-striped text-center mx-auto w-auto ">
       <thead class="table-dark">
         <tr>
           <th>ID</th>
-          <th>Nombres</th>
+          <th>Nombres</th> 
           <th>Apellidos</th>
           <th>Cédula</th>
           <th>Teléfono</th>
@@ -43,7 +49,7 @@
           <td>{{ usuario.correo }}</td>
       
           <td>
-            <button (click)="editarUsuario(usuario.id)" class="btn btn-success shadow">Editar</button>
+            <button (click)="editarUsuario(usuario.id)" class="btn btn-success btn-sm">Editar</button>
           </td>
         
           <td>
@@ -55,8 +61,8 @@
   </div>
   <nav class="mt-4">
   <ul class="pagination justify-content-center">
-    <li class="page-item" [class.disabled]="paginaActual === 1">
-      <button class="page-link" (click)="cambiarPagina(paginaActual - 1)">Anterior</button>
+    <li class="page-item " [class.disabled]="paginaActual === 1">
+      <button class="page-link"(click)="cambiarPagina(paginaActual - 1)">Anterior</button>
     </li>
 
     <li 
@@ -68,7 +74,7 @@
     </li>
 
     <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
-      <button class="page-link" (click)="cambiarPagina(paginaActual + 1)">Siguiente</button>
+      <button class="page-link " (click)="cambiarPagina(paginaActual + 1)">Siguiente</button>
     </li>
   </ul>
 </nav>
