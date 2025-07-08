@@ -18,7 +18,7 @@ export class Usuarios implements OnInit {
   usuariosPaginados: Usuariosmodel[] = [];    
 
   paginaActual: number = 1;
-  registrosPorPagina: number = 7;
+  registrosPorPagina: number = 5;
   totalPaginas: number = 0;
   terminoBusqueda: string = ''; 
 
@@ -42,7 +42,7 @@ export class Usuarios implements OnInit {
     this.usuariosFiltrados = this.usuarios.filter(usuario =>
       usuario.nombres.toLowerCase().includes(termino) ||
       usuario.apellidos.toLowerCase().includes(termino) ||
-      usuario.cartera.toLowerCase().includes
+      usuario.cartera.toLowerCase().includes(termino)
     );
 
     this.totalPaginas = Math.ceil(this.usuariosFiltrados.length / this.registrosPorPagina);
