@@ -17,7 +17,8 @@
 }
 .registro{
     background-color: rgb(60, 114, 114);
-}.registro:hover{
+}
+.registro:hover{
     background-color:rgb(93, 151, 151) ;
     color: white;
     box-shadow:none
@@ -25,4 +26,14 @@
 .busqueda:focus{
     box-shadow: 10px 7px 5px rgb(47, 71, 71);
     outline: none;
+}
+.exel{
+    background-color: rgb(109, 86, 24);
+    color:white;
+    transition: all 0.35 ease;
+}
+.exel :hover{
+    background-color:rgb(97, 85, 18) ;
+    color: white;
+    box-shadow:none
 }

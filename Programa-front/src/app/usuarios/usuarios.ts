@@ -4,6 +4,8 @@ import { Usuariosmodel } from '../modelos/usuariosmodel';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import * as XLSX from 'xlsx';
+import * as FileSaver from 'file-saver';
 
 @Component({
   selector: 'app-usuarios',
@@ -85,4 +87,36 @@ export class Usuarios implements OnInit {
   IRRegistro() {
     this.router.navigate(['/registro']);
   }
+
+  exportarAExcel(): void {
+  const dataParaExportar = this.usuariosFiltrados.map(usuario => ({
+    ID: usuario.id,
+    Nombres: usuario.nombres,
+    Apellidos: usuario.apellidos,
+    Cédula: usuario.cedula,
+    Teléfono: usuario.telefono,
+    Cartera: usuario.cartera,
+    'Número de equipo': usuario.numero_equipo,
+    'Usuario equipo': usuario.usuario_equipo,
+    'Clave equipo': usuario.clave_equipo,
+    'Usuario huella': usuario.usuario_huella,
+    'Clave huella': usuario.clave_huella,
+    Correo: usuario.correo
+  }));
+
+  const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(dataParaExportar);
+  const workbook: XLSX.WorkBook = {
+    Sheets: { 'Usuarios': worksheet },
+    SheetNames: ['Usuarios']
+  };
+
+  const excelBuffer: any = XLSX.write(workbook, {
+    bookType: 'xlsx',
+    type: 'array'
+  });
+
+  const blob: Blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+  FileSaver.saveAs(blob, 'Tabla usuarios filtrado.xlsx');
+}
+
 }
