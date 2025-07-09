@@ -1,109 +1,189 @@
-<div class="container mt-5">
-    <h2 class="mb-4">Editar datos de usuario</h2>
-  <div class=" w-50 aling-left ms-rigth mx-auto shadow mt-5 mb-5">
-      <div class=" d-flex justify-content-center align-items-center h-25">
-          
-          <form [formGroup]="editarForm" (ngSubmit)="onSubmit()">
-              <div class="input-group mb-3">
-                  <label class="input-group-text mt-4" for="nombres">Nombres</label>
-                  <input class="form-control mt-4" id="nombres" type="text" formControlName="nombres" />
-              </div>
-              <div *ngIf="editarForm.get('nombres')?.touched && editarForm.get('nombres')?.invalid" class="text-danger mb-2 ms-2">
-                  El nombre es obligatorio.
-              </div>
-          
-              <div class="input-group mb-3">
-                  <label class="input-group-text mt-4" for="apellidos">Apellidos</label>
-                  <input class="form-control mt-4" id="apellidos" type="text" formControlName="apellidos" />
-              </div>
-              <div *ngIf="editarForm.get('apellidos')?.touched && editarForm.get('apellidos')?.invalid" class="text-danger mb-2 ms-2">
-                  El apellido es obligatorio.
-              </div>
-              
-              <div class="input-group mb-3">
-                  <label class="input-group-text mt-4" for="cedula ">Cedula</label>
-                  <input class="form-control mt-4" id="cedula" type="text" formControlName="cedula" />
-              </div>
-              <div *ngIf="editarForm.get('cedula')?.touched && editarForm.get('cedula')?.invalid" class="text-danger mb-2 ms-2">
-                  La cedula es obligatoria.
-              </div>
-  
-              <div class="input-group mb-3">
-                  <label class="input-group-text mt-4" for="telefono">Número de Teléfono</label>
-                  <input class="form-control mt-4" id="telefono" type="text" formControlName="telefono" />
-              </div>
-  
-              <div *ngIf="editarForm.get('telefono')?.touched && editarForm.get('telefono')?.invalid" class="text-danger mb-2 ms-2">
-                  <div *ngIf="editarForm.get('telefono')?.errors?.['required']">El número es obligatorio.</div>
-                  <div *ngIf="editarForm.get('telefono')?.errors?.['pattern']">Debe contener exactamente 10 números.</div>
-              </div>
-  
-              <div class="input-group mb-3">
-                  <label class="input-group-text mt-4" for="cartera">Cartera</label>
-                  <input class="form-control mt-4" id="cartera" type="text" formControlName="cartera" />
-              </div>
-              <div *ngIf="editarForm.get('cartera')?.touched && editarForm.get('cartera')?.invalid" class="text-danger mb-2 ms-2">
-                  La cartera a la que pertenece es obligaoria.
-              </div>
-  
-              <div class="input-group mb-3">
-                  <label class="input-group-text mt-4" for="numero_equipo ">Numero de equipo</label>
-                  <input class="form-control mt-4" id="numero_equipo " type="text" formControlName="numero_equipo" />
-              </div>
-              <div *ngIf="editarForm.get('numero_equipo')?.touched && editarForm.get('numero_equipo')?.invalid" class="text-danger mb-2 ms-2">
-                  El numero de equipo es obligatorio
-              </div>
-  
-              <div class="input-group mb-3">
-                  <label class="input-group-text mt-4" for="usuario_equipo ">Usuario del equipo</label>
-                  <input class="form-control mt-4" id="usuario_equipo" type="text" formControlName="usuario_equipo" />
-              </div>
-              <div *ngIf="editarForm.get('usuario_equipo')?.touched && editarForm.get('usuario_equipo')?.invalid" class="text-danger mb-2 ms-2">
-                  El nombre de usuario es obligatorio.
-              </div>
-  
-              <div class="input-group mb-3">
-                  <label class="input-group-text mt-4" for="clave_equipo">Contraseña del equipo</label>
-                  <input class="form-control mt-4" id="clave_equipo" type="text" formControlName="clave_equipo" />
-              </div>
-              <div *ngIf="editarForm.get('clave_equipo')?.touched && editarForm.get('clave_equipo')?.invalid" class="text-danger mb-2 ms-2">
-                  La Contraseña del equipo es obligatoria
-              </div>
-  
-              
-              <div class="input-group mb-3">
-                  <label class="input-group-text mt-4" for="usuario_huella ">Usuario huella</label>
-                  <input class="form-control mt-4" id="usuario_huella " type="text" formControlName="usuario_huella" />
-              </div>
-              <div *ngIf="editarForm.get('usuario_huella')?.touched && editarForm.get('usuario_huella')?.invalid" class="text-danger mb-2 ms-2">
-                  El usuario para ingresar a Huella es  obligatoria
-              </div>
-  
-              
-              <div class="input-group mb-3">
-                  <label class="input-group-text mt-4" for="clave_huella">Contraseña huella</label>
-                  <input class="form-control mt-4" id="clave_huella" type="text" formControlName="clave_huella" />
-              </div>
-              <div *ngIf="editarForm.get('clave_huella')?.touched && editarForm.get('clave_huella')?.invalid" class="text-danger mb-2 ms-2">
-                  La contraseña para ingresar es  obligatoria
-              </div>
-  
-              <div class="input-group mb-3">
-                  <label class="input-group-text mt-4" for="correo">Correo</label>
-                  <input class="form-control mt-4" id="correo" type="text" formControlName="correo" />
-              </div>
-              <div *ngIf="editarForm.get('correo')?.touched && editarForm.get('correo')?.invalid" class="text-danger mb-2 ms-2">
-                  El correo corporativo es obligatorio
-              </div>
-          
-  
-  
-  
-              <div class="input-group mb-3 d-flex justify-content-center align-items-center"  >
-                <button class="input-group-text mt-4 btn btn-success shadow" type="submit" [disabled]="editarForm.invalid">Guardar cambios</button>
-              </div>
-              
-            </form>
+<div class="editar-container">
+  <div class="editar-content">
+    <!-- Header -->
+    <div class="editar-header">
+      <h2><i class="fas fa-user-edit"></i> Editar Usuario</h2>
+      <p>Modifique los datos del usuario según sea necesario</p>
+    </div>
+
+    <!-- Formulario -->
+    <form [formGroup]="editarForm" (ngSubmit)="onSubmit()" class="editar-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-user"></i> Nombres
+          </label>
+          <input 
+            type="text" 
+            class="form-input" 
+            formControlName="nombres"
+            placeholder="Ingrese los nombres">
+          <span class="error-message" *ngIf="editarForm.get('nombres')?.touched && editarForm.get('nombres')?.invalid">
+            Los nombres son requeridos
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-user"></i> Apellidos
+          </label>
+          <input 
+            type="text" 
+            class="form-input" 
+            formControlName="apellidos"
+            placeholder="Ingrese los apellidos">
+          <span class="error-message" *ngIf="editarForm.get('apellidos')?.touched && editarForm.get('apellidos')?.invalid">
+            Los apellidos son requeridos
+          </span>
+        </div>
       </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-id-card"></i> Cédula
+          </label>
+          <input 
+            type="text" 
+            class="form-input" 
+            formControlName="cedula"
+            placeholder="Ingrese el número de cédula">
+          <span class="error-message" *ngIf="editarForm.get('cedula')?.touched && editarForm.get('cedula')?.invalid">
+            La cédula es requerida
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-phone"></i> Teléfono
+          </label>
+          <input 
+            type="text" 
+            class="form-input" 
+            formControlName="telefono"
+            placeholder="Ingrese el número de teléfono">
+          <span class="error-message" *ngIf="editarForm.get('telefono')?.touched && editarForm.get('telefono')?.invalid">
+            El teléfono es requerido
+          </span>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-briefcase"></i> Cartera
+          </label>
+          <input 
+            type="text" 
+            class="form-input" 
+            formControlName="cartera"
+            placeholder="Ingrese la cartera">
+          <span class="error-message" *ngIf="editarForm.get('cartera')?.touched && editarForm.get('cartera')?.invalid">
+            La cartera es requerida
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-desktop"></i> Número de Equipo
+          </label>
+          <input 
+            type="text" 
+            class="form-input" 
+            formControlName="numero_equipo"
+            placeholder="Ingrese el número de equipo">
+          <span class="error-message" *ngIf="editarForm.get('numero_equipo')?.touched && editarForm.get('numero_equipo')?.invalid">
+            El número de equipo es requerido
+          </span>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-user-circle"></i> Usuario de Equipo
+          </label>
+          <input 
+            type="text" 
+            class="form-input" 
+            formControlName="usuario_equipo"
+            placeholder="Ingrese el usuario del equipo">
+          <span class="error-message" *ngIf="editarForm.get('usuario_equipo')?.touched && editarForm.get('usuario_equipo')?.invalid">
+            El usuario de equipo es requerido
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-lock"></i> Contraseña de Equipo
+          </label>
+          <input 
+            type="text" 
+            class="form-input" 
+            formControlName="clave_equipo"
+            placeholder="Ingrese la contraseña del equipo">
+          <span class="error-message" *ngIf="editarForm.get('clave_equipo')?.touched && editarForm.get('clave_equipo')?.invalid">
+            La contraseña de equipo es requerida
+          </span>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-fingerprint"></i> Usuario Huella
+          </label>
+          <input 
+            type="text" 
+            class="form-input" 
+            formControlName="usuario_huella"
+            placeholder="Ingrese el usuario de huella">
+          <span class="error-message" *ngIf="editarForm.get('usuario_huella')?.touched && editarForm.get('usuario_huella')?.invalid">
+            El usuario de huella es requerido
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-key"></i> Contraseña Huella
+          </label>
+          <input 
+            type="text" 
+            class="form-input" 
+            formControlName="clave_huella"
+            placeholder="Ingrese la contraseña de huella">
+          <span class="error-message" *ngIf="editarForm.get('clave_huella')?.touched && editarForm.get('clave_huella')?.invalid">
+            La contraseña de huella es requerida
+          </span>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-envelope"></i> Correo Electrónico
+          </label>
+          <input 
+            type="email" 
+            class="form-input" 
+            formControlName="correo"
+            placeholder="Ingrese el correo electrónico">
+          <span class="error-message" *ngIf="editarForm.get('correo')?.touched && editarForm.get('correo')?.invalid">
+            Ingrese un correo electrónico válido
+          </span>
+        </div>
+      </div>
+
+      <!-- Botones -->
+      <div class="button-container">
+        <button type="submit" class="btn-guardar" [disabled]="editarForm.invalid">
+          <i class="fas fa-save"></i> Guardar Cambios
+        </button>
+        <button type="button" class="btn-cancelar" (click)="cancelarEdicion()">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+      </div>
+    </form>
   </div>
+</div>
   

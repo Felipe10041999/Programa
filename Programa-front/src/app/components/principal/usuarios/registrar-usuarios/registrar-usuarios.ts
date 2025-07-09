@@ -108,4 +108,8 @@ export class RegistrarUsuarios implements OnInit {
     }
     return '';
   }
+
+  cancelarRegistro() {
+    this.router.navigate(['/usuarios']);
+  }
 }

@@ -70,4 +70,8 @@ export class EditarUsuarios implements OnInit {
       });
     }
   }
+
+  cancelarEdicion() {
+    this.router.navigate(['/usuarios']);
+  }
 }
