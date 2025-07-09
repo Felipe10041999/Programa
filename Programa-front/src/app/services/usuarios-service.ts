@@ -31,9 +31,6 @@ export class UsuariosService {
   return this.http.get<{ usuario: Usuariosmodel }>(`${this.apiUrl}/${id}`)
     .pipe(map(res => res.usuario));
   }
-  obtenerRoles(): Observable<any[]> {
-  return this.http.get<any[]>('http://localhost:8000/api/roles');
-  }
   obtenerUsuarioActual() {
   const userJson = localStorage.getItem('usuario');
   return userJson ? JSON.parse(userJson) : null;
