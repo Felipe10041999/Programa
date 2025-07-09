@@ -30,7 +30,7 @@ class UsuarioController extends Controller
         $validated = $request->validate([
             'nombres' => 'required',
             'apellidos' => 'required',
-            'cedula' => 'required',
+            'cedula' => 'required'| unique,
             'telefono' => 'required',
             'cartera' => 'required',
             'numero_equipo' => 'required',

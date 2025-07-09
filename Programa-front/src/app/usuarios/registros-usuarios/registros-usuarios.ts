@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { FormsModule, FormBuilder,FormGroup, ReactiveFormsModule,Validators  } from '@angular/forms'; 
+import { Component, OnInit } from '@angular/core';
+import { FormsModule, FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms'; 
 import { Router } from '@angular/router';
 import { UsuariosService } from '../../services/usuarios-service';
 import { CommonModule } from '@angular/common';
@@ -7,13 +7,14 @@ import { Usuariosmodel } from '../../modelos/usuariosmodel';
 
 @Component({
   selector: 'app-registros-usuarios',
-  standalone:true,
-  imports: [FormsModule,ReactiveFormsModule,CommonModule],
+  standalone: true,
+  imports: [FormsModule, ReactiveFormsModule, CommonModule],
   templateUrl: './registros-usuarios.html',
   styleUrl: './registros-usuarios.css'
 })
-export class RegistrosUsuarios {
+export class RegistrosUsuarios implements OnInit {
   registroForm: FormGroup;
+  usuariosExistentes: Usuariosmodel[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -35,6 +36,42 @@ export class RegistrosUsuarios {
     });
   }
 
+  ngOnInit(): void {
+    // Cargar usuarios existentes para validación
+    this.cargarUsuariosExistentes();
+    
+    // Agregar validador personalizado para cédula
+    this.registroForm.get('cedula')?.setValidators([
+      Validators.required, 
+      Validators.pattern(/^\d+$/),
+      this.validarCedulaDuplicada.bind(this)
+    ]);
+  }
+
+  cargarUsuariosExistentes(): void {
+    this.usuariosService.getUsuarios().subscribe({
+      next: (data) => {
+        this.usuariosExistentes = data;
+      },
+      error: (error) => {
+        console.error('Error al cargar usuarios existentes:', error);
+      }
+    });
+  }
+
+  validarCedulaDuplicada(control: AbstractControl): ValidationErrors | null {
+    if (!control.value) {
+      return null;
+    }
+
+    const cedulaIngresada = control.value.toString();
+    const cedulaExiste = this.usuariosExistentes.some(
+      usuario => usuario.cedula.toString() === cedulaIngresada
+    );
+
+    return cedulaExiste ? { cedulaDuplicada: true } : null;
+  }
+
   onSubmit() {
     if (this.registroForm.invalid) {
       this.registroForm.markAllAsTouched();
@@ -54,5 +91,21 @@ export class RegistrosUsuarios {
         alert('Error en el registro');
       }
     });
+  }
+
+  getCedulaError(): string {
+    const cedulaControl = this.registroForm.get('cedula');
+    if (cedulaControl?.errors) {
+      if (cedulaControl.errors['required']) {
+        return 'La cédula es requerida';
+      }
+      if (cedulaControl.errors['pattern']) {
+        return 'La cédula debe contener solo números';
+      }
+      if (cedulaControl.errors['cedulaDuplicada']) {
+        return 'Esta cédula ya está registrada';
+      }
+    }
+    return '';
   }
 }

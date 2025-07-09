@@ -15,7 +15,15 @@
 
       <div class="col-md-6 mb-3">
         <label>Cédula</label>
-        <input type="number" class="form-control" formControlName="cedula">
+        <input 
+          type="number" 
+          class="form-control" 
+          formControlName="cedula"
+          [class.is-invalid]="registroForm.get('cedula')?.invalid && registroForm.get('cedula')?.touched"
+        >
+        <div class="invalid-feedback" *ngIf="registroForm.get('cedula')?.invalid && registroForm.get('cedula')?.touched">
+          {{ getCedulaError() }}
+        </div>
       </div>
 
       <div class="col-md-6 mb-3">

@@ -1,39 +1,66 @@
 
 .page-link{
-    background-color: rgb(60, 114, 114);
+    background-color: rgb(74, 90, 103);
     color:white;
     transition: all 0.35 ease;
     
 }
-.page-link:hover{
-    background-color:rgb(93, 151, 151) ;
-    color: white;
-    box-shadow:none
-}
-.page-link:focus{
-    background-color: rgb(47, 71, 71);
-    box-shadow:none;
-    outline: none;
-}
+    .page-link:hover{
+        background-color:rgb(93, 151, 151) ;
+        color: white;
+        box-shadow:10px 7px 5px rgb(74, 90, 103);
+    }
+    .page-link:focus{
+        background-color: rgb(93, 151, 151) ;
+        box-shadow: none;
+        outline: none;
+    }
 .registro{
-    background-color: rgb(60, 114, 114);
-}
-.registro:hover{
-    background-color:rgb(93, 151, 151) ;
-    color: white;
-    box-shadow:none
-}
+    background-color: rgb(74, 90, 103);
+    color:white;
+    transition: all 0.35 ease;
+    }
+    .registro:hover{
+        background-color:rgb(93, 151, 151) ;
+        color: white;
+        box-shadow:10px 7px 5px rgb(74, 90, 103);
+    }
 .busqueda:focus{
-    box-shadow: 10px 7px 5px rgb(47, 71, 71);
+    box-shadow: 10px 7px 5px rgb(74, 90, 103);
     outline: none;
 }
-.exel{
-    background-color: rgb(109, 86, 24);
+.excel{
+    background-color: rgb(209, 168, 78);
     color:white;
     transition: all 0.35 ease;
 }
-.exel :hover{
-    background-color:rgb(97, 85, 18) ;
+    .excel:hover{
+        background-color:rgb(151, 133, 31) ;
     color: white;
-    box-shadow:none
+    box-shadow:10px 7px 5px rgb(74, 90, 103)
+    }
+    .excel:focus{
+    background-color: rgb(97, 85, 18) ;
+    box-shadow: 10px 7px 5px rgb(129, 114, 28);
+    outline: none;
 }
+.editar:hover{
+    background-color:rgb(93, 151, 151) ;
+    color: white;
+    box-shadow:10px 7px 5px rgb(74, 90, 103);
+}
+    .editar:focus{
+        background-color: rgb(6, 83, 29) ;
+        box-shadow: none;
+        outline: none;
+    }
+.eliminar:hover{
+    background-color:rgb(145, 42, 42) ;
+    color: white;
+    box-shadow:10px 7px 5px rgb(74, 90, 103);
+}
+    .eliminar:focus{
+        background-color: rgb(145, 42, 42) ;
+        box-shadow: none;
+        outline: none;
+        }

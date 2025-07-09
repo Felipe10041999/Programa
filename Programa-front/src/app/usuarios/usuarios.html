@@ -3,7 +3,7 @@
   <img class="m-4" src="../../assets/imagenes/crear_usuario.png" 
     alt="image" height="100px">
     
-  <button (click)="IRRegistro()" class="btn btn-success shadow registro">Nuevo usuario</button>
+  <button (click)="IRRegistro()" class="btn  registro">Nuevo usuario</button>
     
 </div>
 
@@ -49,11 +49,11 @@
           <td>{{ usuario.correo }}</td>
       
           <td>
-            <button (click)="editarUsuario(usuario.id)" class="btn btn-success btn-sm">Editar</button>
+            <button (click)="editarUsuario(usuario.id)" class="btn btn-success btn-sm editar">Editar</button>
           </td>
         
           <td>
-            <button (click)="eliminarUsuario(usuario.id)" class="btn btn-danger btn-sm">Eliminar</button>
+            <button (click)="eliminarUsuario(usuario.id)" class="btn btn-danger btn-sm eliminar">Eliminar</button>
           </td>
         </tr>
       </tbody>
@@ -70,7 +70,7 @@
       *ngFor="let page of [].constructor(totalPaginas); let i = index"
       [class.active]="paginaActual === i + 1"
     >
-      <button class="page-link" (click)="cambiarPagina(i + 1)">{{ i + 1 }}</button>
+      <button class=" btn btn-success page-link" (click)="cambiarPagina(i + 1)">{{ i + 1 }}</button>
     </li>
 
     <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
@@ -78,6 +78,6 @@
     </li>
   </ul>
 </nav>
-<button class="btn btn-primary mb-3 exel" (click)="exportarAExcel()">Exportar a Excel</button>
+<button class="btn  mb-3 excel" (click)="exportarAExcel()">Exportar a Excel</button>
 
 </div>
