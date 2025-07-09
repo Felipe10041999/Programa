@@ -1,0 +1,107 @@
+<div class="usuarios-container">
+  <div class="usuarios-content">
+    <!-- Header con logos -->
+    <div class="header-section">
+      <div class="logos-container">
+        <img src="../../assets/imagenes/NGSO.png" alt="logo">
+      </div>
+      
+      <button (click)="IRRegistro()" class="nuevo-usuario-btn">
+        <i class="fas fa-plus"></i> Nuevo usuario
+      </button>
+    </div>
+    
+    <!-- Barra de búsqueda -->
+    <div class="search-container">
+      <input 
+        type="text" 
+        [(ngModel)]="terminoBusqueda" 
+        (input)="filtrarUsuarios()"
+        placeholder="Buscar por nombre, apellido o cartera..." 
+        class="search-input">
+    </div>
+    
+    <!-- Tabla de usuarios -->
+    <div class="table-container">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombres</th> 
+              <th>Apellidos</th>
+              <th>Cédula</th>
+              <th>Teléfono</th>
+              <th>Cartera</th>
+              <th>Número de equipo</th>
+              <th>Usuario equipo</th>
+              <th>Clave equipo</th>
+              <th>Usuario huella</th>
+              <th>Clave huella</th>
+              <th>Correo</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let usuario of usuariosPaginados">
+              <td>{{ usuario.id }}</td>
+              <td>{{ usuario.nombres }}</td>
+              <td>{{ usuario.apellidos }}</td>
+              <td>{{ usuario.cedula }}</td>
+              <td>{{ usuario.telefono }}</td>
+              <td>{{ usuario.cartera }}</td>
+              <td>{{ usuario.numero_equipo }}</td>
+              <td>{{ usuario.usuario_equipo }}</td>
+              <td>{{ usuario.clave_equipo }}</td>
+              <td>{{ usuario.usuario_huella }}</td>
+              <td>{{ usuario.clave_huella }}</td>
+              <td>{{ usuario.correo }}</td>
+              <td>
+                <button (click)="editarUsuario(usuario.id)" class="action-btn btn-editar">
+                  <i class="fas fa-edit"></i> Editar
+                </button>
+                <button (click)="eliminarUsuario(usuario.id)" class="action-btn btn-eliminar">
+                  <i class="fas fa-trash"></i> Eliminar
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <!-- Paginación -->
+    <div class="pagination-container">
+      <nav>
+        <ul class="pagination">
+          <li class="page-item" [class.disabled]="paginaActual === 1">
+            <button class="page-link" (click)="cambiarPagina(paginaActual - 1)">
+              <i class="fas fa-chevron-left"></i> Anterior
+            </button>
+          </li>
+          
+          <li 
+            class="page-item"
+            *ngFor="let page of [].constructor(totalPaginas); let i = index"
+            [class.active]="paginaActual === i + 1"
+          >
+            <button class="page-link" (click)="cambiarPagina(i + 1)">{{ i + 1 }}</button>
+          </li>
+          
+          <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
+            <button class="page-link" (click)="cambiarPagina(paginaActual + 1)">
+              Siguiente <i class="fas fa-chevron-right"></i>
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+    
+    <!-- Botón de exportar -->
+    <div class="text-center">
+      <button class="export-btn" (click)="exportarAExcel()">
+        <i class="fas fa-file-excel"></i> Exportar a Excel
+      </button>
+    </div>
+  </div>
+</div>

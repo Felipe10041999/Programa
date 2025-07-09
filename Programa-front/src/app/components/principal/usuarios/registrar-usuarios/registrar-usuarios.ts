@@ -1,18 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule, FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms'; 
 import { Router } from '@angular/router';
-import { UsuariosService } from '../../services/usuarios-service';
+import { UsuariosService } from '../../../../services/usuarios-service';
 import { CommonModule } from '@angular/common';
-import { Usuariosmodel } from '../../modelos/usuariosmodel';
+import { Usuariosmodel } from '../../../../modelos/usuariosmodel';
 
 @Component({
-  selector: 'app-registros-usuarios',
+  selector: 'app-registrar-usuarios',
   standalone: true,
   imports: [FormsModule, ReactiveFormsModule, CommonModule],
-  templateUrl: './registros-usuarios.html',
-  styleUrl: './registros-usuarios.css'
+  templateUrl: './registrar-usuarios.html',
+  styleUrl: './registrar-usuarios.css'
 })
-export class RegistrosUsuarios implements OnInit {
+export class RegistrarUsuarios implements OnInit {
   registroForm: FormGroup;
   usuariosExistentes: Usuariosmodel[] = [];
 
@@ -84,7 +84,7 @@ export class RegistrosUsuarios implements OnInit {
       next: (res) => {
         console.log('Usuario registrado con éxito:', res);
         alert('Registro exitoso');
-        this.router.navigate(['']);
+        this.router.navigate(['/usuarios']);
       },
       error: (err) => {
         console.error('Error al registrar usuario:', err);

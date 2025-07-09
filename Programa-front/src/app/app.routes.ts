@@ -1,14 +1,16 @@
 import { Routes } from '@angular/router';
-import { Usuarios } from './usuarios/usuarios';
-import { RegistrosUsuarios } from './usuarios/registros-usuarios/registros-usuarios';
+import { Principal } from './components/principal/principal';
 
 export const routes: Routes = [
-  { path: '', component: Usuarios },
+  { path: '', component: Principal },
+  { path: 'usuarios',
+    loadComponent:() => import('./components/principal/usuarios/usuarios')
+    .then(m=> m.Usuarios)
+  },
   { path: 'registro',
-    loadComponent:() => import('./usuarios/registros-usuarios/registros-usuarios')
-    .then(m=> m.RegistrosUsuarios)},
-    { path: 'editar/:id',
-    loadComponent:() => import('./usuarios/editar-usuario/editar-usuario')
-    .then(m=> m.EditarComponent)},
-   
+    loadComponent:() => import('./components/principal/usuarios/registrar-usuarios/registrar-usuarios')
+    .then(m=> m.RegistrarUsuarios)},
+  { path: 'editar/:id',
+    loadComponent:() => import('./components/principal/usuarios/editar-usuarios/editar-usuarios')
+    .then(m=> m.EditarUsuarios)},
 ];

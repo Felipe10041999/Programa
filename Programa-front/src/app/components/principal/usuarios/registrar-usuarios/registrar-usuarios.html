@@ -1,0 +1,76 @@
+<div class="container mt-5">
+    <h2 class="mb-4">Registrar nuevo usuario</h2>
+  
+    <form [formGroup]="registroForm" (ngSubmit)="onSubmit()">
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label>Nombres</label>
+          <input type="text" class="form-control" formControlName="nombres">
+        </div>
+  
+        <div class="col-md-6 mb-3">
+          <label>Apellidos</label>
+          <input type="text" class="form-control" formControlName="apellidos">
+        </div>
+  
+        <div class="col-md-6 mb-3">
+          <label>Cédula</label>
+          <input 
+            type="number" 
+            class="form-control" 
+            formControlName="cedula"
+            [class.is-invalid]="registroForm.get('cedula')?.invalid && registroForm.get('cedula')?.touched"
+          >
+          <div class="invalid-feedback" *ngIf="registroForm.get('cedula')?.invalid && registroForm.get('cedula')?.touched">
+            {{ getCedulaError() }}
+          </div>
+        </div>
+  
+        <div class="col-md-6 mb-3">
+          <label>Teléfono</label>
+          <input type="number" class="form-control" formControlName="telefono">
+        </div>
+  
+        <div class="col-md-6 mb-3">
+          <label>Cartera</label>
+          <input type="text" class="form-control" formControlName="cartera">
+        </div>
+  
+        <div class="col-md-6 mb-3">
+          <label>Número de equipo</label>
+          <input type="text" class="form-control" formControlName="numero_equipo">
+        </div>
+  
+        <div class="col-md-6 mb-3">
+          <label>Usuario de equipo</label>
+          <input type="text" class="form-control" formControlName="usuario_equipo">
+        </div>
+  
+        <div class="col-md-6 mb-3">
+          <label>Contraseña de equipo</label>
+          <input type="text" class="form-control" formControlName="clave_equipo">
+        </div>
+  
+        <div class="col-md-6 mb-3">
+          <label>Usuario Huella</label>
+          <input type="text" class="form-control" formControlName="usuario_huella">
+        </div>
+  
+        <div class="col-md-6 mb-3">
+          <label>Contraseña Huella</label>
+          <input type="text" class="form-control" formControlName="clave_huella">
+        </div>
+  
+        <div class="col-md-12 mb-3">
+          <label>Correo</label>
+          <input type="email" class="form-control" formControlName="correo">
+        </div>
+      </div>
+  
+      <button type="submit" class="btn btn-primary" [disabled]="registroForm.invalid">
+        Registrar
+      </button>
+    </form>
+  </div>
+  
+  

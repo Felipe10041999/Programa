@@ -1,21 +1,21 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { UsuariosService } from '../../services/usuarios-service';
+import { UsuariosService } from '../../../../services/usuarios-service';
 import { CommonModule } from '@angular/common';
-import { Usuariosmodel } from '../../modelos/usuariosmodel';
-import { error } from 'node:console';
+import { Usuariosmodel } from '../../../../modelos/usuariosmodel';
 
 @Component({
-  selector: 'app-editar-usuario',
+  selector: 'app-editar-usuarios',
   standalone: true,
   imports: [ReactiveFormsModule, CommonModule],
-  templateUrl: './editar-usuario.html',
-  styleUrls: ['./editar-usuario.css']
+  templateUrl: './editar-usuarios.html',
+  styleUrls: ['./editar-usuarios.css']
 })
-export class EditarComponent implements OnInit {
+export class EditarUsuarios implements OnInit {
   editarForm: FormGroup;
   userId: number = 0;
+  
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
@@ -40,10 +40,10 @@ export class EditarComponent implements OnInit {
   ngOnInit() {
     this.userId = Number(this.route.snapshot.paramMap.get('id'));
     console.log('User ID recibido:', this.userId);
-     this.cargarUsuario() 
-    }
+    this.cargarUsuario();
+  }
 
-    cargarUsuario(){
+  cargarUsuario(){
     this.usuariosService.obtenerUsuarioPorId(this.userId).subscribe({
       next: usuario => {
         console.log('Usuario recibido:', usuario);
@@ -57,17 +57,17 @@ export class EditarComponent implements OnInit {
     if (this.editarForm.valid) {
       console.log('Datos enviados:', this.editarForm.value);
       this.usuariosService.actualizarUsuario(this.userId, this.editarForm.value).subscribe({
-  next: res => {
-    alert('Usuario actualizado con éxito');
-    this.router.navigate([''], { replaceUrl: true });
-  },
-  error: err => {
-    console.error('Error completo:', err);
-    const backendError = err.error?.error || err.error?.mensaje;
-    console.error('→ Mensaje desde backend:', backendError);
-    alert('Error al actualizar: ' + (backendError || err.message));
-  }
-});
+        next: res => {
+          alert('Usuario actualizado con éxito');
+          this.router.navigate(['/usuarios'], { replaceUrl: true });
+        },
+        error: err => {
+          console.error('Error completo:', err);
+          const backendError = err.error?.error || err.error?.mensaje;
+          console.error('→ Mensaje desde backend:', backendError);
+          alert('Error al actualizar: ' + (backendError || err.message));
+        }
+      });
     }
   }
 }
