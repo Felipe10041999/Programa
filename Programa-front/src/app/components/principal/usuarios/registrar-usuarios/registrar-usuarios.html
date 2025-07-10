@@ -143,20 +143,39 @@
           </span>
         </div>
 
-        <div class="form-group">
-          <label class="form-label">
-            <i class="fas fa-key"></i> Contraseña Huella
-          </label>
-          <input 
-            type="text" 
-            class="form-input" 
-            formControlName="clave_huella"
-            placeholder="Ingrese la contraseña de huella">
-          <span class="error-message" *ngIf="registroForm.get('clave_huella')?.invalid && registroForm.get('clave_huella')?.touched">
-            La contraseña de huella es requerida
-          </span>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fas fa-key"></i> Contraseña Huella
+            </label>
+            <input 
+              type="text" 
+              class="form-input" 
+              formControlName="clave_huella"
+              placeholder="Ingrese la contraseña de huella">
+            <span class="error-message" *ngIf="registroForm.get('clave_huella')?.invalid && registroForm.get('clave_huella')?.touched">
+              La contraseña de huella es requerida
+            </span>
+          </div>
         </div>
-      </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fas fa-fingerprint"></i> Nombre usuario huella
+            </label>
+            <input 
+              type="text" 
+              class="form-input" 
+              formControlName="nombre_usuario_huella"
+              placeholder="Ingrese el nombre de usuario huella">
+            <span class="error-message" *ngIf="registroForm.get('nombre_usuario_huella')?.invalid && registroForm.get('nombre_usuario_huella')?.touched">
+              El nombre de usuario huella es requerido
+            </span>
+          
+        
+
+
 
       <div class="form-row">
         <div class="form-group">
@@ -173,6 +192,8 @@
           </span>
         </div>
       </div>
+    </div>
+  </div>
 
       <!-- Botones -->
       <div class="button-container">

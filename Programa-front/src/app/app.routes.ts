@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
-import { Principal } from './components/principal/principal';
+import { Principal } from './components/principal/principal'
+import { Informes } from './components/principal/informes/informes';
 
 export const routes: Routes = [
   { path: '', component: Principal },
@@ -13,4 +14,7 @@ export const routes: Routes = [
   { path: 'editar/:id',
     loadComponent:() => import('./components/principal/usuarios/editar-usuarios/editar-usuarios')
     .then(m=> m.EditarUsuarios)},
+  { path: 'informes',
+    loadComponent:() => import('./components/principal/informes/informes')
+    .then(m=> m.Informes)},
 ];

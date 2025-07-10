@@ -18,5 +18,6 @@ class Usuario extends Model
         'usuario_huella',
         'clave_huella',
         'correo',
+        'nombre_usuario_huella',
     ];
 }

@@ -1,0 +1,75 @@
+<div class="informes-container">
+    <div class="informes-content">
+      <!-- Header -->
+      <div class="informes-header">
+        <h2><i class="fas fa-chart-bar"></i> Generación de Informes</h2>
+        <p>Seleccione el archivo Excel y genere el informe de productividad</p>
+      </div>
+  
+      <!-- Carga de archivo Excel -->
+      <div class="file-upload-section">
+        <div class="file-upload-card">
+          <div class="file-upload-icon">
+            <i class="fas fa-file-excel"></i>
+          </div>
+          <h3>Cargar Archivo Excel</h3>
+          <p>Seleccione el archivo Excel con los datos de productividad</p>
+          
+          <div class="file-input-container">
+            <input 
+              type="file" 
+              #fileInput
+              (change)="onFileSelected($event)"
+              accept=".xlsx,.xls"
+              class="file-input"
+              [disabled]="generandoInforme">
+            <label for="fileInput" class="file-label">
+              <i class="fas fa-upload"></i> Seleccionar Archivo
+            </label>
+          </div>
+          
+          <div *ngIf="archivoSeleccionado" class="file-info">
+            <i class="fas fa-check-circle"></i>
+            <span>{{ archivoSeleccionado.name }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label for="horaLimite" class="form-label">
+          <i class="fas fa-clock"></i> Mostrar gestiones hasta la hora:
+        </label>
+        <select id="horaLimite" class="form-input" [(ngModel)]="horaLimite" name="horaLimite">
+          <option *ngFor="let h of horasDisponibles" [value]="h">{{ h }}:00</option>
+        </select>
+      </div>
+  
+      <!-- Opciones de informes -->
+      <div class="informes-options">
+        <div class="informe-card">
+          <div class="informe-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+
+          
+          <h3>Informe de Productividad</h3>
+          <p>Genera un informe de productividad basado en los datos del archivo cargado</p>
+          <button 
+            class="btn-generar" 
+            (click)="generarInformeProductividad()"
+            [disabled]="generandoInforme || !archivoSeleccionado">
+            <i class="fas fa-download" *ngIf="!generandoInforme"></i>
+            <i class="fas fa-spinner fa-spin" *ngIf="generandoInforme"></i>
+            {{ generandoInforme ? 'Generando...' : 'Generar Informe' }}
+          </button>
+        </div>
+      </div>
+  
+      <!-- Botón para volver -->
+      <div class="button-container">
+        <button class="btn-volver" (click)="volverAPrincipal()">
+          <i class="fas fa-arrow-left"></i> Volver al Principal
+        </button>
+      </div>
+    </div>
+  </div>

@@ -1,0 +1,134 @@
+.informes-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, rgb(74, 90, 103) 0%, rgb(209, 168, 78) 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  .informes-content {
+    max-width: 800px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 2rem;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+  
+  .informes-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  
+  .informes-header h2 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 300;
+  }
+  
+  .informes-header p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+  }
+  
+  .informes-options {
+    display: grid;
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .informe-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 1.5rem;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+  }
+  
+  .informe-card:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+  }
+  
+  .informe-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.9;
+  }
+  
+  .informe-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+  
+  .informe-card p {
+    opacity: 0.8;
+    margin-bottom: 1.5rem;
+  }
+  
+  .btn-generar {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+  }
+  
+  .btn-generar:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+  }
+  
+  .btn-generar:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .btn-generar:disabled:hover {
+    transform: none;
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  .button-container {
+    text-align: center;
+  }
+  
+  .btn-volver {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+  }
+  
+  .btn-volver:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  /* Responsive design */
+  @media (max-width: 768px) {
+    .informes-container {
+      padding: 1rem;
+    }
+    
+    .informes-header h2 {
+      font-size: 2rem;
+    }
+    
+    .informe-card {
+      padding: 1rem;
+    }
+  }

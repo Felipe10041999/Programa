@@ -100,7 +100,9 @@ export class Usuarios implements OnInit {
     'Usuario equipo': usuario.usuario_equipo,
     'Clave equipo': usuario.clave_equipo,
     'Usuario huella': usuario.usuario_huella,
+    'Nombre usuario huella': usuario.nombre_usuario_huella,
     'Clave huella': usuario.clave_huella,
+    
     Correo: usuario.correo
   }));
 

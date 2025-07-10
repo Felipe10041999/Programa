@@ -10,6 +10,7 @@ export interface Usuariosmodel {
     usuario_equipo: string;
     clave_equipo: string;
     usuario_huella: string;
+    nombre_usuario_huella: string;
     clave_huella: string;
     correo: string;
 }

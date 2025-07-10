@@ -16,4 +16,7 @@ export class Principal {
   navegarAUsuarios() {
     this.router.navigate(['/usuarios']);
   }
+  navegarAInformes() {
+    this.router.navigate(['/informes']);
+  }
 }

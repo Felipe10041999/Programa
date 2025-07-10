@@ -38,7 +38,8 @@ class UsuarioController extends Controller
             'clave_equipo' => 'required|min:6',
             'usuario_huella' => 'required',
             'clave_huella' => 'required',
-            'correo' => 'required|email'
+            'correo' => 'required|email',
+            'nombre_usuario_huella' => 'required',
         ]);
         
         
@@ -86,7 +87,8 @@ class UsuarioController extends Controller
             'clave_equipo' => 'required|min:6',
             'usuario_huella' => 'required',
             'clave_huella' => 'required',
-            'correo' => 'required|email'
+            'correo' => 'required|email',
+            'nombre_usuario_huella' => 'required',
         ]);
 
         $usuario->update($validated);

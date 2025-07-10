@@ -31,6 +31,7 @@ export class RegistrarUsuarios implements OnInit {
       usuario_equipo: ['', Validators.required],
       clave_equipo: ['', Validators.required],
       usuario_huella: ['', Validators.required],
+      nombre_usuario_huella: ['', Validators.required],
       clave_huella: ['', Validators.required],
       correo: ['', [Validators.required, Validators.email]],
     });
