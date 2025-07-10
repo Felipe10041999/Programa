@@ -37,8 +37,8 @@
   }
   
   .informes-options {
-    display: grid;
-    gap: 2rem;
+    display: flex;
+    justify-content: center;
     margin-bottom: 2rem;
   }
   
@@ -118,6 +118,45 @@
     background: rgba(255, 255, 255, 0.2);
   }
   
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+  
+  .form-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 1rem;
+  }
+  
+  .form-input:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  .form-input option {
+    background: #333;
+    color: white;
+  }
+  
   /* Responsive design */
   @media (max-width: 768px) {
     .informes-container {
@@ -126,6 +165,10 @@
     
     .informes-header h2 {
       font-size: 2rem;
+    }
+    
+    .form-row {
+      grid-template-columns: 1fr;
     }
     
     .informe-card {

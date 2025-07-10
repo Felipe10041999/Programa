@@ -36,12 +36,26 @@
       </div>
 
       <div class="form-row">
-        <label for="horaLimite" class="form-label">
-          <i class="fas fa-clock"></i> Mostrar gestiones hasta la hora:
-        </label>
-        <select id="horaLimite" class="form-input" [(ngModel)]="horaLimite" name="horaLimite">
-          <option *ngFor="let h of horasDisponibles" [value]="h">{{ h }}:00</option>
-        </select>
+        <div class="form-group">
+          <label for="horaLimite" class="form-label">
+            <i class="fas fa-clock"></i> Mostrar gestiones hasta la hora:
+          </label>
+          <select id="horaLimite" class="form-input" [(ngModel)]="horaLimite" name="horaLimite">
+            <option *ngFor="let h of horasDisponibles" [value]="h">{{ h }}:00</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="cartera" class="form-label">
+            <i class="fas fa-building"></i> Filtrar por cartera:
+          </label>
+          <select id="cartera" class="form-input" [(ngModel)]="carteraSeleccionada" name="cartera">
+            <option value="">Todas las carteras</option>
+            <option value="Castigo">Castigo</option>
+            <option value="Desistidos">Desistidos</option>
+            <option value="Desocupados">Desocupados</option>
+          </select>
+        </div>
       </div>
   
       <!-- Opciones de informes -->
@@ -50,10 +64,9 @@
           <div class="informe-icon">
             <i class="fas fa-chart-line"></i>
           </div>
-
           
-          <h3>Informe de Productividad</h3>
-          <p>Genera un informe de productividad basado en los datos del archivo cargado</p>
+          <h3>Informe por Horas</h3>
+          <p>Genera un informe de productividad por horas basado en los datos del archivo cargado</p>
           <button 
             class="btn-generar" 
             (click)="generarInformeProductividad()"

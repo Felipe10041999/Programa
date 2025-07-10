@@ -16,6 +16,7 @@ export class Informes implements OnInit {
   archivoSeleccionado: File | null = null;
   horaLimite: number = 18; // Valor por defecto
   horasDisponibles: number[] = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
+  carteraSeleccionada: string = ''; // Valor por defecto (todas las carteras)
 
   constructor(
     private router: Router,
@@ -53,6 +54,9 @@ export class Informes implements OnInit {
     const formData = new FormData();
     formData.append('file', this.archivoSeleccionado);
     formData.append('hora_limite', this.horaLimite.toString());
+    if (this.carteraSeleccionada) {
+      formData.append('cartera', this.carteraSeleccionada);
+    }
     
     this.informesService.generarInformeProductividad(formData).subscribe({
       next: (blob) => {
@@ -72,6 +76,8 @@ export class Informes implements OnInit {
     });
   }
 
+
+
   descargarArchivo(archivo: any) {
     // Lógica para descargar el archivo si es necesario
     const link = document.createElement('a');
@@ -81,6 +87,6 @@ export class Informes implements OnInit {
   }
 
   volverAPrincipal() {
-    this.router.navigate(['/principal']);
+    this.router.navigate(['']);
   }
 }

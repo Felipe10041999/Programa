@@ -33,9 +33,11 @@
            $highestRow = $sheet->getHighestRow();
            $highestColumn = $sheet->getHighestColumn();
            // Asume que los datos empiezan en la fila 2 (después de los encabezados)
-           // Y que las horas están en las columnas B a L (ajusta si tu rango cambia)
+           // Para informe por horas: A=Nombre Excel, B=Nombre BD, C=Cartera, D+=Horas, última=Total
+           // Para informe por cartera: A=Cartera, B=Total Personas, C=Total Gestiones, D=Promedio
+           // Las horas están en las columnas D en adelante (solo para informe por horas)
            // La última columna es el total, así que no la coloreamos
-           $startCol = 'B'; // Columna 2 (8:00 am)
+           $startCol = 'D'; // Columna 4 (primera columna de horas o datos numéricos)
            $endCol = chr(ord($highestColumn) - 1); // Penúltima columna (antes del total)
            for ($row = 2; $row <= $highestRow; $row++) {
                for ($col = $startCol; $col <= $endCol; $col++) {
