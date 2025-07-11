@@ -13,9 +13,9 @@ export class UsuariosService {
   private apiUrl = 'http://localhost:8000/api/usuario';
   constructor(private http: HttpClient) { }
   getUsuarios(): Observable<Usuariosmodel[]> {
-  return this.http.get<{data: Usuariosmodel[]}>(this.apiUrl)
-    .pipe(map(response => response.data));
-}
+    return this.http.get<{data: Usuariosmodel[]}>(this.apiUrl)
+      .pipe(map(response => response.data));
+  }
   eliminarUsuario(id: number): Observable<any> {
   const url = `${this.apiUrl}/${id}`;
   return this.http.delete(url);
@@ -34,5 +34,12 @@ export class UsuariosService {
   obtenerUsuarioActual() {
   const userJson = localStorage.getItem('usuario');
   return userJson ? JSON.parse(userJson) : null;
+  }
+  getUsuario(cartera?: string) {
+    let url = this.apiUrl + '/usuarios';
+    if (cartera) {
+      url += `?cartera=${encodeURIComponent(cartera)}`;
+    }
+    return this.http.get<any>(url);
   }
 }

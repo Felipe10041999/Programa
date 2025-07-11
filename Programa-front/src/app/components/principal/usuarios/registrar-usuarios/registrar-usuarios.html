@@ -73,11 +73,15 @@
           <label class="form-label">
             <i class="fas fa-briefcase"></i> Cartera
           </label>
-          <input 
-            type="text" 
-            class="form-input" 
-            formControlName="cartera"
-            placeholder="Ingrese la cartera">
+          <select class="form-input" formControlName="cartera">
+            <option value="" style="color: black;">Seleccione una cartera</option>
+            <option value="DESOCUPADOS" style="color: black;">DESOCUPADOS</option>
+            <option value="DESISTIDOS" style="color: black;">DESISTIDOS</option>
+            <option value="CASTIGO" style="color: black;">CASTIGO</option>
+            <option value="SUPERNUMERARIO" style="color: black;">SUPERNUMERARIO </option>
+            <option value="DESOCUPADOS 2022-2023" style="color: black;">DESOCUPADOS 2022-2023</option>
+            <option value="TODAS" style="color: black;">TODAS</option>
+          </select>
           <span class="error-message" *ngIf="registroForm.get('cartera')?.invalid && registroForm.get('cartera')?.touched">
             La cartera es requerida
           </span>
@@ -142,42 +146,34 @@
             El usuario de huella es requerido
           </span>
         </div>
-
-
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">
-              <i class="fas fa-key"></i> Contraseña Huella
-            </label>
-            <input 
-              type="text" 
-              class="form-input" 
-              formControlName="clave_huella"
-              placeholder="Ingrese la contraseña de huella">
-            <span class="error-message" *ngIf="registroForm.get('clave_huella')?.invalid && registroForm.get('clave_huella')?.touched">
-              La contraseña de huella es requerida
-            </span>
-          </div>
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-key"></i> Contraseña Huella
+          </label>
+          <input 
+            type="text" 
+            class="form-input" 
+            formControlName="clave_huella"
+            placeholder="Ingrese la contraseña de huella">
+          <span class="error-message" *ngIf="registroForm.get('clave_huella')?.invalid && registroForm.get('clave_huella')?.touched">
+            La contraseña de huella es requerida
+          </span>
         </div>
-
-          <div class="form-group">
-            <label class="form-label">
-              <i class="fas fa-fingerprint"></i> Nombre usuario huella
-            </label>
-            <input 
-              type="text" 
-              class="form-input" 
-              formControlName="nombre_usuario_huella"
-              placeholder="Ingrese el nombre de usuario huella">
-            <span class="error-message" *ngIf="registroForm.get('nombre_usuario_huella')?.invalid && registroForm.get('nombre_usuario_huella')?.touched">
-              El nombre de usuario huella es requerido
-            </span>
-          
-        
-
-
-
+      </div>
       <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-fingerprint"></i> Nombre usuario huella
+          </label>
+          <input 
+            type="text" 
+            class="form-input" 
+            formControlName="nombre_usuario_huella"
+            placeholder="Ingrese el nombre de usuario huella">
+          <span class="error-message" *ngIf="registroForm.get('nombre_usuario_huella')?.invalid && registroForm.get('nombre_usuario_huella')?.touched">
+            El nombre de usuario huella es requerido
+          </span>
+        </div>
         <div class="form-group">
           <label class="form-label">
             <i class="fas fa-envelope"></i> Correo Electrónico
@@ -192,8 +188,7 @@
           </span>
         </div>
       </div>
-    </div>
-  </div>
+
 
       <!-- Botones -->
       <div class="button-container">

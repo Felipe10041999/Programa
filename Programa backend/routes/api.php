@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\ExcelController;
 Route::apiResource('/usuario', UsuarioController::class);
 
 Route::post('/procesar-excel', [ExcelController::class, 'procesar']);
+Route::get('/usuario/carteras', [UsuarioController::class, 'carteras']);
 
 
 

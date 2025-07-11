@@ -5,9 +5,10 @@
    use Maatwebsite\Excel\Concerns\FromCollection;
    use Maatwebsite\Excel\Concerns\WithHeadings;
    use Maatwebsite\Excel\Concerns\WithStyles;
+   use Maatwebsite\Excel\Concerns\WithColumnWidths;
    use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-   class DatosExport implements FromCollection, WithHeadings, WithStyles
+   class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColumnWidths
    {
        protected $datos;
        protected $headings;
@@ -28,10 +29,26 @@
            return $this->headings;
        }
 
+       public function columnWidths(): array
+       {
+           return [
+               'A' => 40, // Primera columna
+               'B' => 45, // Segunda columna
+               'C' => 15, // Tercera columna
+           ];
+       }
+
        public function styles(Worksheet $sheet)
        {
            $highestRow = $sheet->getHighestRow();
            $highestColumn = $sheet->getHighestColumn();
+           
+           // Aplicar formato de negrita a las cabeceras
+           $headerRange = 'A1:' . $highestColumn . '1';
+           $sheet->getStyle($headerRange)->getFont()->setBold(true);
+           // Aplicar fondo azul celeste a las cabeceras
+           $sheet->getStyle($headerRange)->getFill()->setFillType('solid')->getStartColor()->setARGB('FFB7E1FA');
+           
            // Asume que los datos empiezan en la fila 2 (después de los encabezados)
            // Para informe por horas: A=Nombre Excel, B=Nombre BD, C=Cartera, D+=Horas, última=Total
            // Para informe por cartera: A=Cartera, B=Total Personas, C=Total Gestiones, D=Promedio

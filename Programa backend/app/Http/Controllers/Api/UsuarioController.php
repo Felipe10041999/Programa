@@ -11,18 +11,17 @@ use Illuminate\Support\Facades\Auth;
 class UsuarioController extends Controller
 {
    
-    public function index()
-{
-    $usuario = Usuario::paginate(40);
-    if ($usuario->isEmpty()) {
-        return response()->json([
-            'message' => 'No se encontraron usuarios',
-            'status' => 200
-        ], 200); 
+    public function index(Request $request)
+    {
+        $usuario = Usuario::paginate(60);
+        if ($usuario->isEmpty()) {
+            return response()->json([
+                'message' => 'No se encontraron usuarios',
+                'status' => 200
+            ], 200); 
+        }
+        return response()->json($usuario, 200);
     }
-
-    return response()->json($usuario, 200);
-}
 
     
     public function store(Request $request)
@@ -30,12 +29,12 @@ class UsuarioController extends Controller
         $validated = $request->validate([
             'nombres' => 'required',
             'apellidos' => 'required',
-            'cedula' => 'required'| unique,
+            'cedula' => 'required',
             'telefono' => 'required',
             'cartera' => 'required',
             'numero_equipo' => 'required',
             'usuario_equipo' => 'required',
-            'clave_equipo' => 'required|min:6',
+            'clave_equipo' => 'required',
             'usuario_huella' => 'required',
             'clave_huella' => 'required',
             'correo' => 'required|email',
@@ -84,7 +83,7 @@ class UsuarioController extends Controller
             'cartera' => 'required',
             'numero_equipo' => 'required',
             'usuario_equipo' => 'required',
-            'clave_equipo' => 'required|min:6',
+            'clave_equipo' => 'required',
             'usuario_huella' => 'required',
             'clave_huella' => 'required',
             'correo' => 'required|email',
@@ -127,5 +126,11 @@ class UsuarioController extends Controller
         'status' => 200
     ]);
 }
+
+    public function carteras()
+    {
+        $carteras = Usuario::query()->whereNotNull('cartera')->where('cartera', '!=', '')->distinct()->pluck('cartera');
+        return response()->json(['carteras' => $carteras], 200);
+    }
 
 }

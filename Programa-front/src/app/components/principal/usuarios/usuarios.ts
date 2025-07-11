@@ -23,6 +23,7 @@ export class Usuarios implements OnInit {
   registrosPorPagina: number = 5;
   totalPaginas: number = 0;
   terminoBusqueda: string = ''; 
+  
 
   constructor(private usuariosService: UsuariosService, private router: Router) {}
 
@@ -37,6 +38,7 @@ export class Usuarios implements OnInit {
       }
     });
   }
+
 
   filtrarUsuarios(): void {
     const termino = this.terminoBusqueda.toLowerCase().trim();
@@ -119,6 +121,9 @@ export class Usuarios implements OnInit {
 
   const blob: Blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
   FileSaver.saveAs(blob, 'Tabla usuarios filtrado.xlsx');
+}
+volverAPrincipal() {
+  this.router.navigate(['']);
 }
 
 }

@@ -98,6 +98,7 @@ class ExcelController extends Controller
         $usuarios = \App\Models\Usuario::all()->keyBy('nombre_usuario_huella');
 
         $filas = [];
+        $usuariosIncluidos = [];
         foreach ($resumen as $nombre_excel => $conteos) {
             $nombre_normalizado = $normalizar($nombre_excel);
             $usuario = $usuarios->first(function($u) use ($normalizar, $nombre_normalizado) {
@@ -105,12 +106,11 @@ class ExcelController extends Controller
             });
             $nombre_completo_bd = $usuario ? trim($usuario->nombres . ' ' . $usuario->apellidos) : '';
             $cartera = $usuario ? $usuario->cartera : '';
-            
             // Filtrar por cartera si se especifica
             if ($carteraFiltro && $cartera !== $carteraFiltro) {
                 continue; // Saltar esta fila si no coincide con la cartera filtrada
             }
-            
+            $usuariosIncluidos[$usuario ? $usuario->nombre_usuario_huella : $nombre_excel] = true;
             \Log::info('Fila final', [
                 'nombre_excel' => $nombre_excel,
                 'nombre_completo_bd' => $nombre_completo_bd,
@@ -126,6 +126,26 @@ class ExcelController extends Controller
                 $total += $valor;
             }
             $fila[] = $total;
+            $filas[] = $fila;
+        }
+        // Agregar usuarios de la base de datos que no hicieron ninguna gestión
+        foreach ($usuarios as $usuario) {
+            if (isset($usuariosIncluidos[$usuario->nombre_usuario_huella])) {
+                continue; // Ya está incluido
+            }
+            // Filtrar por cartera si se especifica
+            if ($carteraFiltro && $usuario->cartera !== $carteraFiltro) {
+                continue;
+            }
+            $fila = [
+                $usuario->nombre_usuario_huella, // Mostrar nombre_usuario_huella en la columna 'Nombre completo Excel'
+                trim($usuario->nombres . ' ' . $usuario->apellidos),
+                $usuario->cartera
+            ];
+            foreach ($horas as $h) {
+                $fila[] = 0;
+            }
+            $fila[] = 0; // Total
             $filas[] = $fila;
         }
         if ($tipoInforme === 'cartera') {
@@ -179,7 +199,7 @@ class ExcelController extends Controller
             return \Maatwebsite\Excel\Facades\Excel::download($export, 'resumen_gestiones_cartera.xlsx');
         } else {
             // Informe por horas (lógica existente)
-            $encabezados = array_merge(['Nombre completo Excel', 'Nombre completo BD', 'Cartera'], $horas_formato, ['Total gestiones']);
+            $encabezados = array_merge(['Asesor', 'Asesor real', 'Cartera'], $horas_formato, ['Total']);
             $export = new \App\Exports\DatosExport($filas, $encabezados);
             return \Maatwebsite\Excel\Facades\Excel::download($export, 'resumen_gestiones_horas.xlsx');
         }
