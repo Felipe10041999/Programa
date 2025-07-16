@@ -120,12 +120,20 @@ class ExcelController extends Controller
             ]);
             $total = 0;
             $fila = [$nombre_excel, $nombre_completo_bd, $cartera];
+            $todosCero = true;
             foreach ($horas as $h) {
                 $valor = $conteos[$h] ?? 0;
                 $fila[] = $valor;
                 $total += $valor;
+                if ($valor != 0) {
+                    $todosCero = false;
+                }
             }
             $fila[] = $total;
+            if ($total != 0) {
+                $todosCero = false;
+            }
+            $fila[] = $todosCero ? 'NOVEDAD' : 'SIN NOVEDAD';
             $filas[] = $fila;
         }
         // Agregar usuarios de la base de datos que no hicieron ninguna gestión
@@ -138,7 +146,7 @@ class ExcelController extends Controller
                 continue;
             }
             $fila = [
-                $usuario->nombre_usuario_huella, // Mostrar nombre_usuario_huella en la columna 'Nombre completo Excel'
+                $usuario->nombre_usuario_huella,
                 trim($usuario->nombres . ' ' . $usuario->apellidos),
                 $usuario->cartera
             ];
@@ -146,64 +154,18 @@ class ExcelController extends Controller
                 $fila[] = 0;
             }
             $fila[] = 0; // Total
+            $fila[] = 'NOVEDAD'; // Todos ceros
             $filas[] = $fila;
         }
-        if ($tipoInforme === 'cartera') {
-            // Generar informe por cartera
-            $resumen_cartera = [];
-            foreach ($resumen as $nombre_excel => $conteos) {
-                $nombre_normalizado = $normalizar($nombre_excel);
-                $usuario = $usuarios->first(function($u) use ($normalizar, $nombre_normalizado) {
-                    return $normalizar($u->nombre_usuario_huella) === $nombre_normalizado;
-                });
-                
-                $cartera = $usuario ? $usuario->cartera : 'Sin cartera';
-                
-                // Filtrar por cartera si se especifica
-                if ($carteraFiltro && $cartera !== $carteraFiltro) {
-                    continue; // Saltar esta fila si no coincide con la cartera filtrada
-                }
-                
-                $total_persona = array_sum($conteos);
-                
-                if (!isset($resumen_cartera[$cartera])) {
-                    $resumen_cartera[$cartera] = [
-                        'total_gestiones' => 0,
-                        'total_personas' => 0,
-                        'personas' => []
-                    ];
-                }
-                
-                $resumen_cartera[$cartera]['total_gestiones'] += $total_persona;
-                $resumen_cartera[$cartera]['total_personas']++;
-                $resumen_cartera[$cartera]['personas'][] = [
-                    'nombre' => $nombre_excel,
-                    'nombre_bd' => $usuario ? trim($usuario->nombres . ' ' . $usuario->apellidos) : '',
-                    'total' => $total_persona
-                ];
-            }
-            
-            // Crear filas para el informe por cartera
-            $filas_cartera = [];
-            foreach ($resumen_cartera as $cartera => $datos) {
-                $filas_cartera[] = [
-                    $cartera,
-                    $datos['total_personas'],
-                    $datos['total_gestiones'],
-                    round($datos['total_gestiones'] / $datos['total_personas'], 2)
-                ];
-            }
-            
-            $encabezados_cartera = ['Cartera', 'Total Personas', 'Total Gestiones', 'Promedio por Persona'];
-            $export = new \App\Exports\DatosExport($filas_cartera, $encabezados_cartera);
-            return \Maatwebsite\Excel\Facades\Excel::download($export, 'resumen_gestiones_cartera.xlsx');
-        } else {
-            // Informe por horas (lógica existente)
-            $encabezados = array_merge(['Asesor', 'Asesor real', 'Cartera'], $horas_formato, ['Total']);
-            $export = new \App\Exports\DatosExport($filas, $encabezados);
-            return \Maatwebsite\Excel\Facades\Excel::download($export, 'resumen_gestiones_horas.xlsx');
-        }
-    }
 
-   
+        $encabezados = array_merge(['Asesor', 'Asesor real', 'Cartera'], $horas_formato, ['Total', 'NOVEDAD']);
+
+        // Ordenar filas por cartera (columna 2)
+        usort($filas, function($a, $b) {
+            return strcmp($a[2], $b[2]);
+        });
+
+        $export = new \App\Exports\DatosExport($filas, $encabezados);
+        return \Maatwebsite\Excel\Facades\Excel::download($export, 'resumen_gestiones_horas.xlsx');
+    }
 }

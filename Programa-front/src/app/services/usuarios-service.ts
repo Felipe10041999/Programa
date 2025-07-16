@@ -10,7 +10,7 @@ import { map } from 'rxjs/operators';
 })
 export class UsuariosService {
 
-  private apiUrl = 'http://localhost:8000/api/usuario';
+  private apiUrl = 'http://192.168.112.18:8000/api/usuario'; // URL base
   constructor(private http: HttpClient) { }
   getUsuarios(): Observable<Usuariosmodel[]> {
     return this.http.get<{data: Usuariosmodel[]}>(this.apiUrl)
@@ -21,7 +21,7 @@ export class UsuariosService {
   return this.http.delete(url);
   }
   registrarUsuario(usuario: any) {
-  return this.http.post<any>('http://localhost:8000/api/usuario', usuario);
+  return this.http.post<any>('http://192.168.112.18:8000/api/usuario', usuario);
   }
   actualizarUsuario(id: number, datos: any) {
     console.log('Datos enviados al backend:', datos);
