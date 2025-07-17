@@ -1,90 +1,106 @@
 <div class="informes-container">
-    <div class="informes-content">
-      <!-- Header -->
-      <div class="informes-header">
-        <h2><i class="fas fa-chart-bar"></i> Generación de Informes</h2>
-        <p>Seleccione el archivo Excel y genere el informe de productividad</p>
-      </div>
-  
-      <!-- Carga de archivo Excel -->
-      <div class="file-upload-section">
-        <div class="file-upload-card">
-          <div class="file-upload-icon">
-            <i class="fas fa-file-excel"></i>
-          </div>
-          <h3>Cargar Archivo Excel</h3>
-          <p>Seleccione el archivo Excel con los datos de productividad</p>
-          
-          <div class="file-input-container">
-            <input 
-              type="file" 
-              #fileInput
-              (change)="onFileSelected($event)"
-              accept=".xlsx,.xls"
-              class="file-input"
-              [disabled]="generandoInforme">
-            <label for="fileInput" class="file-label">
-              <i class="fas fa-upload"></i> Seleccionar Archivo
-            </label>
-          </div>
-          
-          <div *ngIf="archivoSeleccionado" class="file-info">
-            <i class="fas fa-check-circle"></i>
-            <span>{{ archivoSeleccionado.name }}</span>
-          </div>
-        </div>
-      </div>
+  <div class="informes-content">
+    <!-- Header -->
+    <div class="informes-header">
+      <h2><i class="fas fa-chart-bar"></i> Generación de Informes</h2>
+      <p>Seleccione el archivo Excel y genere el informe de productividad</p>
+    </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label for="horaLimite" class="form-label">
-            <i class="fas fa-clock"></i> Mostrar gestiones hasta la hora:
+    <!-- Carga de archivo Excel -->
+    <div class="file-upload-section">
+      <div class="file-upload-card">
+        <div class="file-upload-icon">
+          <i class="fas fa-file-excel"></i>
+        </div>
+        <h3>Cargar Archivo Excel</h3>
+        <p>Seleccione el archivo Excel con los datos de productividad</p>
+        
+        <div class="file-input-container">
+          <input 
+            type="file" 
+            id="fileInput1"
+            (change)="onFileSelected($event)"
+            accept=".xlsx,.xls"
+            class="file-input"
+            [disabled]="generandoInforme">
+          <label for="fileInput1" class="file-label">
+            <i class="fas fa-upload"></i> Seleccionar Archivo Productividad
           </label>
-          <select id="horaLimite" class="form-input" [(ngModel)]="horaLimite" name="horaLimite">
-            <option *ngFor="let h of horasDisponibles" [value]="h">{{ h }}:00</option>
-          </select>
         </div>
-
-        <div class="form-group">
-          <label for="cartera" class="form-label">
-            <i class="fas fa-building"></i> Filtrar por cartera:
+        <div *ngIf="archivoSeleccionado" class="file-info">
+          <i class="fas fa-check-circle"></i>
+          <span>{{ archivoSeleccionado.name }}</span>
+        </div>
+        <!-- Segundo archivo -->
+        <div class="file-input-container">
+          <input 
+            type="file" 
+            id="fileInput2"
+            (change)="onFileSelected2($event)"
+            accept=".xlsx,.xls"
+            class="file-input"
+            [disabled]="generandoInforme">
+          <label for="fileInput2" class="file-label">
+            <i class="fas fa-upload"></i> Seleccionar Archivo Grabaciones
           </label>
-          <select id="cartera" class="form-input" [(ngModel)]="carteraSeleccionada" name="cartera">
-            <option value="">Todas las carteras</option>
-            <option value="CASTIGO">Castigo</option>
-            <option value="DESISTIDOS">Desistidos</option>
-            <option value="DESOCUPADOS">Desocupados</option>
-            <option value="DESOCUPADOS 2022-2023">DESOCUPADOS 2022-2023</option>
+        </div>
+        <div *ngIf="archivoGrabacionesSeleccionado" class="file-info">
+          <i class="fas fa-check-circle"></i>
+          <span>{{ archivoGrabacionesSeleccionado.name }}</span>
+        </div>
+      </div>
+    </div>
 
-          </select>
-        </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="horaLimite" class="form-label">
+          <i class="fas fa-clock"></i> Mostrar gestiones hasta la hora:
+        </label>
+        <select id="horaLimite" class="form-input" [(ngModel)]="horaLimite" name="horaLimite">
+          <option *ngFor="let h of horasDisponibles" [value]="h">{{ h }}:00</option>
+        </select>
       </div>
-  
-      <!-- Opciones de informes -->
-      <div class="informes-options">
-        <div class="informe-card">
-          <div class="informe-icon">
-            <i class="fas fa-chart-line"></i>
-          </div>
-          
-          <h3>Informe por Horas</h3>
-          <p>Genera un informe de productividad por horas basado en los datos del archivo cargado</p>
-          <button 
-            class="btn-generar" 
-            (click)="generarInformeProductividad()"
-            [disabled]="generandoInforme || !archivoSeleccionado">
-            <i class="fas fa-download" *ngIf="!generandoInforme"></i>
-            <i class="fas fa-spinner fa-spin" *ngIf="generandoInforme"></i>
-            {{ generandoInforme ? 'Generando...' : 'Generar Informe' }}
-          </button>
-        </div>
+
+      <div class="form-group">
+        <label for="cartera" class="form-label">
+          <i class="fas fa-building"></i> Filtrar por cartera:
+        </label>
+        <select id="cartera" class="form-input" [(ngModel)]="carteraSeleccionada" name="cartera">
+          <option value="">Todas las carteras</option>
+          <option value="CASTIGO">Castigo</option>
+          <option value="DESISTIDOS">Desistidos</option>
+          <option value="DESOCUPADOS">Desocupados</option>
+          <option value="DESOCUPADOS 2022-2023">DESOCUPADOS 2022-2023</option>
+
+        </select>
       </div>
-  
-      <!-- Botón para volver -->
-      <div class="button-container">
-        <button class="btn-volver" (click)="volverAPrincipal()">
-          <i class="fas fa-arrow-left"></i> Volver al Principal
+    </div>
+
+    <!-- Opciones de informes -->
+    <div class="informes-options">
+      <div class="informe-card">
+        <div class="informe-icon">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        
+        <h3>Informe por Horas</h3>
+        <p>Genera un informe de productividad por horas basado en los datos del archivo cargado</p>
+        <button 
+          class="btn-generar" 
+          (click)="generarInformeProductividad()"
+          [disabled]="generandoInforme || !archivoSeleccionado">
+          <i class="fas fa-download" *ngIf="!generandoInforme"></i>
+          <i class="fas fa-spinner fa-spin" *ngIf="generandoInforme"></i>
+          {{ generandoInforme ? 'Generando...' : 'Generar Informe' }}
         </button>
       </div>
     </div>
+
+    <!-- Botón para volver -->
+    <div class="button-container">
+      <button class="btn-volver" (click)="volverAPrincipal()">
+        <i class="fas fa-arrow-left"></i> Volver al Principal
+      </button>
+    </div>
   </div>
+</div>

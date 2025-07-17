@@ -4,168 +4,238 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Usuario;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Imports\BaseGestionImport;
 use App\Exports\DatosExport;
 
 class ExcelController extends Controller
 {
-   
     public function procesar(Request $request)
-    {
-        $request->validate([
-            'file' => 'required|file|mimes:xlsx,xls'
-        ]);
+{
+    $request->validate([
+        'file'  => 'required|file|mimes:xlsx,xls',
+        'file2' => 'required|file|mimes:xlsx,xls',
+    ]);
 
-        $horaLimite = $request->input('hora_limite', 18); // 18 por defecto
-        $tipoInforme = $request->input('tipo_informe', 'horas'); // 'horas' por defecto
-        $carteraFiltro = $request->input('cartera', ''); // Cartera específica para filtrar
+    $horaLimite = $request->input('hora_limite', 18);
+    $usuarios   = Usuario::all();
 
-        $datos = \Maatwebsite\Excel\Facades\Excel::toArray([], $request->file('file'))[0];
+    // 1. Procesar archivo 1
+    $resumen1 = $this->leerArchivoProductividad($request->file('file'), $usuarios, $horaLimite);
 
-        $normalizar = function($cadena) {
-            $cadena = strtolower($cadena);
-            $cadena = preg_replace('/[áàäâ]/u', 'a', $cadena);
-            $cadena = preg_replace('/[éèëê]/u', 'e', $cadena);
-            $cadena = preg_replace('/[íìïî]/u', 'i', $cadena);
-            $cadena = preg_replace('/[óòöô]/u', 'o', $cadena);
-            $cadena = preg_replace('/[úùüû]/u', 'u', $cadena);
-            $cadena = preg_replace('/[^a-z0-9 ]/', '', $cadena);
-            $cadena = trim($cadena);
-            return $cadena;
-        };
+    // 2. Procesar archivo 2 comparando con nombres reales en BD
+    $resumen2 = $this->leerArchivoGrabaciones($request->file('file2'), $usuarios, $horaLimite);
 
-        $headings = array_map($normalizar, $datos[0]);
-        $indices = [
-            'nombre_completo' => array_search('nombre completo', $headings),
-            'hora' => array_search('hora', $headings) !== false ? array_search('hora', $headings) : array_search('hora', $headings),
-        ];
+    // 3. Generar resumen final combinando ambos
+    [$filas, $encabezados] = $this->generarResumenFinal($resumen1, $resumen2, $usuarios);
 
-        foreach ($indices as $nombre => $indice) {
-            if ($indice === false) {
-                return response()->json(['error' => "Columna '$nombre' no encontrada"], 400);
-            }
+    return $this->exportarExcel($filas, $encabezados);
+}
+
+private function leerArchivoProductividad($file, $usuarios, $horaLimite)
+{
+    $datos = Excel::toArray([], $file)[0];
+    $headings = array_map([$this, 'normalizar'], $datos[0]);
+
+    $idxNombre = array_search('nombre completo', $headings);
+    $idxHora = array_search('hora', $headings);
+
+    if ($idxNombre === false || $idxHora === false) {
+        abort(422, "Encabezados requeridos no encontrados en archivo de productividad.");
+    }
+
+    $resumen = [];
+
+    foreach (array_slice($datos, 1) as $fila) {
+        $nombre = trim($fila[$idxNombre] ?? '');
+        if (stripos($nombre, 'Outsourcing NGSO -') === 0) {
+            $nombre = trim(substr($nombre, strlen('Outsourcing NGSO -')));
         }
 
-        // Función para extraer la hora válida de la cadena
-        function extraerHora($cadena) {
-            // Busca la primera coincidencia de HH:MM en la cadena
-            if (preg_match('/\\b([01]?\\d|2[0-3]):[0-5]\\d\\b/', $cadena, $matches)) {
-                return intval($matches[1]);
-            }
-            return null;
+        if ($nombre === '') continue;
+
+        $horaExtraida = $this->extraerHora($fila[$idxHora] ?? '');
+        if (!$horaExtraida || $horaExtraida < 7 || $horaExtraida > $horaLimite) continue;
+
+        $nombreNormalizado = $this->normalizar($nombre);
+        $usuario = $this->buscarUsuarioPorNombreCompleto($nombre, $usuarios);
+
+        $clave = $usuario
+            ? $this->normalizar($usuario->nombre_usuario_huella)
+            : $nombreNormalizado;
+
+        if (!isset($resumen[$clave][$horaExtraida])) {
+            $resumen[$clave][$horaExtraida] = 0;
         }
 
-        // Recolectar todas las horas presentes en los datos
-        $horas_encontradas = [];
-        $resumen = [];
-        foreach (array_slice($datos, 1) as $fila) {
-            $nombre = $fila[$indices['nombre_completo']] ?? '';
-            // Si el nombre empieza con 'Outsourcing NGSO -', eliminar esa parte
-            if (stripos($nombre, 'Outsourcing NGSO -') === 0) {
-                $nombre = trim(substr($nombre, strlen('Outsourcing NGSO -')));
-            }
-            if ($nombre === '') {
-                continue; // Ignora filas sin nombre real
-            }
-            $hora_original = trim($fila[$indices['hora']] ?? '');
-            $hora = null;
-            $partes = explode(' ', $hora_original);
-            $hora_str = end($partes);
-            if (preg_match('/^([01]?\d|2[0-3]):[0-5]\d$/', $hora_str, $matches)) {
-                $hora = intval($matches[1]);
-                $hora++; // Sumar 1 a la hora extraída
-            } else {
-                continue;
-            }
-            if ($hora < 7 || $hora > $horaLimite) {
-                continue; // Ignora horas fuera del rango 7-horaLimite
-            }
-            $horas_encontradas[$hora] = true;
-            if (!isset($resumen[$nombre])) {
-                $resumen[$nombre] = [];
-            }
-            if (!isset($resumen[$nombre][$hora])) {
-                $resumen[$nombre][$hora] = 0;
-            }
-            $resumen[$nombre][$hora]++;
+        $resumen[$clave][$horaExtraida]++;
+    }
+
+    return $resumen;
+}
+
+private function leerArchivoGrabaciones($file2, $usuarios, $horaLimite)
+{
+    $datos = Excel::toArray([], $file2)[0];
+    $headings = array_map([$this, 'normalizar'], $datos[6]);
+    $idxAgente = $idxFechaHora = null;
+
+    foreach ($headings as $i => $col) {
+        if (in_array($col, ['agente que atendio', 'agente que atendió', 'agente'])) {
+            $idxAgente = $i;
         }
-        // Ordenar las horas presentes
-        $horas = array_keys($horas_encontradas);
-        sort($horas);
-        $horas_formato = array_map(function($h) { return $h . ':00'; }, $horas);
+        if (in_array($col, ['fechahora', 'fecha hora', 'fecha/hora'])) {
+            $idxFechaHora = $i;
+        }
+    }
 
-        $usuarios = \App\Models\Usuario::all()->keyBy('nombre_usuario_huella');
+    if ($idxAgente === null || $idxFechaHora === null) {
+        abort(422, "Columnas 'Agente' o 'Fecha/Hora' no encontradas en archivo de grabaciones.");
+    }
 
-        $filas = [];
-        $usuariosIncluidos = [];
-        foreach ($resumen as $nombre_excel => $conteos) {
-            $nombre_normalizado = $normalizar($nombre_excel);
-            $usuario = $usuarios->first(function($u) use ($normalizar, $nombre_normalizado) {
-                return $normalizar($u->nombre_usuario_huella) === $nombre_normalizado;
-            });
-            $nombre_completo_bd = $usuario ? trim($usuario->nombres . ' ' . $usuario->apellidos) : '';
-            $cartera = $usuario ? $usuario->cartera : '';
-            // Filtrar por cartera si se especifica
-            if ($carteraFiltro && $cartera !== $carteraFiltro) {
-                continue; // Saltar esta fila si no coincide con la cartera filtrada
-            }
-            $usuariosIncluidos[$usuario ? $usuario->nombre_usuario_huella : $nombre_excel] = true;
-            \Log::info('Fila final', [
-                'nombre_excel' => $nombre_excel,
-                'nombre_completo_bd' => $nombre_completo_bd,
-                'cartera' => $cartera,
-                'usuario' => $usuario,
-                'cartera_filtro' => $carteraFiltro
-            ]);
-            $total = 0;
-            $fila = [$nombre_excel, $nombre_completo_bd, $cartera];
-            $todosCero = true;
-            foreach ($horas as $h) {
-                $valor = $conteos[$h] ?? 0;
-                $fila[] = $valor;
-                $total += $valor;
-                if ($valor != 0) {
-                    $todosCero = false;
+    $resumen = [];
+
+    foreach (array_slice($datos, 7) as $fila) {
+        $agente = trim($fila[$idxAgente] ?? '');
+        $fechaHora = trim($fila[$idxFechaHora] ?? '');
+
+        $horaExtra = $this->extraerHora($fechaHora);
+        if (!$horaExtra || $horaExtra < 7 || $horaExtra > $horaLimite) continue;
+
+        if ($agente === '') {
+            // Agente vacío → agrupar como "SIN AGENTE"
+            $clave = 'SIN AGENTE';
+        } else {
+            $agNorm = $this->normalizar($agente);
+
+            // Buscar mejor coincidencia con nombres de usuarios
+            $mejorUsuario = null;
+            $mejorPct = 0;
+
+            foreach ($usuarios as $u) {
+                $nombreBD = $this->normalizar(trim($u->nombres . ' ' . $u->apellidos));
+                similar_text($agNorm, $nombreBD, $pct);
+
+                if ($pct > $mejorPct) {
+                    $mejorPct = $pct;
+                    $mejorUsuario = $u;
                 }
             }
-            $fila[] = $total;
-            if ($total != 0) {
-                $todosCero = false;
-            }
-            $fila[] = $todosCero ? 'NOVEDAD' : 'SIN NOVEDAD';
-            $filas[] = $fila;
-        }
-        // Agregar usuarios de la base de datos que no hicieron ninguna gestión
-        foreach ($usuarios as $usuario) {
-            if (isset($usuariosIncluidos[$usuario->nombre_usuario_huella])) {
-                continue; // Ya está incluido
-            }
-            // Filtrar por cartera si se especifica
-            if ($carteraFiltro && $usuario->cartera !== $carteraFiltro) {
-                continue;
-            }
-            $fila = [
-                $usuario->nombre_usuario_huella,
-                trim($usuario->nombres . ' ' . $usuario->apellidos),
-                $usuario->cartera
-            ];
-            foreach ($horas as $h) {
-                $fila[] = 0;
-            }
-            $fila[] = 0; // Total
-            $fila[] = 'NOVEDAD'; // Todos ceros
-            $filas[] = $fila;
+
+            $clave = $mejorPct >= 70
+                ? $this->normalizar($mejorUsuario->nombre_usuario_huella)
+                : $agNorm;
         }
 
-        $encabezados = array_merge(['Asesor', 'Asesor real', 'Cartera'], $horas_formato, ['Total', 'NOVEDAD']);
+        if (!isset($resumen[$clave][$horaExtra])) {
+            $resumen[$clave][$horaExtra] = 0;
+        }
 
-        // Ordenar filas por cartera (columna 2)
-        usort($filas, function($a, $b) {
-            return strcmp($a[2], $b[2]);
-        });
-
-        $export = new \App\Exports\DatosExport($filas, $encabezados);
-        return \Maatwebsite\Excel\Facades\Excel::download($export, 'resumen_gestiones_horas.xlsx');
+        $resumen[$clave][$horaExtra]++;
     }
+
+    return $resumen;
+}
+
+private function generarResumenFinal($resumen1, $resumen2, $usuarios)
+{
+    $horas = array_unique(array_merge(
+        ...array_map('array_keys', array_merge(array_values($resumen1), array_values($resumen2)))
+    ));
+    sort($horas);
+
+    $filas = [];
+    $todos = array_unique(array_merge(array_keys($resumen1), array_keys($resumen2)));
+
+    foreach ($todos as $keyNorm) {
+        // Para cada clave, buscar usuario por huella o por nombres y apellidos
+        $usuario = $this->buscarUsuarioPorNombreUsuarioHuella($keyNorm, $usuarios)
+                 ?? $this->buscarUsuarioPorNombreCompleto($keyNorm, $usuarios);
+        $nombreReal = $usuario
+            ? trim($usuario->nombres . ' ' . $usuario->apellidos)
+            : '';
+        $cartera = $usuario ? $usuario->cartera : '';
+
+        $fila = [$keyNorm, $nombreReal, $cartera];
+        $tp = $tg = 0;
+
+        foreach ($horas as $h) {
+            $p = $resumen1[$keyNorm][$h] ?? 0;
+            $g = $resumen2[$keyNorm][$h] ?? 0;
+            $fila[] = $p;
+            $fila[] = $g;
+            $tp += $p;
+            $tg += $g;
+        }
+
+        $fila[] = $tp;
+        $fila[] = $tg;
+        $filas[] = $fila;
+    }
+
+    $ordenC = ['CASTIGO'=>1,'DESISTIDOS'=>2,'DESOCUPADOS'=>3,'DESOCUPADOS 2022-2023'=>4,'SUPERNUMERARIO'=>5];
+    usort($filas, fn($a,$b)=>(($ordenC[$a[2]]??99)==($ordenC[$b[2]]??99))? strcmp($a[0],$b[0]) : ($ordenC[$a[2]]??99) - ($ordenC[$b[2]]??99));
+
+    $enc = ['Agente','Agente Real','Cartera'];
+    foreach ($horas as $h) {
+        $enc[] = $h.':00 Productividad';
+        $enc[] = $h.':00 Grabaciones';
+    }
+    $enc[] = 'Total Productividad';
+    $enc[] = 'Total Grabaciones';
+
+    return [$filas, $enc];
+}
+
+
+    private function exportarExcel($filas, $encabezados)
+    {
+        $export = new DatosExport($filas, $encabezados);
+        return Excel::download($export, 'reporte_resumen.xlsx');
+    }
+
+    private function normalizar($cadena)
+    {
+        $cadena = strtolower($cadena);
+        $cadena = iconv('UTF-8', 'ASCII//TRANSLIT', $cadena); // Quita tildes
+        $cadena = preg_replace('/[^a-z0-9 ]/', '', $cadena);
+        return trim(preg_replace('/\s+/', ' ', $cadena));
+    }
+
+    private function extraerHora($texto)
+    {
+        if (preg_match('/([01]?\d|2[0-3]):[0-5]\d/', $texto, $matches)) {
+            return intval($matches[1]) + 1;
+        }
+        return null;
+    }
+
+    private function buscarUsuarioPorNombreUsuarioHuella($nombreNormalizado, $usuarios)
+    {
+        return $usuarios->first(function ($u) use ($nombreNormalizado) {
+            return $this->normalizar($u->nombre_usuario_huella) === $nombreNormalizado;
+        });
+    }
+
+    private function buscarUsuarioPorNombreCompleto($nombreTexto, $usuarios)
+    {
+        $nombreNormalizado = $this->normalizar($nombreTexto);
+    
+        $mejorCoincidencia = null;
+        $mayorSimilitud = 0;
+    
+        foreach ($usuarios as $u) {
+            $nombreBD = $this->normalizar(trim($u->nombres . ' ' . $u->apellidos));
+            similar_text($nombreNormalizado, $nombreBD, $porcentaje);
+    
+            if ($porcentaje > $mayorSimilitud) {
+                $mayorSimilitud = $porcentaje;
+                $mejorCoincidencia = $u;
+            }
+        }
+    
+        // Usamos 70% como umbral mínimo de similitud
+        return $mayorSimilitud >= 70 ? $mejorCoincidencia : null;
+    }
+
 }

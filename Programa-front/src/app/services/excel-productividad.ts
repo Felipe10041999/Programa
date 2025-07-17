@@ -11,7 +11,7 @@ export class InformesService {
   constructor(private http: HttpClient) { }
 
   generarInformeProductividad(formData: FormData): Observable<Blob> {
-    return this.http.post(`${this.apiUrl}/procesar-excel`, formData, { responseType: 'blob' }); // Enviar formData
+    return this.http.post(`${this.apiUrl}/procesar-excel`, formData, { responseType: 'blob' });
   }
 
   generarInformeProductividadConParametros(parametros: any): Observable<any> {
