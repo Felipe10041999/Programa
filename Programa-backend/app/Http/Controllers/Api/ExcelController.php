@@ -18,6 +18,7 @@ class ExcelController extends Controller
     ]);
 
     $horaLimite = $request->input('hora_limite', 18);
+    $carteraSeleccionada = $request->input('cartera', '');
     $usuarios   = Usuario::all();
 
     // 1. Procesar archivo 1
@@ -27,7 +28,7 @@ class ExcelController extends Controller
     $resumen2 = $this->leerArchivoGrabaciones($request->file('file2'), $usuarios, $horaLimite);
 
     // 3. Generar resumen final combinando ambos
-    [$filas, $encabezados] = $this->generarResumenFinal($resumen1, $resumen2, $usuarios);
+    [$filas, $encabezados] = $this->generarResumenFinal($resumen1, $resumen2, $usuarios, $carteraSeleccionada);
 
     return $this->exportarExcel($filas, $encabezados);
 }
@@ -137,7 +138,7 @@ private function leerArchivoGrabaciones($file2, $usuarios, $horaLimite)
     return $resumen;
 }
 
-private function generarResumenFinal($resumen1, $resumen2, $usuarios)
+private function generarResumenFinal($resumen1, $resumen2, $usuarios, $carteraSeleccionada = '')
 {
     $horas = array_unique(array_merge(
         ...array_map('array_keys', array_merge(array_values($resumen1), array_values($resumen2)))
@@ -204,14 +205,45 @@ private function generarResumenFinal($resumen1, $resumen2, $usuarios)
 
     // Convertir a array de filas
     $filas = [];
+    $ordenC = ['CASTIGO'=>1,'DESISTIDOS'=>2,'DESOCUPADOS'=>3,'DESOCUPADOS 2022-2023'=>4,'SUPERNUMERARIO'=>5];
+    usort($filasUnificadas, function($a, $b) use ($ordenC) {
+        $carteraA = $a['cartera'] ?? '';
+        $carteraB = $b['cartera'] ?? '';
+        $ordenA = $ordenC[$carteraA] ?? 99;
+        $ordenB = $ordenC[$carteraB] ?? 99;
+        if ($ordenA === $ordenB) {
+            return strcmp($a['asesor'], $b['asesor']);
+        }
+        return $ordenA - $ordenB;
+    });
+    $contadorPorCartera = [];
     foreach ($filasUnificadas as $f) {
-        $fila = [$f['asesor'], $f['asesor_real'], $f['cartera']];
-        $fila = array_merge($fila, $f['valores']);
+        $cartera = $f['cartera'] ?? '';
+        if ($cartera === 'LIDER') {
+            continue; // Omitir registros de la cartera LIDER
+        }
+        // Filtro de cartera
+        if ($carteraSeleccionada && $cartera !== $carteraSeleccionada) {
+            continue;
+        }
+        if (!isset($contadorPorCartera[$cartera])) {
+            $contadorPorCartera[$cartera] = 1;
+        } else {
+            $contadorPorCartera[$cartera]++;
+        }
+        $valores = $f['valores'];
+        // Si cartera está vacía, dejar los valores de horas y totales vacíos
+        if ($cartera === null || $cartera === '') {
+            foreach ($valores as $i => $v) {
+                if (is_numeric($v) && $v == 0) {
+                    $valores[$i] = '';
+                }
+            }
+        }
+        $fila = [$contadorPorCartera[$cartera], $f['asesor'], $f['asesor_real'], $cartera];
+        $fila = array_merge($fila, $valores);
         $filas[] = $fila;
     }
-
-    $ordenC = ['CASTIGO'=>1,'DESISTIDOS'=>2,'DESOCUPADOS'=>3,'DESOCUPADOS 2022-2023'=>4,'SUPERNUMERARIO'=>5];
-    usort($filas, fn($a,$b)=>(($ordenC[$a[2]]??99)==($ordenC[$b[2]]??99))? strcmp($a[0],$b[0]) : ($ordenC[$a[2]]??99) - ($ordenC[$b[2]]??99));
 
     // Cambiar encabezados
     $enc = ['Asesor','Asesor Real','Cartera'];

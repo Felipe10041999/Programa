@@ -10,6 +10,7 @@ use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
 class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColumnWidths, WithEvents
 {
@@ -38,7 +39,7 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
         }
 
         // Cambiar encabezados principales
-        $headerRow1 = ['Asesor', 'Asesor Real', 'Cartera'];
+        $headerRow1 = ['N°','Asesor', 'Asesor Real', 'Cartera'];
         foreach ($horas as $hora) {
             $headerRow1[] = sprintf('%02d:00', $hora);
             $headerRow1[] = '';
@@ -49,7 +50,7 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
         // Para Novedad, una sola columna
         $headerRow1[] = 'Novedades';
 
-        $headerRow2 = ['Asesor', 'Asesor Real', 'Cartera'];
+        $headerRow2 = ['N°','Asesor', 'Asesor Real', 'Cartera'];
         foreach ($horas as $hora) {
             $headerRow2[] = 'Huella';
             $headerRow2[] = 'Marcación';
@@ -59,28 +60,43 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
         // Para Novedad, celda vacía
         $headerRow2[] = '';
 
+        // Asegurarse de que ambos arrays tengan la misma longitud
+        $headerRow1 = array_slice($headerRow1, 0, count($headerRow2));
+
         return [$headerRow1, $headerRow2];
     }
 
     public function columnWidths(): array
-    {
-        $widths = [
-            'A' => 40,
-            'B' => 40,
-            'C' => 25,
-        ];
+{
+    $widths = [
+        'A' => 3.5,
+        'B' => 40,
+        'C' => 40,
+        'D' => 25,
+    ];
 
-        $column = 'D';
-        for ($i = 0; $i < count($this->headings) - 3; $i++) {
-            $widths[$column] = 10;
-            $column++;
+    $horas = [];
+    foreach ($this->headings as $h) {
+        if (preg_match('/^(\d{1,2}):00 Productividad$/', $h)) {
+            $horas[] = $h;
         }
-        // Ajustar la última columna (Novedad) a 15
-        $lastCol = chr(ord('A') + count($this->headings) - 1);
-        $widths[$lastCol] = 15;
-
-        return $widths;
     }
+
+    $colIndex = 5; // E = 5
+    foreach ($horas as $hora) {
+        $widths[Coordinate::stringFromColumnIndex($colIndex++)] = 9; // Huella
+        $widths[Coordinate::stringFromColumnIndex($colIndex++)] = 9; // Marcación
+    }
+
+    // Total (2 columnas)
+    $widths[Coordinate::stringFromColumnIndex($colIndex++)] = 9;
+    $widths[Coordinate::stringFromColumnIndex($colIndex++)] = 9;
+
+    // Novedades (última columna) con ancho 15
+    $widths[Coordinate::stringFromColumnIndex($colIndex)] = 15;
+
+    return $widths;
+}
 
     public function styles(Worksheet $sheet)
     {
@@ -104,13 +120,14 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
-                // Unificar las tres primeras columnas en las filas 1 y 2
+                // Unificar las cuatro primeras columnas en las filas 1 y 2
                 $sheet->mergeCells('A1:A2');
                 $sheet->mergeCells('B1:B2');
                 $sheet->mergeCells('C1:C2');
-                $sheet->getStyle('A1:C2')->getAlignment()->setHorizontal('center');
-                $sheet->getStyle('A1:C2')->getAlignment()->setVertical('center');
-                $sheet->getStyle('A1:C2')->getFont()->setBold(true);
+                $sheet->mergeCells('D1:D2');
+                $sheet->getStyle('A1:D2')->getAlignment()->setHorizontal('center');
+                $sheet->getStyle('A1:D2')->getAlignment()->setVertical('center');
+                $sheet->getStyle('A1:D2')->getFont()->setBold(true);
 
                 // Extraer las horas reales de los headings
                 $horas = [];
@@ -120,7 +137,7 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
                     }
                 }
 
-                $startColumnIndex = 4;
+                $startColumnIndex = 5; // Ahora las horas empiezan en la columna E
                 foreach ($horas as $hora) {
                     $col1 = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($startColumnIndex);
                     $col2 = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($startColumnIndex + 1);
@@ -311,6 +328,24 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
                     } elseif ($valor === 'SIN NOVEDAD') {
                         $sheet->getStyle($cell)->getFill()->setFillType('solid')->getStartColor()->setARGB('FF00B0F0'); // Azul
                     }
+                }
+
+                // Colorear la columna de numeración (N°) con un color pastel diferente por cartera
+                // Definir colores pastel para cada cartera
+                $coloresCartera = [
+                    'CASTIGO' => 'FFFFF2CC', // Amarillo pastel
+                    'DESISTIDOS' => 'FFD9EAD3', // Verde pastel
+                    'DESOCUPADOS' => 'FFD9D2E9', // Lila pastel
+                    'DESOCUPADOS 2022-2023' => 'FFFCE5CD', // Naranja pastel
+                    'SUPERNUMERARIO' => 'FFCCE5FF', // Azul pastel
+                    '' => 'FFFFFFFF', // Blanco para vacío
+                ];
+                $colCartera = 'D'; // Columna Cartera
+                $colNum = 'A'; // Columna N°
+                for ($row = 3; $row <= $highestRow; $row++) {
+                    $cartera = $sheet->getCell($colCartera . $row)->getValue();
+                    $color = $coloresCartera[$cartera] ?? 'FFFFFFFF';
+                    $sheet->getStyle($colNum . $row)->getFill()->setFillType('solid')->getStartColor()->setARGB($color);
                 }
 
                 // Convertir la columna de Asesor (A) a mayúsculas en todas las filas de datos
