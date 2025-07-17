@@ -144,8 +144,15 @@ private function generarResumenFinal($resumen1, $resumen2, $usuarios)
     ));
     sort($horas);
 
-    $filas = [];
+    $filasUnificadas = [];
     $todos = array_unique(array_merge(array_keys($resumen1), array_keys($resumen2)));
+
+    // Agregar todos los agentes de la base de datos (por nombre_usuario_huella normalizado)
+    foreach ($usuarios as $usuario) {
+        $keyNorm = $this->normalizar($usuario->nombre_usuario_huella);
+        $todos[] = $keyNorm;
+    }
+    $todos = array_unique($todos);
 
     foreach ($todos as $keyNorm) {
         // Para cada clave, buscar usuario por huella o por nombres y apellidos
@@ -156,33 +163,65 @@ private function generarResumenFinal($resumen1, $resumen2, $usuarios)
             : '';
         $cartera = $usuario ? $usuario->cartera : '';
 
-        $fila = [$keyNorm, $nombreReal, $cartera];
         $tp = $tg = 0;
-
+        $valores = [];
         foreach ($horas as $h) {
             $p = $resumen1[$keyNorm][$h] ?? 0;
             $g = $resumen2[$keyNorm][$h] ?? 0;
-            $fila[] = $p;
-            $fila[] = $g;
+            $valores[] = $p;
+            $valores[] = $g;
             $tp += $p;
             $tg += $g;
         }
+        $valores[] = $tp;
+        $valores[] = $tg;
 
-        $fila[] = $tp;
-        $fila[] = $tg;
+        // Determinar novedad
+        $tieneRegistros = array_sum($valores) > 0;
+        $novedad = $tieneRegistros ? 'SIN NOVEDAD' : 'NOVEDAD';
+        $valores[] = $novedad;
+
+        // Unificar por clave (agente normalizado)
+        if (!isset($filasUnificadas[$keyNorm])) {
+            $filasUnificadas[$keyNorm] = [
+                'asesor' => $keyNorm,
+                'asesor_real' => $nombreReal,
+                'cartera' => $cartera,
+                'valores' => $valores
+            ];
+        } else {
+            // Sumar valores si ya existe
+            foreach ($valores as $i => $v) {
+                if ($i < count($valores) - 1) { // Solo sumar los valores numéricos
+                    $filasUnificadas[$keyNorm]['valores'][$i] += $v;
+                }
+            }
+            // Recalcular novedad
+            $tieneRegistros = array_sum(array_slice($filasUnificadas[$keyNorm]['valores'], 0, -1)) > 0;
+            $filasUnificadas[$keyNorm]['valores'][count($valores) - 1] = $tieneRegistros ? 'SIN NOVEDAD' : 'NOVEDAD';
+        }
+    }
+
+    // Convertir a array de filas
+    $filas = [];
+    foreach ($filasUnificadas as $f) {
+        $fila = [$f['asesor'], $f['asesor_real'], $f['cartera']];
+        $fila = array_merge($fila, $f['valores']);
         $filas[] = $fila;
     }
 
     $ordenC = ['CASTIGO'=>1,'DESISTIDOS'=>2,'DESOCUPADOS'=>3,'DESOCUPADOS 2022-2023'=>4,'SUPERNUMERARIO'=>5];
     usort($filas, fn($a,$b)=>(($ordenC[$a[2]]??99)==($ordenC[$b[2]]??99))? strcmp($a[0],$b[0]) : ($ordenC[$a[2]]??99) - ($ordenC[$b[2]]??99));
 
-    $enc = ['Agente','Agente Real','Cartera'];
+    // Cambiar encabezados
+    $enc = ['Asesor','Asesor Real','Cartera'];
     foreach ($horas as $h) {
         $enc[] = $h.':00 Productividad';
         $enc[] = $h.':00 Grabaciones';
     }
     $enc[] = 'Total Productividad';
     $enc[] = 'Total Grabaciones';
+    $enc[] = 'Novedad';
 
     return [$filas, $enc];
 }
