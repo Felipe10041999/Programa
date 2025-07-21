@@ -18,16 +18,14 @@ export class Informes implements OnInit {
   horaLimite: number = 18; // Valor por defecto
   horasDisponibles: number[] = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
   carteraSeleccionada: string = ''; // Valor por defecto (todas las carteras)
-
+  
   constructor(
     private router: Router,
     private informesService: InformesService
   ) {}
-
   ngOnInit(): void {
     // Inicialización del componente
   }
-
   onFileSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
@@ -42,7 +40,6 @@ export class Informes implements OnInit {
       }
     }
   }
-
   onFileSelected2(event: any) {
     const file = event.target.files[0];
     if (file) {
@@ -56,7 +53,6 @@ export class Informes implements OnInit {
       }
     }
   }
-
   generarInformeProductividad() {
     if (!this.archivoSeleccionado || !this.archivoGrabacionesSeleccionado) {
       alert('Por favor seleccione ambos archivos Excel primero');
@@ -91,9 +87,6 @@ export class Informes implements OnInit {
       }
     });
   }
-
-
-
   descargarArchivo(archivo: any) {
     // Lógica para descargar el archivo si es necesario
     const link = document.createElement('a');
@@ -101,7 +94,6 @@ export class Informes implements OnInit {
     link.download = archivo.nombre;
     link.click();
   }
-
   volverAPrincipal() {
     this.router.navigate(['']);
   }

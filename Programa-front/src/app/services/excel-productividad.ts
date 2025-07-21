@@ -7,13 +7,11 @@ import { Observable } from 'rxjs';
 })
 export class InformesService {
   private apiUrl = 'http://192.168.112.18:8000/api'; // URL base
-
+  
   constructor(private http: HttpClient) { }
-
   generarInformeProductividad(formData: FormData): Observable<Blob> {
     return this.http.post(`${this.apiUrl}/procesar-excel`, formData, { responseType: 'blob' });
   }
-
   generarInformeProductividadConParametros(parametros: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/procesar-excel`, parametros);
   }

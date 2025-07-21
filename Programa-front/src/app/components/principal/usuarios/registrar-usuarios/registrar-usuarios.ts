@@ -36,7 +36,6 @@ export class RegistrarUsuarios implements OnInit {
       correo: ['', [Validators.required, Validators.email]],
     });
   }
-
   ngOnInit(): void {
     // Cargar usuarios existentes para validación
     this.cargarUsuariosExistentes();
@@ -48,7 +47,6 @@ export class RegistrarUsuarios implements OnInit {
       this.validarCedulaDuplicada.bind(this)
     ]);
   }
-
   cargarUsuariosExistentes(): void {
     this.usuariosService.getUsuarios().subscribe({
       next: (data) => {
@@ -59,7 +57,6 @@ export class RegistrarUsuarios implements OnInit {
       }
     });
   }
-
   validarCedulaDuplicada(control: AbstractControl): ValidationErrors | null {
     if (!control.value) {
       return null;
@@ -72,7 +69,6 @@ export class RegistrarUsuarios implements OnInit {
 
     return cedulaExiste ? { cedulaDuplicada: true } : null;
   }
-
   onSubmit() {
     if (this.registroForm.invalid) {
       this.registroForm.markAllAsTouched();
@@ -93,7 +89,6 @@ export class RegistrarUsuarios implements OnInit {
       }
     });
   }
-
   getCedulaError(): string {
     const cedulaControl = this.registroForm.get('cedula');
     if (cedulaControl?.errors) {
@@ -109,7 +104,6 @@ export class RegistrarUsuarios implements OnInit {
     }
     return '';
   }
-
   cancelarRegistro() {
     this.router.navigate(['/usuarios']);
   }

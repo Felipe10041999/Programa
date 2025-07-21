@@ -38,8 +38,6 @@ export class Usuarios implements OnInit {
       }
     });
   }
-
-
   filtrarUsuarios(): void {
     const termino = this.terminoBusqueda.toLowerCase().trim();
 
@@ -53,20 +51,17 @@ export class Usuarios implements OnInit {
     this.paginaActual = 1;
     this.actualizarPaginacion();
   }
-
   actualizarPaginacion(): void {
     const inicio = (this.paginaActual - 1) * this.registrosPorPagina;
     const fin = inicio + this.registrosPorPagina;
     this.usuariosPaginados = this.usuariosFiltrados.slice(inicio, fin);
   }
-
   cambiarPagina(nuevaPagina: number): void {
     if (nuevaPagina >= 1 && nuevaPagina <= this.totalPaginas) {
       this.paginaActual = nuevaPagina;
       this.actualizarPaginacion();
     }
   }
-
   eliminarUsuario(id: number): void {
     const confirmar = window.confirm('¿Estás seguro de que deseas eliminar este usuario?');
     if (!confirmar) return;
@@ -81,15 +76,12 @@ export class Usuarios implements OnInit {
       }
     });
   }
-
   editarUsuario(id: number) {
     this.router.navigate(['/editar', id]);
   }
-
   IRRegistro() {
     this.router.navigate(['/registro']);
   }
-
   exportarAExcel(): void {
   const dataParaExportar = this.usuariosFiltrados.map(usuario => ({
     ID: usuario.id,
@@ -121,9 +113,8 @@ export class Usuarios implements OnInit {
 
   const blob: Blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
   FileSaver.saveAs(blob, 'Tabla usuarios filtrado.xlsx');
-}
-volverAPrincipal() {
+  }
+  volverAPrincipal() {
   this.router.navigate(['']);
-}
-
+  }
 }

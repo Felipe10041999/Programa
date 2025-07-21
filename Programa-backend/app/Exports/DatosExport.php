@@ -16,18 +16,16 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
 {
     protected $datos;
     protected $headings;
-
+    
     public function __construct($datos, $headings)
     {
         $this->datos = $datos;
         $this->headings = $headings;
     }
-
     public function collection()
     {
         return collect($this->datos);
     }
-
     public function headings(): array
     {
         // Extraer las horas dinámicamente de los headings recibidos
@@ -65,39 +63,37 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
 
         return [$headerRow1, $headerRow2];
     }
-
     public function columnWidths(): array
-{
-    $widths = [
-        'A' => 3.5,
-        'B' => 40,
-        'C' => 40,
-        'D' => 25,
-    ];
+    {
+        $widths = [
+            'A' => 3.5,
+            'B' => 40,
+            'C' => 40,
+            'D' => 25,
+        ];
 
-    $horas = [];
-    foreach ($this->headings as $h) {
-        if (preg_match('/^(\d{1,2}):00 Productividad$/', $h)) {
-            $horas[] = $h;
+        $horas = [];
+        foreach ($this->headings as $h) {
+            if (preg_match('/^(\d{1,2}):00 Productividad$/', $h)) {
+                $horas[] = $h;
+            }
         }
+
+        $colIndex = 5; // E = 5
+        foreach ($horas as $hora) {
+            $widths[Coordinate::stringFromColumnIndex($colIndex++)] = 9; // Huella
+            $widths[Coordinate::stringFromColumnIndex($colIndex++)] = 9; // Marcación
+        }
+
+        // Total (2 columnas)
+        $widths[Coordinate::stringFromColumnIndex($colIndex++)] = 9;
+        $widths[Coordinate::stringFromColumnIndex($colIndex++)] = 9;
+
+        // Novedades (última columna) con ancho 15
+        $widths[Coordinate::stringFromColumnIndex($colIndex)] = 15;
+
+        return $widths;
     }
-
-    $colIndex = 5; // E = 5
-    foreach ($horas as $hora) {
-        $widths[Coordinate::stringFromColumnIndex($colIndex++)] = 9; // Huella
-        $widths[Coordinate::stringFromColumnIndex($colIndex++)] = 9; // Marcación
-    }
-
-    // Total (2 columnas)
-    $widths[Coordinate::stringFromColumnIndex($colIndex++)] = 9;
-    $widths[Coordinate::stringFromColumnIndex($colIndex++)] = 9;
-
-    // Novedades (última columna) con ancho 15
-    $widths[Coordinate::stringFromColumnIndex($colIndex)] = 15;
-
-    return $widths;
-}
-
     public function styles(Worksheet $sheet)
     {
         $highestRow = $sheet->getHighestRow();
@@ -113,7 +109,6 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
 
         return [];
     }
-
     public function registerEvents(): array
     {
         return [
@@ -348,9 +343,10 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
                     $sheet->getStyle($colNum . $row)->getFill()->setFillType('solid')->getStartColor()->setARGB($color);
                 }
 
-                // Convertir la columna de Asesor (A) a mayúsculas en todas las filas de datos
+                // Convertir la columna de Asesor (B) a mayúsculas
+                $highestRow = $sheet->getHighestRow();
                 for ($row = 3; $row <= $highestRow; $row++) {
-                    $cell = 'A' . $row;
+                    $cell = 'B' . $row; // Columna B es Asesor
                     $valor = $sheet->getCell($cell)->getValue();
                     if ($valor !== null && $valor !== '') {
                         $sheet->setCellValue($cell, mb_strtoupper($valor, 'UTF-8'));

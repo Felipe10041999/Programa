@@ -37,13 +37,11 @@ export class EditarUsuarios implements OnInit {
       correo: ['', [Validators.required, Validators.email]],
     });
   }
-
   ngOnInit() {
     this.userId = Number(this.route.snapshot.paramMap.get('id'));
     console.log('User ID recibido:', this.userId);
     this.cargarUsuario();
   }
-
   cargarUsuario(){
     this.usuariosService.obtenerUsuarioPorId(this.userId).subscribe({
       next: usuario => {
@@ -53,7 +51,6 @@ export class EditarUsuarios implements OnInit {
       error: (err) => console.error('Error al cargar el usuario', err)
     });
   }
-
   onSubmit() {
     if (this.editarForm.valid) {
       console.log('Datos enviados:', this.editarForm.value);
@@ -71,7 +68,6 @@ export class EditarUsuarios implements OnInit {
       });
     }
   }
-
   cancelarEdicion() {
     this.router.navigate(['/usuarios']);
   }
