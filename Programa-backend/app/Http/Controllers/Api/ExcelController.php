@@ -38,11 +38,13 @@ class ExcelController extends Controller
         $headings = array_map([$this, 'normalizar'], $datos[0]);
 
         $idxNombre = array_search('nombre completo', $headings);
-        $idxHora = array_search('hora', $headings);
+        // Buscar la segunda columna 'fecha de creacion' (normalizada)
+        $fechaCreacionIndices = array_keys($headings, 'fecha de creacion');
+        $idxHora = isset($fechaCreacionIndices[1]) ? $fechaCreacionIndices[1] : false;
         $idxGestion = array_search('gestion de pago', $headings);
 
         if ($idxNombre === false || $idxHora === false) {
-            abort(422, "Encabezados requeridos no encontrados en archivo de productividad.");
+            abort(422, "Encabezados requeridos no encontrados en archivo de productividad. Asegúrese de que existan dos columnas 'Fecha de creacion'.");
         }
 
         $resumen = [];
