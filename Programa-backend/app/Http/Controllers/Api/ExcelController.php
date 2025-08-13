@@ -91,7 +91,7 @@ class ExcelController extends Controller
     {
         $datos = Excel::toArray([], $file2)[0];
         $headings = array_map([$this, 'normalizar'], $datos[6]);
-        $idxAgente = $idxFechaHora = null;
+        $idxAgente = $idxFechaHora = $idxOrigen = null;
 
         foreach ($headings as $i => $col) {
             if (in_array($col, ['agente que atendio', 'agente que atendió', 'agente'])) {
@@ -100,69 +100,97 @@ class ExcelController extends Controller
             if (in_array($col, ['fechahora', 'fecha hora', 'fecha/hora'])) {
                 $idxFechaHora = $i;
             }
+            if ($col === 'origen') {
+                $idxOrigen = $i;
+            }
         }
 
-        if ($idxAgente === null || $idxFechaHora === null) {
-            abort(422, "Columnas 'Agente' o 'Fecha/Hora' no encontradas en archivo de grabaciones.");
+        if ($idxFechaHora === null) {
+            abort(422, "Columna 'Fecha/Hora' no encontrada en archivo de grabaciones.");
         }
 
         $resumen = [];
+        $primerMarcacion = [];
 
         foreach (array_slice($datos, 7) as $fila) {
-            $agente = trim($fila[$idxAgente] ?? '');
+            $agente = $idxAgente !== null ? trim($fila[$idxAgente] ?? '') : '';
             $fechaHora = trim($fila[$idxFechaHora] ?? '');
+            $origen = $idxOrigen !== null ? trim($fila[$idxOrigen] ?? '') : '';
 
             $horaExtra = $this->extraerHora($fechaHora);
             if (!$horaExtra || $horaExtra < 7 || $horaExtra > $horaLimite) continue;
 
-            if ($agente === '') {
-                // Agente vacío → omitir registro
-                continue;
-            } else {
+            $clave = null;
+            if ($agente !== '') {
                 $agNorm = $this->normalizar($agente);
-
                 // Buscar mejor coincidencia con nombres de usuarios
                 $mejorUsuario = null;
                 $mejorPct = 0;
-
                 foreach ($usuarios as $u) {
                     $nombreBD = $this->normalizar(trim($u->nombres . ' ' . $u->apellidos));
                     similar_text($agNorm, $nombreBD, $pct);
-
                     if ($pct > $mejorPct) {
                         $mejorPct = $pct;
                         $mejorUsuario = $u;
                     }
                 }
-
-                // Solo incluir si hay coincidencia >= 70%
                 if ($mejorPct >= 70) {
                     $clave = $this->normalizar($mejorUsuario->nombre_usuario_huella);
-                } else {
-                    continue; // Omitir registro si no hay coincidencia suficiente
                 }
             }
+            // Si no se encontró por agente, intentar por extensión (origen)
+            if ($clave === null && $origen !== '') {
+                $usuarioPorExt = $usuarios->first(function ($u) use ($origen) {
+                    return isset($u->extension) && $u->extension == $origen;
+                });
+                if ($usuarioPorExt) {
+                    $clave = $this->normalizar($usuarioPorExt->nombre_usuario_huella);
+                }
+            }
+            // Si no se encontró por extensión, intentar por nombre de agente (aunque sea baja coincidencia)
+            if ($clave === null && $agente !== '') {
+                $usuario = $this->buscarUsuarioPorNombreCompleto($agente, $usuarios);
+                if ($usuario) {
+                    $clave = $this->normalizar($usuario->nombre_usuario_huella);
+                }
+            }
+            // Si no se encontró clave, omitir registro
+            if ($clave === null) continue;
 
             if (!isset($resumen[$clave][$horaExtra])) {
                 $resumen[$clave][$horaExtra] = 0;
             }
-
             $resumen[$clave][$horaExtra]++;
+
+            // Guardar la hora exacta (hh:mm) del primer registro
+            if (!isset($primerMarcacion[$clave]) || strtotime($fechaHora) < strtotime($primerMarcacion[$clave])) {
+                // Extraer solo hh:mm
+                if (preg_match('/([01]?\d|2[0-3]):[0-5]\d/', $fechaHora, $m)) {
+                    $primerMarcacion[$clave] = $m[0];
+                }
+            }
         }
 
-        return $resumen;
+        return ['resumen' => $resumen, 'primerMarcacion' => $primerMarcacion];
     }
     private function generarResumenFinal($resumen1, $resumen2, $usuarios, $carteraSeleccionada = '')
     {
+        // Compatibilidad: si $resumen2 no tiene la nueva estructura, adaptarla
+        if (!is_array($resumen2) || !isset($resumen2['resumen']) || !isset($resumen2['primerMarcacion'])) {
+            $resumen2 = [
+                'resumen' => is_array($resumen2) ? $resumen2 : [],
+                'primerMarcacion' => []
+            ];
+        }
         $horas = array_unique(array_merge(
-            ...array_map('array_keys', array_merge(array_values($resumen1), array_values($resumen2)))
+            ...array_map('array_keys', array_merge(array_values($resumen1), array_values($resumen2['resumen'])))
         ));
         // Excluir la hora 7
         $horas = array_filter($horas, function($h) { return intval($h) !== 7; });
         sort($horas);
 
-        $filasUnificadas = [];
-        $todos = array_unique(array_merge(array_keys($resumen1), array_keys($resumen2)));
+        $filas = [];
+        $todos = array_unique(array_merge(array_keys($resumen1), array_keys($resumen2['resumen'])));
 
         // Agregar todos los agentes de la base de datos (por nombre_usuario_huella normalizado)
         foreach ($usuarios as $usuario) {
@@ -171,98 +199,55 @@ class ExcelController extends Controller
         }
         $todos = array_unique($todos);
 
+        // Agrupar por cartera
+        $porCartera = [];
         foreach ($todos as $keyNorm) {
-            // Para cada clave, buscar usuario por huella o por nombres y apellidos
+            if (empty(trim($keyNorm))) continue;
             $usuario = $this->buscarUsuarioPorNombreUsuarioHuella($keyNorm, $usuarios)
-                    ?? $this->buscarUsuarioPorNombreCompleto($keyNorm, $usuarios);
-            $nombreReal = $usuario
-                ? trim($usuario->nombres . ' ' . $usuario->apellidos)
-                : '';
+                ?? $this->buscarUsuarioPorNombreCompleto($keyNorm, $usuarios);
             $cartera = $usuario ? $usuario->cartera : '';
-
-            $tp = $tg = 0;
-            $valores = [];
-            foreach ($horas as $h) {
-                $p = $resumen1[$keyNorm][$h] ?? 0;
-                $g = $resumen2[$keyNorm][$h] ?? 0;
-                $valores[] = $p;
-                $valores[] = $g;
-                $tp += $p;
-                $tg += $g;
-            }
-            $valores[] = $tp;
-            $valores[] = $tg;
-
-            // Determinar novedad
-            $tieneRegistros = array_sum($valores) > 0;
-            $novedad = $tieneRegistros ? 'SIN NOVEDAD' : 'NOVEDAD';
-            $valores[] = $novedad;
-
-            // Unificar por clave (agente normalizado)
-            if (!isset($filasUnificadas[$keyNorm])) {
-                $filasUnificadas[$keyNorm] = [
-                    'asesor' => $keyNorm,
-                    'asesor_real' => $nombreReal,
-                    'cartera' => $cartera,
-                    'valores' => $valores
-                ];
-            } else {
-                // Sumar valores si ya existe
-                foreach ($valores as $i => $v) {
-                    if ($i < count($valores) - 1) { // Solo sumar los valores numéricos
-                        $filasUnificadas[$keyNorm]['valores'][$i] += $v;
-                    }
-                }
-                // Recalcular novedad
-                $tieneRegistros = array_sum(array_slice($filasUnificadas[$keyNorm]['valores'], 0, -1)) > 0;
-                $filasUnificadas[$keyNorm]['valores'][count($valores) - 1] = $tieneRegistros ? 'SIN NOVEDAD' : 'NOVEDAD';
-            }
+            if (strtoupper(trim($cartera)) === 'LIDER') continue;
+            $porCartera[$cartera][] = [
+                'keyNorm' => $keyNorm,
+                'usuario' => $usuario
+            ];
         }
 
-        // Convertir a array de filas
-        $filas = [];
-        $ordenC = ['CASTIGO'=>1,'DESISTIDOS'=>2,'DESOCUPADOS'=>3,'DESOCUPADOS 2022-2023'=>4,'SUPERNUMERARIO'=>5];
-        usort($filasUnificadas, function($a, $b) use ($ordenC) {
-            $carteraA = $a['cartera'] ?? '';
-            $carteraB = $b['cartera'] ?? '';
-            $ordenA = $ordenC[$carteraA] ?? 99;
-            $ordenB = $ordenC[$carteraB] ?? 99;
-            if ($ordenA === $ordenB) {
-                return strcmp($a['asesor'], $b['asesor']);
-            }
-            return $ordenA - $ordenB;
-        });
-        $contadorPorCartera = [];
-        foreach ($filasUnificadas as $f) {
-            $cartera = $f['cartera'] ?? '';
-            if ($cartera === 'LIDER') {
-                continue; // Omitir registros de la cartera LIDER
-            }
-            // Filtro de cartera
-            if ($carteraSeleccionada && $cartera !== $carteraSeleccionada) {
-                continue;
-            }
-            if (!isset($contadorPorCartera[$cartera])) {
-                $contadorPorCartera[$cartera] = 1;
-            } else {
-                $contadorPorCartera[$cartera]++;
-            }
-            $valores = $f['valores'];
-            // Si cartera está vacía, dejar los valores de horas y totales vacíos
-            if ($cartera === null || $cartera === '') {
-                foreach ($valores as $i => $v) {
-                    if (is_numeric($v) && $v == 0) {
-                        $valores[$i] = '';
-                    }
+        // Numerar y ordenar por cartera
+        foreach ($porCartera as $cartera => $asesores) {
+            $contador = 1;
+            foreach ($asesores as $info) {
+                $keyNorm = $info['keyNorm'];
+                $usuario = $info['usuario'];
+                $nombreReal = $usuario ? trim($usuario->nombres . ' ' . $usuario->apellidos) : '';
+                $tp = $tg = 0;
+                $valores = [];
+                $primerMarcacion = '';
+                if (isset($resumen2['primerMarcacion'][$keyNorm])) {
+                    $primerMarcacion = $resumen2['primerMarcacion'][$keyNorm];
                 }
+                foreach ($horas as $h) {
+                    $p = $resumen1[$keyNorm][$h] ?? 0;
+                    $g = $resumen2['resumen'][$keyNorm][$h] ?? 0;
+                    $valores[] = $p;
+                    $valores[] = $g;
+                    $tp += $p;
+                    $tg += $g;
+                }
+                $valores[] = $tp;
+                $valores[] = $tg;
+                $tieneRegistros = array_sum($valores) > 0;
+                $novedad = $tieneRegistros ? 'SIN NOVEDAD' : 'NOVEDAD';
+                $valores[] = $novedad;
+                $fila = [$contador, $keyNorm, $nombreReal, $cartera, $primerMarcacion];
+                $fila = array_merge($fila, $valores);
+                $filas[] = $fila;
+                $contador++;
             }
-            $fila = [$contadorPorCartera[$cartera], $f['asesor'], $f['asesor_real'], $cartera];
-            $fila = array_merge($fila, $valores);
-            $filas[] = $fila;
         }
 
         // Cambiar encabezados
-        $enc = ['Asesor','Asesor Real','Cartera'];
+        $enc = ['Asesor','Asesor Real','Cartera','Primer Marcacion'];
         foreach ($horas as $h) {
             $enc[] = $h.':00 Productividad';
             $enc[] = $h.':00 Grabaciones';

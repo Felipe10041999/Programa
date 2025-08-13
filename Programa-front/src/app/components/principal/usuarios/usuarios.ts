@@ -44,9 +44,10 @@ export class Usuarios implements OnInit {
     this.usuariosFiltrados = this.usuarios.filter(usuario =>
       usuario.nombres.toLowerCase().includes(termino) ||
       usuario.apellidos.toLowerCase().includes(termino) ||
-      usuario.cartera.toLowerCase().includes(termino)
+      usuario.extension.toLowerCase().includes(termino) ||
+      usuario.nombre_usuario_huella.toLowerCase().includes(termino) 
     );
-
+ 
     this.totalPaginas = Math.ceil(this.usuariosFiltrados.length / this.registrosPorPagina);
     this.paginaActual = 1;
     this.actualizarPaginacion();
@@ -78,7 +79,9 @@ export class Usuarios implements OnInit {
   }
   editarUsuario(id: number) {
     this.router.navigate(['/editar', id]);
-  }
+  
+  
+  } 
   IRRegistro() {
     this.router.navigate(['/registro']);
   }
@@ -96,8 +99,8 @@ export class Usuarios implements OnInit {
     'Usuario huella': usuario.usuario_huella,
     'Nombre usuario huella': usuario.nombre_usuario_huella,
     'Clave huella': usuario.clave_huella,
-    
-    Correo: usuario.correo
+    Correo: usuario.correo,
+    Extensión: usuario.extension
   }));
 
   const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(dataParaExportar);

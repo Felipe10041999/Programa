@@ -34,6 +34,7 @@ export class RegistrarUsuarios implements OnInit {
       nombre_usuario_huella: ['', Validators.required],
       clave_huella: ['', Validators.required],
       correo: ['', [Validators.required, Validators.email]],
+      extension: ['', [Validators.required, Validators.minLength(2)]],
     });
   }
   ngOnInit(): void {

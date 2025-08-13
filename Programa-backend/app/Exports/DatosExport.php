@@ -37,7 +37,7 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
         }
 
         // Cambiar encabezados principales
-        $headerRow1 = ['N°','Asesor', 'Asesor Real', 'Cartera'];
+        $headerRow1 = ['N°','Asesor', 'Asesor Real', 'Cartera', 'Logueo'];
         foreach ($horas as $hora) {
             $headerRow1[] = sprintf('%02d:00', $hora);
             $headerRow1[] = '';
@@ -48,7 +48,7 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
         // Para Novedad, una sola columna
         $headerRow1[] = 'Novedades';
 
-        $headerRow2 = ['N°','Asesor', 'Asesor Real', 'Cartera'];
+        $headerRow2 = ['N°','Asesor', 'Asesor Real', 'Cartera', ''];
         foreach ($horas as $hora) {
             $headerRow2[] = 'Huella';
             $headerRow2[] = 'Marcación';
@@ -70,6 +70,7 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
             'B' => 40,
             'C' => 40,
             'D' => 25,
+            'E' => 15, // Nueva Columna
         ];
 
         $horas = [];
@@ -79,7 +80,7 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
             }
         }
 
-        $colIndex = 5; // E = 5
+        $colIndex = 6; // F = 6 (después de la nueva columna)
         foreach ($horas as $hora) {
             $widths[Coordinate::stringFromColumnIndex($colIndex++)] = 9; // Huella
             $widths[Coordinate::stringFromColumnIndex($colIndex++)] = 9; // Marcación
@@ -115,14 +116,15 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
-                // Unificar las cuatro primeras columnas en las filas 1 y 2
+                // Unificar las cinco primeras columnas en las filas 1 y 2
                 $sheet->mergeCells('A1:A2');
                 $sheet->mergeCells('B1:B2');
                 $sheet->mergeCells('C1:C2');
                 $sheet->mergeCells('D1:D2');
-                $sheet->getStyle('A1:D2')->getAlignment()->setHorizontal('center');
-                $sheet->getStyle('A1:D2')->getAlignment()->setVertical('center');
-                $sheet->getStyle('A1:D2')->getFont()->setBold(true);
+                $sheet->mergeCells('E1:E2'); // Nueva Columna
+                $sheet->getStyle('A1:E2')->getAlignment()->setHorizontal('center');
+                $sheet->getStyle('A1:E2')->getAlignment()->setVertical('center');
+                $sheet->getStyle('A1:E2')->getFont()->setBold(true);
 
                 // Extraer las horas reales de los headings
                 $horas = [];
@@ -132,7 +134,7 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
                     }
                 }
 
-                $startColumnIndex = 5; // Ahora las horas empiezan en la columna E
+                $startColumnIndex = 6; // Ahora las horas empiezan en la columna F
                 foreach ($horas as $hora) {
                     $col1 = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($startColumnIndex);
                     $col2 = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($startColumnIndex + 1);
@@ -193,8 +195,8 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
 
                 // Degradado en las columnas de Total (las dos últimas columnas)
                 // Obtener índices de las dos últimas columnas
-                $totalCol1 = $colEnd - 1;
-                $totalCol2 = $colEnd;
+                $totalCol1 = $colEnd - 2; // Total Huella
+                $totalCol2 = $colEnd - 1; // Total Marcación
                 // Recopilar valores de cada columna de total
                 $valoresTotal1 = [];
                 $valoresTotal2 = [];
@@ -213,67 +215,38 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
                 $max2 = count($valoresTotal2) ? max($valoresTotal2) : 1;
                 // Aplicar degradado
                 for ($row = 3; $row <= $highestRow; $row++) {
-                    // Total Productividad
+                    // Total Huella
                     $cell1 = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($totalCol1) . $row;
                     $v1 = $sheet->getCell($cell1)->getValue();
                     if (is_numeric($v1)) {
-                        $color = 'FFFF0000'; // Rojo por defecto
-                        if ($max1 > $min1) {
-                            $percent = ($v1 - $min1) / ($max1 - $min1);
-                            if ($percent <= 0.33) {
-                                // Rojo a Naranja
-                                $local = $percent / 0.33;
-                                $r = 255;
-                                $g = intval(0 + (165 * $local)); // 0 a 165
-                                $b = 0;
-                            } elseif ($percent <= 0.66) {
-                                // Naranja a Amarillo
-                                $local = ($percent - 0.33) / 0.33;
-                                $r = 255;
-                                $g = intval(165 + (90 * $local)); // 165 a 255
-                                $b = 0;
-                            } else {
-                                // Amarillo a Verde
-                                $local = ($percent - 0.66) / 0.34;
-                                $r = intval(255 - (255 * $local)); // 255 a 0
-                                $g = 255;
-                                $b = 0;
-                            }
-                            $color = sprintf('FF%02X%02X%02X', $r, $g, $b);
+                        $porcentaje = $max1 > 0 ? ($v1 / $max1) : 0;
+                        if ($porcentaje >= 0.7) {
+                            $color = 'FF00FF00'; // Verde
+                        } elseif ($porcentaje >= 0.5) {
+                            $color = 'FFFFFF00'; // Amarillo
+                        } else {
+                            $color = 'FFFF0000'; // Rojo
                         }
                         $sheet->getStyle($cell1)->getFill()->setFillType('solid')->getStartColor()->setARGB($color);
                     }
-                    // Total Grabaciones
+                    // Total Marcación
                     $cell2 = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($totalCol2) . $row;
                     $v2 = $sheet->getCell($cell2)->getValue();
                     if (is_numeric($v2)) {
-                        $color = 'FFFF0000';
-                        if ($max2 > $min2) {
-                            $percent = ($v2 - $min2) / ($max2 - $min2);
-                            if ($percent <= 0.33) {
-                                $local = $percent / 0.33;
-                                $r = 255;
-                                $g = intval(0 + (165 * $local));
-                                $b = 0;
-                            } elseif ($percent <= 0.66) {
-                                $local = ($percent - 0.33) / 0.33;
-                                $r = 255;
-                                $g = intval(165 + (90 * $local));
-                                $b = 0;
-                            } else {
-                                $local = ($percent - 0.66) / 0.34;
-                                $r = intval(255 - (255 * $local));
-                                $g = 255;
-                                $b = 0;
-                            }
-                            $color = sprintf('FF%02X%02X%02X', $r, $g, $b);
+                        $porcentaje = $max2 > 0 ? ($v2 / $max2) : 0;
+                        if ($porcentaje >= 0.7) {
+                            $color = 'FF00FF00'; // Verde
+                        } elseif ($porcentaje >= 0.5) {
+                            $color = 'FFFFFF00'; // Amarillo
+                        } else {
+                            $color = 'FFFF0000'; // Rojo
                         }
                         $sheet->getStyle($cell2)->getFill()->setFillType('solid')->getStartColor()->setARGB($color);
                     }
                 }
 
                 // Degradado en las columnas de horas del segundo archivo (Marcación/Grabaciones)
-                // Calcular para cada columna impar desde D en adelante (Marcación)
+                // Calcular para cada columna impar desde F en adelante (Marcación)
                 for ($col = $colStart + 1; $col <= $colEnd - 2; $col += 2) { // Excluye las dos últimas (totales)
                     $valoresCol = [];
                     for ($row = 3; $row <= $highestRow; $row++) {
@@ -287,26 +260,12 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
                         $cell = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($col) . $row;
                         $v = $sheet->getCell($cell)->getValue();
                         if (is_numeric($v)) {
-                            $color = 'FFFF0000';
-                            if ($max > $min) {
-                                $percent = ($v - $min) / ($max - $min);
-                                if ($percent <= 0.33) {
-                                    $local = $percent / 0.33;
-                                    $r = 255;
-                                    $g = intval(0 + (165 * $local));
-                                    $b = 0;
-                                } elseif ($percent <= 0.66) {
-                                    $local = ($percent - 0.33) / 0.33;
-                                    $r = 255;
-                                    $g = intval(165 + (90 * $local));
-                                    $b = 0;
-                                } else {
-                                    $local = ($percent - 0.66) / 0.34;
-                                    $r = intval(255 - (255 * $local));
-                                    $g = 255;
-                                    $b = 0;
-                                }
-                                $color = sprintf('FF%02X%02X%02X', $r, $g, $b);
+                            if ($v == $min) {
+                                $color = 'FFFF0000'; // Rojo
+                            } elseif ($v == $max) {
+                                $color = 'FF00FF00'; // Verde
+                            } else {
+                                $color = 'FFFFFF00'; // Amarillo
                             }
                             $sheet->getStyle($cell)->getFill()->setFillType('solid')->getStartColor()->setARGB($color);
                         }
@@ -350,6 +309,26 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
                     $valor = $sheet->getCell($cell)->getValue();
                     if ($valor !== null && $valor !== '') {
                         $sheet->setCellValue($cell, mb_strtoupper($valor, 'UTF-8'));
+                    }
+                }
+
+                // Excepción: primera columna de huella (primer hora)
+                // Determinar la columna de la primera huella (después de las columnas fijas y primer marcación)
+                $colPrimeraHuella = 6; // F (A=1, B=2, C=3, D=4, E=5, F=6)
+                for ($row = 3; $row <= $highestRow; $row++) {
+                    $cell = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colPrimeraHuella) . $row;
+                    $v = $sheet->getCell($cell)->getValue();
+                    if (is_numeric($v)) {
+                        if ($v >= 0 && $v <= 2) {
+                            $color = 'FFFF0000'; // Rojo
+                        } elseif ($v == 3 || $v == 4) {
+                            $color = 'FFFFFF00'; // Amarillo
+                        } elseif ($v > 4) {
+                            $color = 'FF00FF00'; // Verde
+                        } else {
+                            $color = 'FFFFFFFF'; // Blanco por defecto
+                        }
+                        $sheet->getStyle($cell)->getFill()->setFillType('solid')->getStartColor()->setARGB($color);
                     }
                 }
             }

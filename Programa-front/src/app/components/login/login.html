@@ -1,0 +1,70 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="logo">
+        <img src="assets/imagenes/NGSO.png" alt="NGSO Logo" class="logo-img">
+      </div>
+      <h1>Sistema de Gestión</h1>
+      <p>Iniciar Sesión</p>
+    </div>
+
+    <form class="login-form" (submit)="$event.preventDefault(); iniciarSesion()">
+      <div class="form-group">
+        <label for="nombreUsuario">Nombre de Usuario</label>
+        <input 
+          type="text" 
+          id="nombreUsuario"
+          name="nombreUsuario"
+          [(ngModel)]="nombreUsuario"
+          (input)="limpiarMensajes()"
+          placeholder="Ingrese su nombre de usuario"
+          required
+          [disabled]="isLoading"
+          class="form-input"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="contrasena">Contraseña</label>
+        <input 
+          type="password" 
+          id="contrasena"
+          name="contrasena"
+          [(ngModel)]="contrasena"
+          (input)="limpiarMensajes()"
+          placeholder="Ingrese su contraseña"
+          required
+          [disabled]="isLoading"
+          class="form-input"
+        >
+      </div>
+
+      <button 
+        type="submit" 
+        class="login-btn"
+        [disabled]="isLoading || !nombreUsuario.trim() || !contrasena.trim()"
+      >
+        <span *ngIf="!isLoading">Iniciar Sesión</span>
+        <span *ngIf="isLoading" class="loading-spinner">
+          <i class="fas fa-spinner fa-spin"></i> Iniciando...
+        </span>
+      </button>
+    </form>
+
+
+    <!-- Mensajes de error y éxito -->
+    <div *ngIf="errorMessage" class="alert alert-error" role="alert">
+      <i class="fas fa-exclamation-circle"></i>
+      <span>{{ errorMessage }}</span>
+    </div>
+
+    <div *ngIf="successMessage" class="alert alert-success" role="status">
+      <i class="fas fa-check-circle"></i>
+      <span>{{ successMessage }}</span>
+    </div>
+
+    <div class="login-footer">
+      <p>© 2025 NGSO - Sistema de Gestión</p>
+    </div>
+  </div>
+</div> 

@@ -10,6 +10,11 @@
         <i class="fas fa-plus"></i> Nuevo usuario
       </button>
     </div>
+    <div class="button-container">
+      <button class="btn-volver" (click)="volverAPrincipal()">
+        <i class="fas fa-arrow-left"></i> Principal
+      </button>
+    </div>
     
     <!-- Barra de búsqueda -->
     <div class="search-container">
@@ -40,6 +45,7 @@
               <th>Nombre usuario huella</th>
               <th>Clave huella</th>
               <th>Correo</th>
+              <th>Extensión</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -58,6 +64,7 @@
               <td>{{ usuario.nombre_usuario_huella }}</td>
               <td>{{ usuario.clave_huella }}</td>
               <td>{{ usuario.correo }}</td>
+              <td>{{ usuario.extension }}</td>
               
               
               <td>
@@ -105,11 +112,6 @@
     <div class="text-center">
       <button class="export-btn" (click)="exportarAExcel()">
         <i class="fas fa-file-excel"></i> Exportar  Excel
-      </button>
-    </div>
-    <div class="button-container">
-      <button class="btn-volver" (click)="volverAPrincipal()">
-        <i class="fas fa-arrow-left"></i> Volver al Principal
       </button>
     </div>
   </div>

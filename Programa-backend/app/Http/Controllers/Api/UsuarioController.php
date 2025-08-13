@@ -12,7 +12,7 @@ class UsuarioController extends Controller
 {
     public function index(Request $request)
     {
-        $usuario = Usuario::paginate(60);
+        $usuario = Usuario::paginate(100);
         if ($usuario->isEmpty()) {
             return response()->json([
                 'message' => 'No se encontraron usuarios',
@@ -36,6 +36,7 @@ class UsuarioController extends Controller
             'clave_huella' => 'required',
             'correo' => 'required|email',
             'nombre_usuario_huella' => 'required',
+            'extension' => 'required|string|min:2',
         ]);
         
         
@@ -80,6 +81,7 @@ class UsuarioController extends Controller
                 'clave_huella' => 'required',
                 'correo' => 'required|email',
                 'nombre_usuario_huella' => 'required',
+                'extension' => 'required|string|min:2',
             ]);
 
             $usuario->update($validated);

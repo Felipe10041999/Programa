@@ -13,5 +13,6 @@ export interface Usuariosmodel {
     nombre_usuario_huella: string;
     clave_huella: string;
     correo: string;
+    extension: string;
 }
 

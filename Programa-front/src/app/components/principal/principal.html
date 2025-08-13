@@ -1,8 +1,28 @@
 <div class="principal-container">
+  <!-- Header con información del usuario -->
+  <header class="header-main">
+    <div class="header-content">
+      <div class="header-left">
+        <h1>Sistema de Gestión</h1>
+        <p>Panel de administración</p>
+      </div>
+      <div class="header-right">
+        <div class="user-info">
+          <span class="user-label">Usuario:</span>
+          <span class="user-name">{{ usuarioActual }}</span>
+        </div>
+        <button class="logout-btn" (click)="cerrarSesion()">
+          <i class="fas fa-sign-out-alt"></i>
+          Cerrar Sesión
+        </button>
+      </div>
+    </div>
+  </header>
+
   <div class="principal-content">
-    <div class="header">
-      <h1>Sistema de Gestión</h1>
-      <p>Bienvenido al panel de administración</p>
+    <div class="welcome-section">
+      <h2>Bienvenido, {{ usuarioActual }}</h2>
+      <p>Seleccione una opción del menú para continuar</p>
     </div>
     
     <div class="menu-cards">
