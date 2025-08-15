@@ -47,6 +47,12 @@ export const routes: Routes = [
     .then(m=> m.Informes),
     canActivate: [AuthGuard]
   },
+  { 
+    path: 'logueo',
+    loadComponent:() => import('./components/principal/logueo/logueo')
+    .then(m=> m.Logueo),
+    canActivate: [AuthGuard]
+  },
   // Ruta para capturar cualquier ruta no definida
   { 
     path: '**', 

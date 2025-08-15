@@ -16,7 +16,6 @@ class ExcelController extends Controller
             'file'  => 'required|file|mimes:xlsx,xls',
             'file2' => 'required|file|mimes:xlsx,xls',
         ]);
-
         $horaLimite = $request->input('hora_limite', 18);
         $carteraSeleccionada = $request->input('cartera', '');
         $usuarios   = Usuario::all();
@@ -243,7 +242,7 @@ class ExcelController extends Controller
                 $valores[] = $novedad;
                 $fila = [$contador, $keyNorm, $nombreReal, $cartera, $primerMarcacion];
                 $fila = array_merge($fila, $valores);
-                $filas[] = $fila;
+                $filas[] = $fila;    
                 $contador++;
             }
         }

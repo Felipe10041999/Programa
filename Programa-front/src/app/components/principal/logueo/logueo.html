@@ -1,0 +1,84 @@
+<div class="logueo-container">
+  <div class="logueo-header">
+    <h1>Creador de archivo de primer logueo</h1>
+    <p>Sube el archivo de BestVoIper para generar la primer hora de marcacion</p>
+  </div>
+
+  <div class="logueo-content">
+    <div class="upload-section">
+      <div class="upload-area" [class.dragover]="dragover" 
+           (dragover)="onDragOver($event)" 
+           (dragleave)="onDragLeave($event)" 
+           (drop)="onDrop($event)">
+        
+        <div class="upload-icon">
+          <i class="fas fa-file-excel"></i>
+        </div>
+        
+        <h3>Selecciona tu archivo Excel</h3>
+        <p>Arrastra y suelta tu archivo aquí o haz clic para seleccionar</p>
+        
+        <input type="file" 
+               #fileInput 
+               (change)="onFileSelected($event)" 
+               accept=".xlsx,.xls" 
+               style="display: none;">
+        
+        <button class="select-btn" (click)="fileInput.click()">
+          <i class="fas fa-folder-open"></i>
+          Seleccionar Archivo
+        </button>
+      </div>
+
+      <div class="file-info" *ngIf="archivoSeleccionado">
+        <div class="file-details">
+          <i class="fas fa-file-excel"></i>
+          <div class="file-text">
+            <h4>{{ archivoSeleccionado.name }}</h4>
+            <p>{{ (archivoSeleccionado.size / 1024 / 1024).toFixed(2) }} MB</p>
+          </div>
+          <button class="remove-btn" (click)="archivoSeleccionado = null">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress-section" *ngIf="cargando">
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="progreso"></div>
+      </div>
+      <p class="progress-text">{{ progreso }}% completado</p>
+    </div>
+
+    <div class="message-section" *ngIf="mensaje">
+      <div class="message" [class.error]="mensaje.includes('Error')" [class.success]="mensaje.includes('exitosamente')">
+        <i class="fas" [class.fa-exclamation-triangle]="mensaje.includes('Error')" [class.fa-check-circle]="mensaje.includes('exitosamente')" [class.fa-info-circle]="!mensaje.includes('Error') && !mensaje.includes('exitosamente')"></i>
+        {{ mensaje }}
+      </div>
+    </div>
+
+    <div class="actions-section">
+      <button class="process-btn" 
+              (click)="subirArchivo()" 
+              [disabled]="!archivoSeleccionado || cargando">
+        <i class="fas fa-upload"></i>
+        {{ cargando ? 'Procesando...' : 'Procesar Archivo' }}
+      </button>
+      
+      <button class="back-btn" (click)="volver()">
+        <i class="fas fa-arrow-left"></i>
+        Volver al Panel Principal
+      </button>
+    </div>
+
+    <div class="info-section">
+      <h3>Información del Proceso</h3>
+      <ul>
+        <li>El archivo debe contener la extension de cada asesor que raliza la marcacion</li>
+        <li>Se procesará la hora de primer marcacion de cada asesor</li>
+        <li>El resultado se descargará automáticamente</li>
+      </ul>
+    </div>
+  </div>
+</div>

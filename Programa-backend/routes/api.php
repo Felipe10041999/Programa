@@ -3,6 +3,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\UsuarioController;
 use App\Http\Controllers\Api\ExcelController;
 use App\Http\Controllers\Api\IniciarController;
+use App\Http\Controllers\Api\Archivologueo;
 
 // RUTAS PÚBLICAS
 
@@ -25,9 +26,9 @@ Route::apiResource('/usuario', UsuarioController::class);
 
 Route::post('/procesar-excel', [ExcelController::class, 'procesar']);
 Route::get('/usuario/carteras', [UsuarioController::class, 'carteras']);
+Route::post('/archivologueo/subir', [Archivologueo::class, 'subir']);
 
 
 
 
-    
-    
+

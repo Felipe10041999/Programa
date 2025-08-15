@@ -1,7 +1,6 @@
 .principal-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, rgb(74, 90, 103) 0%, rgb(209, 168, 78) 100%);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-attachment: fixed;
 }
 
 /* Header principal */

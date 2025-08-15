@@ -1,4 +1,6 @@
 export { AuthService } from './auth.service';
 export type { Sesion } from './auth.service';
 export { UsuariosService } from './usuarios-service';
-export { InformesService } from './excel-productividad'; 
+export { InformesService } from './excel-productividad';
+export { LogueoService } from './logueo.service';
+export type { UploadProgress, UploadResponse } from './logueo.service'; 

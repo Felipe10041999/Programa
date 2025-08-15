@@ -8,4 +8,7 @@ export { RegistrarUsuarios } from './principal/usuarios/registrar-usuarios/regis
 export { EditarUsuarios } from './principal/usuarios/editar-usuarios/editar-usuarios';
 
 // Componentes de informes
-export { Informes } from './principal/informes/informes'; 
+export { Informes } from './principal/informes/informes';
+
+// Componentes de logueo
+export { Logueo } from './principal/logueo/logueo'; 

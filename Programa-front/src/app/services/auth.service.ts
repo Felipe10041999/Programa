@@ -143,8 +143,8 @@ export class AuthService {
     const ahora = new Date();
     const diferenciaHoras = (ahora.getTime() - ultimoAcceso.getTime()) / (1000 * 60 * 60);
 
-    // Considerar expirada después de 8 horas de inactividad
-    return diferenciaHoras > 8;
+    // Considerar expirada después de 30 minutos de inactividad
+    return diferenciaHoras > 0.5; // 30 minutos
   }
 
   /**

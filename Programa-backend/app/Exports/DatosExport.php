@@ -35,7 +35,7 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
                 $horas[] = $m[1];
             }
         }
-
+        
         // Cambiar encabezados principales
         $headerRow1 = ['N°','Asesor', 'Asesor Real', 'Cartera', 'Logueo'];
         foreach ($horas as $hora) {

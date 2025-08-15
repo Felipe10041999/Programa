@@ -48,6 +48,10 @@ export class Principal implements OnInit, OnDestroy {
     this.router.navigate(['/informes']);
   }
 
+  navegarALogueo() {
+    this.router.navigate(['/logueo']);
+  }
+
   async cerrarSesion() {
     await this.authService.logout();
   }
