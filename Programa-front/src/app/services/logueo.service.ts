@@ -15,7 +15,7 @@ export interface UploadResponse {
   filename?: string;
 }
 
-@Injectable({
+@Injectable({ 
   providedIn: 'root'
 })
 export class LogueoService {
@@ -128,3 +128,5 @@ export class LogueoService {
     document.body.removeChild(a);
   }
 }
+
+

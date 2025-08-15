@@ -25,23 +25,43 @@ class LogueoExport implements FromArray, WithHeadings, WithStyles, WithColumnWid
 
     public function array(): array
     {
-        return $this->data;
+        $dataConMinutosSobrantes = array_map(function($fila) {
+            $hora = $fila['Logueo'];
+            $horaActual = strtotime($hora);
+            $horaLimite = strtotime('07:30:00');
+            if ($horaActual > $horaLimite) {
+                $diferencia = $horaActual - $horaLimite;
+                $minutosSobrantes = floor($diferencia / 60);
+            } else {
+                $minutosSobrantes = 0;
+                
+            }
+            return [
+                'Asesor' => $fila['Asesor'],
+                'Extensión' => $fila['Extensión'],
+                'Cartera' => $fila['Cartera'],
+                'Logueo' => $fila['Logueo'],
+                'Tiempo a reponer' => $minutosSobrantes. ' min',
+            ];
+        }, $this->data);
+        return $dataConMinutosSobrantes;
     }
 
     public function headings(): array
     {
         return [
             'Asesor',
-            'Extensión', 
+            'Extensión',
             'Cartera',
-            'Logueo'
+            'Logueo',
+            'Tiempo a reponer',
         ];
     }
 
     public function styles(Worksheet $sheet)
     {
         // Estilo para el encabezado
-        $sheet->getStyle('A1:D1')->applyFromArray([
+        $sheet->getStyle('A1:E1')->applyFromArray([
             'font' => [
                 'bold' => true,
                 'color' => ['rgb' => 'FFFFFF'],
@@ -66,7 +86,7 @@ class LogueoExport implements FromArray, WithHeadings, WithStyles, WithColumnWid
         // Estilo para los datos
         $lastRow = count($this->data) + 1;
         if ($lastRow > 1) {
-            $sheet->getStyle('A2:D' . $lastRow)->applyFromArray([
+            $sheet->getStyle('A2:E' . $lastRow)->applyFromArray([
                 'font' => [
                     'size' => 11,
                     'color' => ['rgb' => '2C3E50']
@@ -86,16 +106,6 @@ class LogueoExport implements FromArray, WithHeadings, WithStyles, WithColumnWid
                     'vertical' => Alignment::VERTICAL_CENTER
                 ]
             ]);
-
-            // Filas alternadas para mejor legibilidad
-            for ($row = 3; $row <= $lastRow; $row += 2) {
-                $sheet->getStyle('A' . $row . ':D' . $row)->applyFromArray([
-                    'fill' => [
-                        'fillType' => Fill::FILL_SOLID,
-                        'startColor' => ['rgb' => 'FFFFFF']
-                    ]
-                ]);
-            }
         }
 
         // Estilo para la columna de hora (formato especial)
@@ -106,36 +116,16 @@ class LogueoExport implements FromArray, WithHeadings, WithStyles, WithColumnWid
             ]
         ]);
 
+        // Estilo para los minutos sobrantes (misma color que la hora)
+        $sheet->getStyle('E2:E' . $lastRow)->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => '27AE60']
+            ]
+        ]);
+
         // Alinear a la izquierda los nombres de Asesor (columna A)
         $sheet->getStyle('A2:A' . $lastRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
-
-        // Estilo especial para separadores de cartera
-        for ($row = 2; $row <= $lastRow; $row++) {
-            $cellValue = $sheet->getCell('A' . $row)->getValue();
-            if (strpos((string)$cellValue, 'CARTERA:') !== false) {
-                $sheet->getStyle('A' . $row . ':D' . $row)->applyFromArray([
-                    'font' => [
-                        'bold' => true,
-                        'color' => ['rgb' => 'FFFFFF'],
-                        'size' => 12
-                    ],
-                    'fill' => [
-                        'fillType' => Fill::FILL_SOLID,
-                        'startColor' => ['rgb' => '3498DB']
-                    ],
-                    'alignment' => [
-                        'horizontal' => Alignment::HORIZONTAL_CENTER,
-                        'vertical' => Alignment::VERTICAL_CENTER
-                    ]
-                ]);
-                $sheet->getRowDimension($row)->setRowHeight(25);
-            }
-            
-            // Estilo para líneas en blanco
-            if (empty($cellValue)) {
-                $sheet->getRowDimension($row)->setRowHeight(10);
-            }
-        }
 
         // Altura de filas
         $sheet->getRowDimension('1')->setRowHeight(25);
@@ -147,9 +137,8 @@ class LogueoExport implements FromArray, WithHeadings, WithStyles, WithColumnWid
         }
 
         // Centrar todo el contenido
-        $sheet->getStyle('A1:D' . $lastRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-        $sheet->getStyle('A1:D' . $lastRow)->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
-
+        $sheet->getStyle('A1:E' . $lastRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('A1:E' . $lastRow)->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
         return $sheet;
     }
 
@@ -159,12 +148,13 @@ class LogueoExport implements FromArray, WithHeadings, WithStyles, WithColumnWid
             'A' => 35, // Asesor
             'B' => 15, // Extensión
             'C' => 25, // Cartera
-            'D' => 25, // Hora
+            'D' => 25, // Logueo
+            'E' => 20, // Minutos Sobrantes
         ];
     }
 
     public function title(): string
     {
-        return 'Reporte de Marcaciones';
+        return 'Reporte de Logueos';
     }
 }
