@@ -193,7 +193,7 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
                     }
                 }
 
-                // Degradado en las columnas de Total (las dos últimas columnas)
+                
                 // Obtener índices de las dos últimas columnas
                 $totalCol1 = $colEnd - 2; // Total Huella
                 $totalCol2 = $colEnd - 1; // Total Marcación

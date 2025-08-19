@@ -77,7 +77,7 @@ class Archivologueo extends Controller
                     }
                 }
 
-                // Calcular los minutos que se pasaron después de las 7:30
+                // Calcular los minutos que se pasaron después de las 7:35
                 $minutosSobrantes = null;
                 if ($horaMasTempranaStr !== null) {
                     $minutosSobrantes = $this->calcularMinutosSobrantes($horaMasTempranaStr);

@@ -12,7 +12,6 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
-use PhpOffice\PhpSpreadsheet\Style\Color;
 
 class LogueoExport implements FromArray, WithHeadings, WithStyles, WithColumnWidths, WithTitle, ShouldAutoSize
 {
@@ -27,23 +26,44 @@ class LogueoExport implements FromArray, WithHeadings, WithStyles, WithColumnWid
     {
         $dataConMinutosSobrantes = array_map(function($fila) {
             $hora = $fila['Logueo'];
-            $horaActual = strtotime($hora);
-            $horaLimite = strtotime('07:30:00');
-            if ($horaActual > $horaLimite) {
-                $diferencia = $horaActual - $horaLimite;
-                $minutosSobrantes = floor($diferencia / 60);
+            $minutosSobrantes = 0;
+
+            if (!empty($hora) && strtotime($hora)) {
+                // Redondear al minuto más cercano
+                $timestamp = strtotime($hora);
+                $segundos = date('s', $timestamp);
+
+                // Redondeo al minuto más cercano
+                if ((int)$segundos >= 30) {
+                    $timestamp += (60 - (int)$segundos);
+                } else {
+                    $timestamp -= (int)$segundos;
+                }
+
+                $horaRedondeada = date('H:i', $timestamp);
+
+                // Comparar con la hora límite
+                $horaLimite = strtotime('07:30:00');
+                if ($timestamp > $horaLimite) {
+                    $diferencia = $timestamp - $horaLimite;
+                    $minutosSobrantes = floor($diferencia / 60);
+                }
+
+                $horaFinal = $horaRedondeada;
             } else {
-                $minutosSobrantes = 0;
-                
+                $horaFinal = 'NOVEDAD';
+                $minutosSobrantes = 'N/A';
             }
+
             return [
                 'Asesor' => $fila['Asesor'],
                 'Extensión' => $fila['Extensión'],
                 'Cartera' => $fila['Cartera'],
-                'Logueo' => $fila['Logueo'],
-                'Tiempo a reponer' => $minutosSobrantes. ' min',
+                'Logueo' => $horaFinal,
+                'Tiempo a reponer' => is_numeric($minutosSobrantes) ? $minutosSobrantes . ' min' : $minutosSobrantes,
             ];
         }, $this->data);
+
         return $dataConMinutosSobrantes;
     }
 
@@ -83,8 +103,8 @@ class LogueoExport implements FromArray, WithHeadings, WithStyles, WithColumnWid
             ]
         ]);
 
-        // Estilo para los datos
         $lastRow = count($this->data) + 1;
+
         if ($lastRow > 1) {
             $sheet->getStyle('A2:E' . $lastRow)->applyFromArray([
                 'font' => [
@@ -108,22 +128,6 @@ class LogueoExport implements FromArray, WithHeadings, WithStyles, WithColumnWid
             ]);
         }
 
-        // Estilo para la columna de hora (formato especial)
-        $sheet->getStyle('D2:D' . $lastRow)->applyFromArray([
-            'font' => [
-                'bold' => true,
-                'color' => ['rgb' => '27AE60']
-            ]
-        ]);
-
-        // Estilo para los minutos sobrantes (misma color que la hora)
-        $sheet->getStyle('E2:E' . $lastRow)->applyFromArray([
-            'font' => [
-                'bold' => true,
-                'color' => ['rgb' => '27AE60']
-            ]
-        ]);
-
         // Alinear a la izquierda los nombres de Asesor (columna A)
         $sheet->getStyle('A2:A' . $lastRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
 
@@ -136,20 +140,94 @@ class LogueoExport implements FromArray, WithHeadings, WithStyles, WithColumnWid
             }
         }
 
+        // Colores condicionales en columna Logueo
+        for ($row = 2; $row <= $lastRow; $row++) {
+            $horaLogueo = $sheet->getCell('D' . $row)->getFormattedValue();
+
+            if (!empty($horaLogueo) && $horaLogueo !== 'NOVEDAD' && strtotime($horaLogueo)) {
+                $horaLogueoTimestamp = strtotime($horaLogueo);
+                $horaVerde = strtotime('07:30:00');
+                $horaAmarillo = strtotime('07:35:59');
+                $colorFondo = null;
+
+                if (!empty($horaLogueo)) {
+                    if ($horaLogueo === 'NOVEDAD') {
+                        // Estilo azul para "NOVEDAD"
+                        $sheet->getStyle('D' . $row)->applyFromArray([
+                            'fill' => [
+                                'fillType' => Fill::FILL_SOLID,
+                                'startColor' => ['rgb' => 'D6EAF8'] // azul claro
+                            ],
+                            'font' => [
+                                'bold' => true,
+                                'color' => ['rgb' => '154360']
+                            ],
+                            'alignment' => [
+                                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                                'vertical' => Alignment::VERTICAL_CENTER
+                            ],
+                            'borders' => [
+                                'allBorders' => [
+                                    'borderStyle' => Border::BORDER_THIN,
+                                    'color' => ['rgb' => 'E9ECEF']
+                                ]
+                            ]
+                        ]);
+                    } elseif (strtotime($horaLogueo)) {
+                        $horaLogueoTimestamp = strtotime($horaLogueo);
+                        $horaVerde = strtotime('07:30:29');
+                        $horaAmarillo = strtotime('07:35:59');
+                        $colorFondo = null;
+                
+                        if ($horaLogueoTimestamp < $horaVerde) {
+                            $colorFondo = 'D4EFDF'; // verde claro
+                        } elseif ($horaLogueoTimestamp <= $horaAmarillo) {
+                            $colorFondo = 'FCF3CF'; // amarillo claro
+                        } else {
+                            $colorFondo = 'F5B7B1'; // rojo claro
+                        }
+                
+                        $sheet->getStyle('D' . $row)->applyFromArray([
+                            'fill' => [
+                                'fillType' => Fill::FILL_SOLID,
+                                'startColor' => ['rgb' => $colorFondo]
+                            ],
+                            'font' => [
+                                'size' => 11,
+                                'color' => ['rgb' => '2C3E50']
+                            ],
+                            'borders' => [
+                                'allBorders' => [
+                                    'borderStyle' => Border::BORDER_THIN,
+                                    'color' => ['rgb' => 'E9ECEF']
+                                ]
+                            ],
+                            'alignment' => [
+                                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                                'vertical' => Alignment::VERTICAL_CENTER
+                            ]
+                        ]);
+                    }
+                }
+            }
+        }
+    
+
         // Centrar todo el contenido
         $sheet->getStyle('A1:E' . $lastRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
         $sheet->getStyle('A1:E' . $lastRow)->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+
         return $sheet;
     }
 
     public function columnWidths(): array
     {
         return [
-            'A' => 35, // Asesor
-            'B' => 15, // Extensión
-            'C' => 25, // Cartera
-            'D' => 25, // Logueo
-            'E' => 20, // Minutos Sobrantes
+            'A' => 35,
+            'B' => 15,
+            'C' => 25,
+            'D' => 25,
+            'E' => 20,
         ];
     }
 
@@ -158,3 +236,4 @@ class LogueoExport implements FromArray, WithHeadings, WithStyles, WithColumnWid
         return 'Reporte de Logueos';
     }
 }
+    
