@@ -24,7 +24,7 @@
             class="file-input"
             [disabled]="generandoInforme">
           <label for="fileInput1" class="file-label">
-            <i class="fas fa-upload"></i> Seleccionar Archivo Productividad
+            <i class="fas fa-upload"></i> Seleccionar Archivo gestiones totales
           </label>
         </div>
         <div *ngIf="archivoSeleccionado" class="file-info">
@@ -32,7 +32,27 @@
           <span>{{ archivoSeleccionado.name }}</span>
         </div>
         <!-- Segundo archivo -->
-        <div class="file-input-container">
+         <div class="file-input-container">
+          <input 
+            type="file" 
+            id="fileInput3"
+            (change)="onFileSelected3($event)"
+            accept=".xlsx,.xls"
+            class="file-input"
+            [disabled]="generandoInforme">
+          <label for="fileInput3" class="file-label">
+            <i class="fas fa-upload"></i> Seleccionar Archivo gestiones castigo
+          </label>
+        </div>
+        <div *ngIf="archivoSeleccionado3" class="file-info">
+          <i class="fas fa-check-circle"></i>
+          <span>{{ archivoSeleccionado3.name }}</span>
+        </div>
+      </div>
+    </div>
+        
+        <!-- Tercer archivo -->
+         <div class="file-input-container">
           <input 
             type="file" 
             id="fileInput2"
@@ -48,8 +68,6 @@
           <i class="fas fa-check-circle"></i>
           <span>{{ archivoGrabacionesSeleccionado.name }}</span>
         </div>
-      </div>
-    </div>
 
     <div class="form-row">
       <div class="form-group">
@@ -74,7 +92,7 @@
         <button 
           class="btn-generar" 
           (click)="generarInformeProductividad()"
-          [disabled]="generandoInforme || !archivoSeleccionado">
+          [disabled]="generandoInforme || !archivoSeleccionado || !archivoGrabacionesSeleccionado || !archivoSeleccionado3">
           <i class="fas fa-download" *ngIf="!generandoInforme"></i>
           <i class="fas fa-spinner fa-spin" *ngIf="generandoInforme"></i>
           {{ generandoInforme ? 'Generando...' : 'Generar Informe' }}

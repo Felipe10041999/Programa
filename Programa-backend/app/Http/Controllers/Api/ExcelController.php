@@ -15,6 +15,7 @@ class ExcelController extends Controller
         $request->validate([
             'file'  => 'required|file|mimes:xlsx,xls',
             'file2' => 'required|file|mimes:xlsx,xls',
+            'file3' => 'required|file|mimes:xlsx,xls',
         ]);
         $horaLimite = $request->input('hora_limite', 18);
         $carteraSeleccionada = $request->input('cartera', '');
@@ -23,18 +24,108 @@ class ExcelController extends Controller
         // 1. Procesar archivo 1
         $resumen1 = $this->leerArchivoProductividad($request->file('file'), $usuarios, $horaLimite);
 
-        // 2. Procesar archivo 2 comparando con nombres reales en BD
+        // 2. Procesar archivo 2 (grabaciones)
         $resumen2 = $this->leerArchivoGrabaciones($request->file('file2'), $usuarios, $horaLimite);
 
-        // 3. Generar resumen final combinando ambos
-        [$filas, $encabezados] = $this->generarResumenFinal($resumen1, $resumen2, $usuarios, $carteraSeleccionada);
+        // 3. Procesar archivo 3 (igual a archivo 1, estructura especial)
+        $resumen3 = $this->leerArchivoProductividad($request->file('file3'), $usuarios, $horaLimite);
+
+        // 4. Generar resumen final combinando los tres
+        [$filas, $encabezados] = $this->generarResumenFinalTres($resumen1, $resumen2, $resumen3, $usuarios, $carteraSeleccionada);
 
         return $this->exportarExcel($filas, $encabezados);
+    }
+    // NUEVA FUNCIÓN: Generar resumen final combinando tres archivos
+    private function generarResumenFinalTres($resumen1, $resumen2, $resumen3, $usuarios, $carteraSeleccionada = '')
+    {
+        // Compatibilidad para resumen2
+        if (!is_array($resumen2) || !isset($resumen2['resumen']) || !isset($resumen2['primerMarcacion'])) {
+            $resumen2 = [
+                'resumen' => is_array($resumen2) ? $resumen2 : [],
+                'primerMarcacion' => []
+            ];
+        }
+        $horas = array_unique(array_merge(
+            ...array_map('array_keys', array_merge(array_values($resumen1), array_values($resumen2['resumen']), array_values($resumen3)))
+        ));
+        $horas = array_filter($horas, function($h) { return intval($h) !== 7; });
+        sort($horas);
+
+        $filas = [];
+        $todos = array_unique(array_merge(array_keys($resumen1), array_keys($resumen2['resumen']), array_keys($resumen3)));
+
+        // Agregar todos los agentes de la base de datos (por nombre_usuario_huella normalizado)
+        foreach ($usuarios as $usuario) {
+            $keyNorm = $this->normalizar($usuario->nombre_usuario_huella);
+            $todos[] = $keyNorm;
+        }
+        $todos = array_unique($todos);
+
+        // Agrupar por cartera
+        $porCartera = [];
+        foreach ($todos as $keyNorm) {
+            if (empty(trim($keyNorm))) continue;
+            $usuario = $this->buscarUsuarioPorNombreUsuarioHuella($keyNorm, $usuarios)
+                ?? $this->buscarUsuarioPorNombreCompleto($keyNorm, $usuarios);
+            $cartera = $usuario ? $usuario->cartera : '';
+            if (strtoupper(trim($cartera)) === 'LIDER') continue;
+            $porCartera[$cartera][] = [
+                'keyNorm' => $keyNorm,
+                'usuario' => $usuario
+            ];
+        }
+
+        // Numerar y ordenar por cartera
+        foreach ($porCartera as $cartera => $asesores) {
+            $contador = 1;
+            foreach ($asesores as $info) {
+                $keyNorm = $info['keyNorm'];
+                $usuario = $info['usuario'];
+                $nombreReal = $usuario ? trim($usuario->nombres . ' ' . $usuario->apellidos) : '';
+                $tp = $tg = 0;
+                $valores = [];
+                $primerMarcacion = '';
+                if (isset($resumen2['primerMarcacion'][$keyNorm])) {
+                    $primerMarcacion = $resumen2['primerMarcacion'][$keyNorm];
+                }
+                foreach ($horas as $h) {
+                    $p1 = $resumen1[$keyNorm][$h] ?? 0;
+                    $p3 = $resumen3[$keyNorm][$h] ?? 0;
+                    $productividad = $p1 + $p3;
+                    $g = $resumen2['resumen'][$keyNorm][$h] ?? 0;
+                    $valores[] = $productividad;
+                    $valores[] = $g;
+                    $tp += $productividad;
+                    $tg += $g;
+                }
+                $valores[] = $tp;
+                $valores[] = $tg;
+                $tieneRegistros = array_sum($valores) > 0;
+                $novedad = $tieneRegistros ? 'SIN NOVEDAD' : 'NOVEDAD';
+                $fila = [$contador, $keyNorm, $nombreReal, $cartera, $primerMarcacion];
+                $fila = array_merge($fila, $valores);
+                $fila[] = $novedad;
+                $filas[] = $fila;
+                $contador++;
+            }
+        }
+
+        // Encabezados
+        $enc = ['N°','Asesor','Asesor Real','Cartera','Primer Marcacion'];
+        foreach ($horas as $h) {
+            $enc[] = $h.':00 Productividad';
+            $enc[] = $h.':00 Grabaciones';
+        }
+        $enc[] = 'Total Productividad';
+        $enc[] = 'Total Grabaciones';
+        $enc[] = 'Novedad';
+
+        return [$filas, $enc];
     }
     private function leerArchivoProductividad($file, $usuarios, $horaLimite)
     {
         $datos = Excel::toArray([], $file)[0];
-        $headings = array_map([$this, 'normalizar'], $datos[0]);
+        $headings = array_map([$this, 'normalizar'], $datos[2]);
 
         $idxNombre = array_search('nombre completo', $headings);
         // Buscar la segunda columna 'fecha de creacion' (normalizada)
