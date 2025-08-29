@@ -186,7 +186,7 @@
 .form-input:focus + label,
 .form-input:not(:placeholder-shown) + label {
   transform: translateY(-20px) scale(0.8);
-  color: #667eea;
+  color: rgba(102, 126, 234, 0.3);
 }
 
 /* Hover effects */
