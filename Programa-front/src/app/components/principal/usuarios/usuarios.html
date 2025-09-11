@@ -45,6 +45,7 @@
               <th>Nombre usuario huella</th>
               <th>Clave huella</th>
               <th>Correo</th>
+              <th>Usuario BestVoIper</th>
               <th>Extensión</th>
               <th>Acciones</th>
             </tr>
@@ -64,9 +65,8 @@
               <td>{{ usuario.nombre_usuario_huella }}</td>
               <td>{{ usuario.clave_huella }}</td>
               <td>{{ usuario.correo }}</td>
+              <td>{{ usuario.usuario_bestvoiper }}</td>
               <td>{{ usuario.extension }}</td>
-              
-              
               <td>
                 <button (click)="editarUsuario(usuario.id)" class="action-btn btn-editar">
                   <i class="fas fa-edit"></i> Editar

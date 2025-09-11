@@ -15,7 +15,7 @@ import * as FileSaver from 'file-saver';
   styleUrls: ['./usuarios.css'],
 })
 export class Usuarios implements OnInit {
-  usuarios: Usuariosmodel[] = [];             
+  usuarios: Usuariosmodel[] = [];
   usuariosFiltrados: Usuariosmodel[] = [];    
   usuariosPaginados: Usuariosmodel[] = [];    
 
@@ -100,7 +100,8 @@ export class Usuarios implements OnInit {
     'Nombre usuario huella': usuario.nombre_usuario_huella,
     'Clave huella': usuario.clave_huella,
     Correo: usuario.correo,
-    Extensión: usuario.extension
+    Extensión: usuario.extension,
+    'Usuario BestVoIper': usuario.usuario_bestvoiper
   }));
 
   const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(dataParaExportar);

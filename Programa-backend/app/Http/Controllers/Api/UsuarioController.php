@@ -37,7 +37,12 @@ class UsuarioController extends Controller
             'correo' => 'required|email',
             'nombre_usuario_huella' => 'required',
             'extension' => 'required|string|min:2',
+            'usuario_bestvoiper' => 'required',
         ]);
+
+	if (!isset($validated['usuario_bestvoiper'])) {
+            $validated['usuario_bestvoiper'] = 'ninguno';
+        }
         
         
         $usuario = Usuario::create($validated);
@@ -82,6 +87,7 @@ class UsuarioController extends Controller
                 'correo' => 'required|email',
                 'nombre_usuario_huella' => 'required',
                 'extension' => 'required|string|min:2',
+                'usuario_bestvoiper' => 'required',
             ]);
 
             $usuario->update($validated);

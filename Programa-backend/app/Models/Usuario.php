@@ -20,5 +20,6 @@ class Usuario extends Model
         'correo',
         'nombre_usuario_huella',
         'extension',
+        'usuario_bestvoiper',
     ];
 }

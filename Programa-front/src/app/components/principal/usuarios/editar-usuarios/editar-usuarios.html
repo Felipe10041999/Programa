@@ -148,11 +148,11 @@
         </div>
 
         
-<div class="form-group">
-  <label class="form-label">Nombre usuario huella
-    <i class="fas fa-user-circle"></i>
-  </label>
-  <input 
+          <div class="form-group">
+          <label class="form-label">Nombre usuario huella
+            <i class="fas fa-user-circle"></i>
+          </label>
+          <input 
             type="text" 
             class="form-input" 
             formControlName="nombre_usuario_huella"
@@ -160,7 +160,9 @@
           <span class="error-message" *ngIf="editarForm.get('nombre_usuario_huella')?.touched && editarForm.get('nombre_usuario_huella')?.invalid">
             La contraseña de huella es requerida
           </span>
-</div>
+        </div>
+      </div>
+
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">
@@ -173,6 +175,20 @@
             placeholder="Ingrese la contraseña de huella">
           <span class="error-message" *ngIf="editarForm.get('clave_huella')?.touched && editarForm.get('clave_huella')?.invalid">
             La contraseña de huella es requerida
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-user"></i> Usuario BestVoIper
+          </label>
+          <input 
+            type="text" 
+            class="form-input" 
+            formControlName="usuario_bestvoiper"
+            placeholder="Ingrese el usuario BestVoIper">
+          <span class="error-message" *ngIf="editarForm.get('usuario_bestvoiper')?.touched && editarForm.get('usuario_bestvoiper')?.invalid">
+            El usuario BestVoIper es requerido
           </span>
         </div>
       </div>
@@ -191,9 +207,7 @@
             La extensión es requerida y debe tener al menos 2 caracteres
           </span>
         </div>
-      </div>
 
-      
         <div class="form-group">
           <label class="form-label">
             <i class="fas fa-envelope"></i> Correo Electrónico
