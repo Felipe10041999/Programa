@@ -19,7 +19,7 @@ class Usuario extends Model
         'clave_huella',
         'correo',
         'nombre_usuario_huella',
-        'extension',
         'usuario_bestvoiper',
+        'extension',
     ];
 }

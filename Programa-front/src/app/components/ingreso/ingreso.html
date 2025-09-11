@@ -1,0 +1,41 @@
+<div class="verificacion-container">
+  <div class="verificacion-card">
+    <div class="login-header">
+      <h2>Verificar Cédula</h2>
+      <p>Ingrese su número de cédula para verificar si está registrado</p>
+    </div>
+
+    <form (submit)="$event.preventDefault(); verificarCedula()">
+      <div class="form-group">
+        <label for="cedula">Cédula</label>
+        <input
+          type="text"
+          id="cedula"
+          class="form-input"
+          [(ngModel)]="cedula"
+          name="cedula"
+          placeholder="Número de cédula"
+          [disabled]="isLoading"
+        >
+      </div>
+
+      <button
+        type="submit"
+        class="login-link-btn"
+        [disabled]="isLoading || !cedula.trim()"
+      >
+        <span *ngIf="!isLoading">Verificar</span>
+        <span *ngIf="isLoading" class="loading-spinner">
+          <i class="fas fa-spinner fa-spin"></i> Verificando...
+        </span>
+      </button>
+    </form>
+
+    <div *ngIf="mensaje" class="alert" [ngClass]="mensajeTipo === 'success' ? 'alert-success' : 'alert-error'">
+      {{ mensaje }}
+    </div>
+
+  <button type="button" class="login-link-btn" (click)="irALogin()">Ir a gestiones</button>
+
+  </div>
+</div>

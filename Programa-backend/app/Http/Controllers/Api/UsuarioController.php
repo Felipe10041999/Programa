@@ -36,15 +36,14 @@ class UsuarioController extends Controller
             'clave_huella' => 'required',
             'correo' => 'required|email',
             'nombre_usuario_huella' => 'required',
+            'usuario_bestvoiper' => 'nullable',
             'extension' => 'required|string|min:2',
-            'usuario_bestvoiper' => 'required',
         ]);
-
-	if (!isset($validated['usuario_bestvoiper'])) {
+        
+        
+        if (!isset($validated['usuario_bestvoiper'])) {
             $validated['usuario_bestvoiper'] = 'ninguno';
         }
-        
-        
         $usuario = Usuario::create($validated);
         return response()->json(['mensaje'=>'Usuario creado correctamente', 'usuario'=> $usuario],201);
     }
@@ -86,8 +85,8 @@ class UsuarioController extends Controller
                 'clave_huella' => 'required',
                 'correo' => 'required|email',
                 'nombre_usuario_huella' => 'required',
+                'usuario_bestvoiper' => 'nullable',
                 'extension' => 'required|string|min:2',
-                'usuario_bestvoiper' => 'required',
             ]);
 
             $usuario->update($validated);
@@ -115,7 +114,6 @@ class UsuarioController extends Controller
                 'status' => 404
             ], 404);
         }
-
         $usuario->delete();
 
         return response()->json([
@@ -128,4 +126,55 @@ class UsuarioController extends Controller
         $carteras = Usuario::query()->whereNotNull('cartera')->where('cartera', '!=', '')->distinct()->pluck('cartera');
         return response()->json(['carteras' => $carteras], 200);
     }
+    public function obtenerPorCedula($cedula)
+{
+    $usuario = Usuario::where('cedula', $cedula)->first();
+
+    if (!$usuario) {
+        return response()->json([
+            'mensaje' => 'Usuario no encontrado con esa cédula',
+            'status' => 404
+        ], 404);
+    }
+
+    return response()->json(['usuario' => $usuario], 200);
+}
+
+// Actualizar usuario por cédula
+public function actualizarPorCedula(Request $request, $cedula)
+{
+    try {
+        $usuario = Usuario::where('cedula', $cedula)->first();
+
+        if (!$usuario) {
+            return response()->json(['mensaje' => 'Usuario no encontrado con esa cédula'], 404);
+        }
+
+        $validated = $request->validate([
+            'nombres' => 'required',
+            'apellidos' => 'required',
+            'cedula' => 'required',
+            'telefono' => 'required',
+            'cartera' => 'required',
+            'numero_equipo' => 'required',
+            'usuario_equipo' => 'required',
+            'clave_equipo' => 'required',
+            'usuario_huella' => 'required',
+            'clave_huella' => 'required',
+            'correo' => 'required|email',
+            'nombre_usuario_huella' => 'required',
+            'usuario_bestvoiper' => 'nullable',
+            'extension' => 'required|string|min:2',
+        ]);
+
+        $usuario->update($validated);
+
+        return response()->json([
+            'mensaje' => 'Usuario actualizado correctamente',
+            'usuario' => $usuario
+        ], 200);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+}
 }

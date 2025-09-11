@@ -22,11 +22,14 @@ Route::post('/verificar', [IniciarController::class, 'verificarAutenticacion']);
 Route::get('/historial-inicios', [IniciarController::class, 'historialInicios']);
 Route::get('/sesiones-activas', [IniciarController::class, 'sesionesActivas']);
 
-Route::apiResource('/usuario', UsuarioController::class);
+Route::apiResource('/usuarios', UsuarioController::class);
+Route::get('/usuarios/cedula/{cedula}', [UsuarioController::class, 'obtenerPorCedula']);
+Route::put('/usuarios/cedula/{cedula}', [UsuarioController::class, 'actualizarPorCedula']);
 
 Route::post('/procesar-excel', [ExcelController::class, 'procesar']);
 Route::get('/usuario/carteras', [UsuarioController::class, 'carteras']);
 Route::post('/archivologueo/subir', [Archivologueo::class, 'subir']);
+
 
 
 
