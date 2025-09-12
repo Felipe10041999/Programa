@@ -1,12 +1,10 @@
 <div class="editar-container">
   <div class="editar-content">
-    <!-- Header -->
     <div class="editar-header">
       <h2><i class="fas fa-user-edit"></i> Editar Usuario</h2>
       <p>Modifique los datos del usuario según sea necesario</p>
     </div>
 
-    <!-- Formulario -->
     <form [formGroup]="editarForm" (ngSubmit)="onSubmit()" class="editar-form">
       <div class="form-row">
         <div class="form-group">
@@ -223,7 +221,6 @@
         </div>
       </div>
 
-      <!-- Botones -->
       <div class="button-container">
         <button type="submit" class="btn-guardar" [disabled]="editarForm.invalid">
           <i class="fas fa-save"></i> Guardar Cambios

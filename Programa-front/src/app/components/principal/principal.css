@@ -3,7 +3,7 @@
   background-attachment: fixed;
 }
 
-/* Header principal */
+
 .header-main {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
@@ -146,7 +146,7 @@
   font-size: 1rem;
 }
 
-/* Responsive design */
+
 @media (max-width: 768px) {
   .header-main {
     padding: 1rem;

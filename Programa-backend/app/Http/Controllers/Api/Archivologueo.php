@@ -99,7 +99,7 @@ class Archivologueo extends Controller
         Storage::delete($path);
 
         // Crear archivo Excel con diseño profesional usando Laravel Excel
-        $filename = 'archivo_dos_resultado_' . date('Y-m-d_H-i-s') . '.xlsx';
+        $filename = 'archivo_hora_ingreso_' . date('Y-m-d_H-i-s') . '.xlsx';
         return Excel::download(new LogueoExport($resultados), $filename);
     }
 

@@ -33,7 +33,6 @@ class LogueoExport implements FromArray, WithHeadings, WithStyles, WithColumnWid
                 $timestamp = strtotime($hora);
                 $segundos = date('s', $timestamp);
 
-                // Redondeo al minuto más cercano
                 if ((int)$segundos >= 30) {
                     $timestamp += (60 - (int)$segundos);
                 } else {

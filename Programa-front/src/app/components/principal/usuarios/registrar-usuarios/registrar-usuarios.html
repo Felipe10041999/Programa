@@ -1,12 +1,12 @@
 <div class="registrar-container">
   <div class="registrar-content">
-    <!-- Header -->
+
     <div class="registrar-header">
       <h2><i class="fas fa-user-plus"></i> Registrar Nuevo Usuario</h2>
       <p>Complete todos los campos para crear un nuevo usuario en el sistema</p>
     </div>
 
-    <!-- Formulario -->
+
     <form [formGroup]="registroForm" (ngSubmit)="onSubmit()" class="registrar-form">
       <div class="form-row">
         <div class="form-group">
@@ -214,13 +214,6 @@
           </span>
         </div>
       </div>
-
-    
-       
-      
-
-
-      <!-- Botones -->
       <div class="button-container">
         <button type="submit" class="btn-registrar" [disabled]="registroForm.invalid">
           <i class="fas fa-save"></i> Registrar Usuario

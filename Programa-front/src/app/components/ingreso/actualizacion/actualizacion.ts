@@ -21,11 +21,11 @@ export class Actualizacion implements OnInit {
     private fb: FormBuilder,
     private usuariosService: UsuariosService,
     private router: Router,
-    private route: ActivatedRoute  // inyecta ActivatedRoute
+    private route: ActivatedRoute 
   ) {}
 
   ngOnInit() {
-    // inicializa el formulario
+    
     this.editarForm = this.fb.group({
       nombres: ['', Validators.required],
       apellidos: ['', Validators.required],
@@ -43,7 +43,7 @@ export class Actualizacion implements OnInit {
       usuario_bestvoiper: ['', Validators.required]
     });
 
-    // leer parámetro de ruta
+    
     const idParam = this.route.snapshot.paramMap.get('id');
     console.log('ID recibido por la ruta:', idParam);
 
@@ -81,7 +81,7 @@ export class Actualizacion implements OnInit {
     const confirmacion = confirm('¿Estás seguro de que deseas guardar los cambios?');
     if (!confirmacion) return;
 
-    const formData = this.editarForm.getRawValue(); // incluyendo cedula deshabilitada
+    const formData = this.editarForm.getRawValue(); 
     const cedula = formData.cedula;
 
     this.usuariosService.actualizarUsuarioPorCedula(cedula, formData).subscribe({

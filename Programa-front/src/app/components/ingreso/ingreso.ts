@@ -35,13 +35,11 @@ export class Ingreso {
     this.isLoading = true;
     try {
       const cedulaTrimmed = this.cedula.trim();
-      // Llamada GET a la ruta correcta del backend
       const response: any = await this.http
-        .get(`http://localhost:8000/api/usuarios/cedula/${cedulaTrimmed}`)
+        .get(`http://192.168.112.18:8000/api/usuarios/cedula/${cedulaTrimmed}`)
         .toPromise();
 
       if (response && response.usuario) {
-        // Redirige al componente de actualización con el ID del usuario encontrado
         this.router.navigate(['/actualizacion', response.usuario.id]);
       } else {
         this.mensaje = 'Cédula no encontrada en el sistema.';

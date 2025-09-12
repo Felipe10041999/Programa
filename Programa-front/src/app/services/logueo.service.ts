@@ -29,6 +29,7 @@ export class LogueoService {
    * @param archivo - El archivo Excel a subir
    * @returns Observable con el progreso de la carga y la respuesta final
    */
+
   subirArchivo(archivo: File): Observable<HttpEvent<any>> {
     const formData = new FormData();
     formData.append('archivo', archivo);
@@ -67,6 +68,8 @@ export class LogueoService {
    * @param event - Evento HTTP
    * @returns true si es una respuesta exitosa
    */
+
+  
   esRespuestaExitosa(event: HttpEvent<any>): boolean {
     return event instanceof HttpResponse && event.status === 200;
   }

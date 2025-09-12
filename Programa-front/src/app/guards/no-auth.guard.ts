@@ -18,8 +18,6 @@ export class NoAuthGuard implements CanActivate {
     if (this.authService.isAuthenticated() && !this.authService.isSessionExpired()) {
       return this.router.createUrlTree(['/principal']);
     }
-    
-    // Usuario no autenticado, permitir acceso al login
     return true;
   }
 } 
