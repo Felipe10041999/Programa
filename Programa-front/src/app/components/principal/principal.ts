@@ -21,6 +21,7 @@ export class Principal implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
+    // Suscribirse a los cambios de autenticación
     this.authSubscription.add(
       this.authService.sesion$.subscribe(sesion => {
         if (sesion) {
@@ -31,6 +32,7 @@ export class Principal implements OnInit, OnDestroy {
       })
     );
 
+    // Obtener usuario actual
     this.usuarioActual = this.authService.getCurrentUser();
   }
 
@@ -49,7 +51,9 @@ export class Principal implements OnInit, OnDestroy {
   navegarALogueo() {
     this.router.navigate(['/logueo']);
   }
-
+  navegarANuevos() {
+    this.router.navigate(['/nuevos']);
+  }
   async cerrarSesion() {
     await this.authService.logout();
   }

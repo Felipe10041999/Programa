@@ -41,6 +41,12 @@ export const routes: Routes = [
     .then(m=> m.Usuarios),
     canActivate: [AuthGuard]
   },
+  {
+    path: 'nuevos',
+    loadComponent:()=> import('./components/principal/nuevos/nuevos')
+    .then(m=> m.Nuevos),
+    canActivate: [AuthGuard]
+  },
   { 
     path: 'registro',
     loadComponent:() => import('./components/principal/usuarios/registrar-usuarios/registrar-usuarios')

@@ -1,0 +1,60 @@
+<div class="logueo-container">
+  <div class="logueo-header">
+    <h1><i class="fa-regular fa-file"></i> Generar archivo de gestiones Nuevos</h1>
+    <p>Seleccione los archivos Excel y genere el informe de productividad</p>
+  </div>
+  <div class="logueo-content">
+    <div class="upload-section">
+      <div class="upload-area">
+        <div class="upload-icon">
+          <i class="fas fa-upload"></i>
+        </div>
+        <h3>Cargar Archivos Excel</h3>
+        <p>Seleccione el archivo Excel con los datos de productividad Huella y archivo Excel Nuevos</p>
+        <label class="select-btn">
+          <input type="file" (change)="onFileSelectedNuevos($event)" accept=".xlsx,.xls" [disabled]="generandoInforme" style="display:none">
+          <i class="fas fa-upload"></i> Seleccionar Archivo Excel Nuevos
+        </label>
+        <div *ngIf="archivoNuevos" class="file-info">
+          <div class="file-details">
+            <i class="fas fa-file-excel"></i>
+            <div class="file-text">
+              <h4>{{ archivoNuevos?.name }}</h4>
+            </div>
+            <button class="remove-btn" (click)="archivoNuevos = null" title="Quitar archivo">&times;</button>
+          </div>
+        </div>
+        <label class="select-btn">
+          <input type="file" (change)="onFileSelectedGestiones($event)" accept=".xlsx,.xls" [disabled]="generandoInforme" style="display:none">
+          <i class="fas fa-upload"></i> Seleccionar Archivo Gestiones Huella
+        </label>
+        <div *ngIf="archivoGestiones" class="file-info">
+          <div class="file-details">
+            <i class="fas fa-file-excel"></i>
+            <div class="file-text">
+              <h4>{{ archivoGestiones?.name }}</h4>
+            </div>
+            <button class="remove-btn" (click)="archivoGestiones = null" title="Quitar archivo">&times;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="actions-section">
+      <button class="process-btn" (click)="generarInforme()" [disabled]="!archivoNuevos || !archivoGestiones || generandoInforme">
+        <i class="fas fa-file-excel"></i> Generar Informe
+      </button>
+      <button class="back-btn" (click)="volverAPrincipal()">
+        <i class="fas fa-arrow-left"></i> Principal
+      </button>
+    </div>
+    <div class="message-section" *ngIf="mensaje">
+      <div class="message" [ngClass]="{'success': mensajeExito, 'error': mensajeError}">{{ mensaje }}</div>
+    </div>
+    <div class="info-section">
+      <h3>Informe solicitudes nuevas</h3>
+      <ul>
+        <li>Genera un informe de gestiones basado en las nuevas solicitudes</li>
+      </ul>
+    </div>
+  </div>
+</div>

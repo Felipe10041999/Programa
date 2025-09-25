@@ -4,7 +4,7 @@ use App\Http\Controllers\Api\UsuarioController;
 use App\Http\Controllers\Api\ExcelController;
 use App\Http\Controllers\Api\IniciarController;
 use App\Http\Controllers\Api\Archivologueo;
-
+use App\Http\Controllers\Api\NuevosController;
 
 
 Route::get('/iniciar', [IniciarController::class, 'index']);
@@ -24,6 +24,7 @@ Route::post('/procesar-excel', [ExcelController::class, 'procesar']);
 
 Route::post('/archivologueo/subir', [Archivologueo::class, 'subir']);
 
+Route::post('/gestiones-nuevos', [NuevosController::class, 'gestionesNuevos']);
 
 
 
