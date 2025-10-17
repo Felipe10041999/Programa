@@ -105,26 +105,6 @@
     font-size: 0.9rem;
 }
 
-.table thead th{
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    font-weight: 600;
-    padding: 15px 10px;
-    text-align: center;
-    border: none;
-    font-size: 0.9rem;
-}
-
-.table thead th{
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    font-weight: 600;
-    padding: 15px 10px;
-    text-align: center;
-    border: none;
-    font-size: 0.9rem;
-}
-
 .table thead th:first-child{
     border-top-left-radius: 15px;
 }
