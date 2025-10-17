@@ -1,6 +1,5 @@
 <div class="usuarios-container">
   <div class="usuarios-content">
-    <!-- Header con logos -->
     <div class="header-section">
       <div class="logos-container">
         <img src="../../assets/imagenes/NGSO.png" alt="logo">
@@ -16,7 +15,7 @@
       </button>
     </div>
     
-    <!-- Barra de búsqueda -->
+    
     <div class="search-container">
       <input 
         type="text" 
@@ -26,7 +25,7 @@
         class="search-input">
     </div>
     
-    <!-- Tabla de usuarios -->
+    
     <div class="table-container">
       <div class="table-responsive">
         <table class="table">
@@ -45,6 +44,7 @@
               <th>Nombre usuario huella</th>
               <th>Clave huella</th>
               <th>Correo</th>
+              <th>Usuario BestVoIper</th>
               <th>Extensión</th>
               <th>Acciones</th>
             </tr>
@@ -64,9 +64,8 @@
               <td>{{ usuario.nombre_usuario_huella }}</td>
               <td>{{ usuario.clave_huella }}</td>
               <td>{{ usuario.correo }}</td>
+              <td>{{ usuario.usuario_bestvoiper }}</td>
               <td>{{ usuario.extension }}</td>
-              
-              
               <td>
                 <button (click)="editarUsuario(usuario.id)" class="action-btn btn-editar">
                   <i class="fas fa-edit"></i> Editar
@@ -81,7 +80,7 @@
       </div>
     </div>
     
-    <!-- Paginación -->
+    
     <div class="pagination-container">
       <nav>
         <ul class="pagination">
@@ -108,7 +107,7 @@
       </nav>
     </div>
     
-    <!-- Botón de exportar -->
+    
     <div class="text-center">
       <button class="export-btn" (click)="exportarAExcel()">
         <i class="fas fa-file-excel"></i> Exportar  Excel

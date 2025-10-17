@@ -8,8 +8,20 @@ import { NoAuthGuard } from './guards/no-auth.guard';
 export const routes: Routes = [
   { 
     path: '', 
-    redirectTo: '/login', 
+    redirectTo: '/ingreso', 
     pathMatch: 'full' 
+  },
+  {
+  path: 'actualizacion/:id',
+  loadComponent: () => import('../app/components/ingreso/actualizacion/actualizacion')
+  .then(m => m.Actualizacion),
+  canActivate: [NoAuthGuard]
+  },
+  {
+    path:'ingreso',
+    loadComponent:() => import('./components/ingreso/ingreso')
+    .then(m => m.Ingreso),
+    canActivate: [NoAuthGuard]
   },
   { 
     path: 'login', 
@@ -27,6 +39,12 @@ export const routes: Routes = [
     path: 'usuarios',
     loadComponent:() => import('./components/principal/usuarios/usuarios')
     .then(m=> m.Usuarios),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'nuevos',
+    loadComponent:()=> import('./components/principal/nuevos/nuevos')
+    .then(m=> m.Nuevos),
     canActivate: [AuthGuard]
   },
   { 
@@ -56,6 +74,6 @@ export const routes: Routes = [
   // Ruta para capturar cualquier ruta no definida
   { 
     path: '**', 
-    redirectTo: '/login' 
+    redirectTo: '/ingreso' 
   }
 ];

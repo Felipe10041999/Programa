@@ -35,6 +35,7 @@ export class RegistrarUsuarios implements OnInit {
       clave_huella: ['', Validators.required],
       correo: ['', [Validators.required, Validators.email]],
       extension: ['', [Validators.required, Validators.minLength(2)]],
+      usuario_bestvoiper: ['', Validators.required],
     });
   }
   ngOnInit(): void {
@@ -76,7 +77,10 @@ export class RegistrarUsuarios implements OnInit {
       return;
     }
 
-    const nuevoUsuario = this.registroForm.value;
+    // Copia el objeto y transforma el campo usuarioBestVoIper a usuario_bestvoiper
+    const nuevoUsuario = { ...this.registroForm.value };
+    nuevoUsuario.usuario_bestvoiper = nuevoUsuario.usuarioBestVoIper;
+    delete nuevoUsuario.usuarioBestVoIper;
 
     this.usuariosService.registrarUsuario(nuevoUsuario).subscribe({
       next: (res) => {

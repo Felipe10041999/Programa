@@ -28,7 +28,7 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
     }
     public function headings(): array
     {
-        // Extraer las horas dinámicamente de los headings recibidos
+        // Extraer las horas de los headings recibidos
         $horas = [];
         foreach ($this->headings as $h) {
             if (preg_match('/^(\d{1,2}):00 Productividad$/', $h, $m)) {
@@ -58,7 +58,6 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
         // Para Novedad, celda vacía
         $headerRow2[] = '';
 
-        // Asegurarse de que ambos arrays tengan la misma longitud
         $headerRow1 = array_slice($headerRow1, 0, count($headerRow2));
 
         return [$headerRow1, $headerRow2];
@@ -70,7 +69,7 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
             'B' => 40,
             'C' => 40,
             'D' => 25,
-            'E' => 15, // Nueva Columna
+            'E' => 15, 
         ];
 
         $horas = [];
@@ -80,17 +79,17 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
             }
         }
 
-        $colIndex = 6; // F = 6 (después de la nueva columna)
+        $colIndex = 6; 
         foreach ($horas as $hora) {
             $widths[Coordinate::stringFromColumnIndex($colIndex++)] = 9; // Huella
             $widths[Coordinate::stringFromColumnIndex($colIndex++)] = 9; // Marcación
         }
 
-        // Total (2 columnas)
+        
         $widths[Coordinate::stringFromColumnIndex($colIndex++)] = 9;
         $widths[Coordinate::stringFromColumnIndex($colIndex++)] = 9;
 
-        // Novedades (última columna) con ancho 15
+        
         $widths[Coordinate::stringFromColumnIndex($colIndex)] = 15;
 
         return $widths;
@@ -134,7 +133,7 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
                     }
                 }
 
-                $startColumnIndex = 6; // Ahora las horas empiezan en la columna F
+                $startColumnIndex = 6; // Las horas empiezan en la columna F
                 foreach ($horas as $hora) {
                     $col1 = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($startColumnIndex);
                     $col2 = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($startColumnIndex + 1);
@@ -166,9 +165,9 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
                 // Rellenar con ceros las celdas vacías en las columnas de horas y total
                 $highestRow = $sheet->getHighestRow();
                 $highestColumn = $sheet->getHighestColumn();
-                $colStart = 4; // Columna D
+                $colStart = 4; 
                 $colEnd = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestColumn);
-                for ($row = 3; $row <= $highestRow; $row++) { // Desde la fila 3 (datos)
+                for ($row = 3; $row <= $highestRow; $row++) { 
                     for ($col = $colStart; $col <= $colEnd; $col++) {
                         $cell = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($col) . $row;
                         $value = $sheet->getCell($cell)->getValue();
@@ -197,7 +196,7 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
                 // Obtener índices de las dos últimas columnas
                 $totalCol1 = $colEnd - 2; // Total Huella
                 $totalCol2 = $colEnd - 1; // Total Marcación
-                // Recopilar valores de cada columna de total
+                // Recopilar valores de cada columna de total 
                 $valoresTotal1 = [];
                 $valoresTotal2 = [];
                 for ($row = 3; $row <= $highestRow; $row++) {
@@ -285,7 +284,6 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
                 }
 
                 // Colorear la columna de numeración (N°) con un color pastel diferente por cartera
-                // Definir colores pastel para cada cartera
                 $coloresCartera = [
                     'CASTIGO' => 'FFFFF2CC', // Amarillo pastel
                     'DESISTIDOS' => 'FFD9EAD3', // Verde pastel
@@ -305,7 +303,7 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
                 // Convertir la columna de Asesor (B) a mayúsculas
                 $highestRow = $sheet->getHighestRow();
                 for ($row = 3; $row <= $highestRow; $row++) {
-                    $cell = 'B' . $row; // Columna B es Asesor
+                    $cell = 'B' . $row; 
                     $valor = $sheet->getCell($cell)->getValue();
                     if ($valor !== null && $valor !== '') {
                         $sheet->setCellValue($cell, mb_strtoupper($valor, 'UTF-8'));
@@ -314,7 +312,7 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
 
                 // Excepción: primera columna de huella (primer hora)
                 // Determinar la columna de la primera huella (después de las columnas fijas y primer marcación)
-                $colPrimeraHuella = 6; // F (A=1, B=2, C=3, D=4, E=5, F=6)
+                $colPrimeraHuella = 6;
                 for ($row = 3; $row <= $highestRow; $row++) {
                     $cell = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colPrimeraHuella) . $row;
                     $v = $sheet->getCell($cell)->getValue();

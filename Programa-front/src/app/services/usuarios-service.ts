@@ -10,7 +10,7 @@ import { map } from 'rxjs/operators';
 })
 export class UsuariosService {
 
-  private apiUrl = 'http://192.168.112.18:8000/api/usuario'; 
+  private apiUrl = 'http://192.168.112.18:8000/api/usuarios'; 
   constructor(private http: HttpClient) { }
   getUsuarios(): Observable<Usuariosmodel[]> {
     return this.http.get<{data: Usuariosmodel[]}>(this.apiUrl)
@@ -21,7 +21,7 @@ export class UsuariosService {
   return this.http.delete(url);
   }
   registrarUsuario(usuario: any) {
-  return this.http.post<any>('http://192.168.112.18:8000/api/usuario', usuario);
+  return this.http.post<any>(this.apiUrl, usuario);
   }
   actualizarUsuario(id: number, datos: any) {
     console.log('Datos enviados al backend:', datos);
@@ -41,5 +41,12 @@ export class UsuariosService {
       url += `?cartera=${encodeURIComponent(cartera)}`;
     }
     return this.http.get<any>(url);
+  }
+  obtenerUsuarioPorCedula(cedula: string): Observable<Usuariosmodel> {
+    return this.http.get<{ usuario: Usuariosmodel }>(`${this.apiUrl}/cedula/${cedula}`)
+      .pipe(map(res => res.usuario));
+  }
+  actualizarUsuarioPorCedula(cedula: string, data: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/cedula/${cedula}`, data);
   }
 }

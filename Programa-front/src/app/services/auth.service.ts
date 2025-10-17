@@ -29,9 +29,6 @@ export class AuthService {
     this.checkAuthStatus();
   }
 
-  /**
-   * Verificar el estado de autenticación al iniciar la aplicación
-   */
   private checkAuthStatus(): void {
     const sesion = this.getSesion();
     if (sesion && sesion.token_sesion) {
@@ -51,9 +48,6 @@ export class AuthService {
     return sesionStr ? JSON.parse(sesionStr) : null;
   }
 
-  /**
-   * Verificar si el usuario está autenticado
-   */
   isAuthenticated(): boolean {
     return this.isAuthenticatedSubject.value;
   }
@@ -90,9 +84,6 @@ export class AuthService {
     });
   }
 
-  /**
-   * Cerrar sesión
-   */
   async logout(): Promise<void> {
     try {
       const token = this.getToken();
@@ -104,15 +95,11 @@ export class AuthService {
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
     } finally {
-      // Limpiar datos locales independientemente del resultado del servidor
       this.clearSession();
       this.router.navigate(['/login']);
     }
   }
 
-  /**
-   * Limpiar la sesión local
-   */
   private clearSession(): void {
     localStorage.removeItem('sesion');
     localStorage.removeItem('usuario_autenticado');
@@ -120,9 +107,6 @@ export class AuthService {
     this.sesionSubject.next(null);
   }
 
-  /**
-   * Actualizar el estado de autenticación
-   */
   updateAuthStatus(isAuth: boolean, sesion?: Sesion): void {
     this.isAuthenticatedSubject.next(isAuth);
     if (sesion) {
@@ -130,9 +114,6 @@ export class AuthService {
     }
   }
 
-  /**
-   * Verificar si la sesión ha expirado
-   */
   isSessionExpired(): boolean {
     const sesion = this.getSesion();
     if (!sesion || !sesion.ultimo_acceso) {
@@ -147,9 +128,7 @@ export class AuthService {
     return diferenciaHoras > 0.5; // 30 minutos
   }
 
-  /**
-   * Renovar la sesión
-   */
+
   renovarSesion(): void {
     const sesion = this.getSesion();
     if (sesion) {

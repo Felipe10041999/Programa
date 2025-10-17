@@ -13,9 +13,7 @@ use Illuminate\Support\Str;
 
 class IniciarController extends Controller
 {
-    /**
-     * Registrar un nuevo usuario
-     */
+   
     public function registrar(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -74,7 +72,7 @@ class IniciarController extends Controller
         }
 
         try {
-            // Buscar usuario por nombre de usuario
+            
             $inicioSesion = Iniciar::where('nombre_usuario', $request->nombre_usuario)->first();
 
             if (!$inicioSesion) {
@@ -84,7 +82,7 @@ class IniciarController extends Controller
                 ], 401);
             }
 
-            // Verificar contraseña
+            
             if (!Hash::check($request->contrasena, $inicioSesion->contrasena)) {
                 return response()->json([
                     'mensaje' => 'Contraseña incorrecta',
@@ -121,9 +119,7 @@ class IniciarController extends Controller
         }
     }
 
-    /**
-     * Cerrar sesión de usuario
-     */
+   
     public function logout(Request $request)
     {
         try {
@@ -138,7 +134,7 @@ class IniciarController extends Controller
                 ], 422);
             }
 
-            // Buscar y cerrar la sesión por token
+           
             $inicioSesion = Iniciar::where('token_sesion', $request->token_sesion)
                                   ->first();
 
@@ -169,9 +165,7 @@ class IniciarController extends Controller
         }
     }
 
-    /**
-     * Verificar autenticación por token de sesión
-     */
+    
     public function verificarAutenticacion(Request $request)
     {
         try {
@@ -221,9 +215,7 @@ class IniciarController extends Controller
         }
     }
 
-    /**
-     * Obtener historial de inicios de sesión
-     */
+    
     public function historialInicios(Request $request)
     {
         try {
@@ -252,9 +244,7 @@ class IniciarController extends Controller
         }
     }
 
-    /**
-     * Obtener sesiones activas
-     */
+  
     public function sesionesActivas(Request $request)
     {
         try {
@@ -278,9 +268,7 @@ class IniciarController extends Controller
         }
     }
 
-    /**
-     * Método index para mostrar información básica
-     */
+    
     public function index(Request $request)
     {
         return response()->json([

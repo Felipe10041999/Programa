@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class InformesService {
-  private apiUrl = 'http://192.168.112.18:8000/api'; // URL base
+  private apiUrl = 'http://192.168.112.18:8000/api'; 
   
   constructor(private http: HttpClient) { }
   generarInformeProductividad(formData: FormData): Observable<Blob> {

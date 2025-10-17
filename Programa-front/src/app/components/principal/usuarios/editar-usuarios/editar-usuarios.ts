@@ -36,6 +36,7 @@ export class EditarUsuarios implements OnInit {
       clave_huella: ['', Validators.required],
       correo: ['', [Validators.required, Validators.email]],
       extension: ['', [Validators.required, Validators.minLength(2)]],
+      usuario_bestvoiper: ['', Validators.required],
     });
   }
   ngOnInit() {

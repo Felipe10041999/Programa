@@ -1,4 +1,3 @@
-/* Estilos generales del componente editar usuarios */
 .editar-container {
   min-height: 100vh;
   background: linear-gradient(135deg, rgb(74, 90, 103) 0%, rgb(209, 168, 78) 100%);
@@ -11,7 +10,7 @@
   margin: 0 auto;
 }
 
-/* Header */
+
 .editar-header {
   text-align: center;
   margin-bottom: 2rem;
@@ -30,7 +29,7 @@
   opacity: 0.9;
 }
 
-/* Formulario */
+
 .editar-form {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(15px);
@@ -88,13 +87,13 @@
 }
 
 .error-message {
-  color: #ff6b6b;
+  color: #a21616;
   font-size: 0.85rem;
   margin-top: 0.25rem;
   display: block;
 }
 
-/* Botones */
+
 .button-container {
   text-align: center;
   margin-top: 2rem;
@@ -145,7 +144,7 @@
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
-/* Loading state */
+
 .loading {
   text-align: center;
   color: white;
@@ -168,7 +167,7 @@
   100% { transform: rotate(360deg); }
 }
 
-/* Responsive design */
+
 @media (max-width: 768px) {
   .editar-container {
     padding: 1rem;

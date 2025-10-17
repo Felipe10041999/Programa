@@ -358,7 +358,7 @@ class ExcelController extends Controller
     private function normalizar($cadena)
     {
         $cadena = strtolower($cadena);
-        $cadena = iconv('UTF-8', 'ASCII//TRANSLIT', $cadena); // Quita tildes
+        $cadena = iconv('UTF-8', 'ASCII//TRANSLIT', $cadena);
         $cadena = preg_replace('/[^a-z0-9 ]/', '', $cadena);
         return trim(preg_replace('/\s+/', ' ', $cadena));
     }

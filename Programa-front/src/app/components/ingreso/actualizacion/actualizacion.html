@@ -1,0 +1,88 @@
+<div class="editar-container">
+  <div class="editar-content">
+    <div class="editar-header">
+      <h2><i class="fas fa-user-edit"></i> Actualizar Usuario</h2>
+      <p>Modifique los datos permitidos. Los campos opacos no pueden ser modificados.</p>
+    </div>
+    <form [formGroup]="editarForm" (ngSubmit)="onSubmit()" class="editar-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-user"></i> Nombres</label>
+          <input type="text" class="form-input campo-bloqueado" formControlName="nombres" readonly>
+        </div>
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-user"></i> Apellidos</label>
+          <input type="text" class="form-input campo-bloqueado" formControlName="apellidos" readonly>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-id-card"></i> Cédula</label>
+          <input type="text" class="form-input campo-bloqueado" formControlName="cedula" readonly>
+        </div>
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-phone"></i> Teléfono</label>
+          <input type="text" class="form-input" formControlName="telefono">
+        </div>
+      </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label"><i class="fas fa-envelope"></i> Correo Electrónico</label>
+            <input type="email" class="form-input" formControlName="correo">
+          </div>
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-briefcase"></i> Cartera</label>
+          <input type="text" class="form-input campo-bloqueado" formControlName="cartera" readonly>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-desktop"></i> Número de Equipo</label>
+          <input type="text" class="form-input" formControlName="numero_equipo">
+        </div>
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-user-circle"></i> Usuario de Equipo</label>
+          <input type="text" class="form-input" formControlName="usuario_equipo">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-lock"></i> Clave de Equipo</label>
+          <input type="text" class="form-input" formControlName="clave_equipo">
+        </div>
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-fingerprint"></i> Usuario Huella</label>
+          <input type="text" class="form-input campo-bloqueado" formControlName="usuario_huella" readonly>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-user-circle"></i> Nombre usuario huella</label>
+          <input type="text" class="form-input campo-bloqueado" formControlName="nombre_usuario_huella" readonly>
+        </div>
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-key"></i> Contraseña Huella</label>
+          <input type="text" class="form-input" formControlName="clave_huella">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-phone"></i> Extensión</label>
+          <input type="text" class="form-input campo-bloqueado" formControlName="extension" readonly>
+        </div>
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-user"></i> Usuario BestVoIper</label>
+          <input type="text" class="form-input campo-bloqueado" formControlName="usuario_bestvoiper" readonly>
+        </div>
+      </div>
+      <div class="button-container">
+        <button type="submit" class="btn-guardar" [disabled]="editarForm.invalid">
+          <i class="fas fa-save"></i> Guardar Cambios
+        </button>
+        <button type="button" class="btn-cancelar" (click)="cancelar()">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

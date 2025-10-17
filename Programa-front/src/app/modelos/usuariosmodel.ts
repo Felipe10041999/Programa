@@ -14,5 +14,6 @@ export interface Usuariosmodel {
     clave_huella: string;
     correo: string;
     extension: string;
+    usuario_bestvoiper: string;
 }
 
