@@ -29,7 +29,6 @@
   opacity: 0.9;
 }
 
-/* Formulario */
 .registrar-form {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(15px);
@@ -93,7 +92,6 @@
     display: block;
 }
 
-/* Botones */
 .button-container {
   text-align: center;
   margin-top: 2rem;
@@ -144,7 +142,6 @@
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
-/* Responsive design */
 @media (max-width: 768px) {
   .registrar-container {
     padding: 1rem;

@@ -28,8 +28,6 @@ export class EditarUsuario implements OnInit {
   error: string = '';
   mensaje: string = '';
   id: number = 0;
-
-  // 🆕 Para los correos disponibles
   listaCorreos: string[] = [];
   correosAsignados: string[] = [];
   correosFiltrados: string[] = [];
@@ -59,12 +57,11 @@ export class EditarUsuario implements OnInit {
 
   ngOnInit() {
     this.id = Number(this.route.snapshot.paramMap.get('id'));
-    this.generarCorreosBase(); // 🆕 Genera los 70 correos
-    this.cargarUsuarios(); // 🆕 Ahora también filtra correos
+    this.generarCorreosBase(); 
+    this.cargarUsuarios(); 
     this.cargarEquipos();
     this.cargarHuellas();
 
-    // 🆕 Escucha cambios del input correo para sugerencias
     this.editarForm.get('correo')?.valueChanges
       .pipe(
         startWith(''),
@@ -113,7 +110,6 @@ export class EditarUsuario implements OnInit {
     );
   }
 
-  // 👇 Todo lo demás permanece igual (equipos, huellas, submit)
   cargarEquipos(): void {
     this.equipoService.obtenerEquipos().subscribe({
       next: (data) => {
