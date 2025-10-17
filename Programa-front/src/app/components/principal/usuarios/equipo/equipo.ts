@@ -118,6 +118,6 @@ export class Equipo implements OnInit {
       });
   
       const blob: Blob = new Blob([excelBuffer],{type:'application/octet-stream'});
-      FileSaver.saveAs(blob, 'Tabla de usuarios de los equipos.xlsx');
+      FileSaver.saveAs(blob, 'Lista de usuarios de equipos.xlsx');
     }
 }

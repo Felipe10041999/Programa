@@ -125,6 +125,6 @@ export class Usuario implements OnInit{
     });
 
       const blob: Blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-      FileSaver.saveAs(blob, 'Tabla usuarios filtrado.xlsx');
+      FileSaver.saveAs(blob, 'Informacion de agentes.xlsx');
   }
 }

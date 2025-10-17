@@ -60,7 +60,7 @@ export class Logueo {
           const respuesta = this.logueoService.obtenerRespuesta(event);
           if (respuesta) {
             // Descargar el archivo procesado directamente
-            this.logueoService.descargarArchivo(respuesta, 'archivo_dos_resultado.xlsx');
+            this.logueoService.descargarArchivo(respuesta, 'Archivo hora de llegada.xlsx');
             this.mensaje = 'Archivo procesado exitosamente. Descarga iniciada.';
             this.cargando = false;
             this.progreso = 100;
