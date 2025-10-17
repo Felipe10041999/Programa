@@ -43,7 +43,7 @@ export class Nuevos implements OnInit {
           const url = window.URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
-          a.download = 'reporte_solicitudes.xlsx';
+          a.download = 'Archivo solicitudes nuevas.xlsx';
           a.click();
           window.URL.revokeObjectURL(url);
           this.generandoInforme = false;

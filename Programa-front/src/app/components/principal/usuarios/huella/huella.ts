@@ -127,6 +127,6 @@ export class Huella implements OnInit{
     });
 
     const blob: Blob = new Blob([excelBuffer],{type:'application/octet-stream'});
-    FileSaver.saveAs(blob, 'Tabla de usuarios de Huella.xlsx');
+    FileSaver.saveAs(blob, 'Lista de usuarios de huella.xlsx');
   }
 }

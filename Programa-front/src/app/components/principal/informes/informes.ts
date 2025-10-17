@@ -90,7 +90,7 @@ export class Informes implements OnInit {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'resumen_gestiones.xlsx';
+        a.download = 'Archivo informe por hora.xlsx';
         a.click();
         window.URL.revokeObjectURL(url);
         this.generandoInforme = false;
