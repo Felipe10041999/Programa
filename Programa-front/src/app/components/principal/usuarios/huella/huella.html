@@ -1,0 +1,95 @@
+<div class="huella-container">
+    <div class="huella-content">
+        <div class="header-section">
+            <div class="logos-container">
+                <img src="../../../../assets/imagenes/NGSO.png" alt="logo">
+            </div>
+            <button class="nuevo-huella-btn" (click)="irRegistro()">
+                <i class="fas fa-plus"></i> Nuevo usuario Huella
+            </button>
+        </div>
+
+        <div class="button-container">
+            <button class="btn-volver" (click)="volverPrincipal()">
+                <i class="fas fa-arrow-left"></i> Principal
+            </button>
+        </div>
+
+        <div class="search-container">
+            <input
+            [(ngModel)]="terminoBusqueda"
+            (input)="filtrarHuellas()"
+            placeholder="Buscar usuario"
+            class="search-input">
+        </div>
+        
+        <div class="table-container">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Clave</th>
+                            <th>Nombre del usuario</th>
+                            <th>Acciones</th>
+                            <th>Estado</th>
+                        </tr>
+
+                    </thead>
+                    <tbody>
+
+                        <tr *ngFor="let huella of huellasPaginados">
+                            <td>{{ huella.usuario }}</td>
+                            <td>{{ huella.clave }}</td>
+                            <td>{{ huella.nombre_usuario }}</td>
+                            <td>
+                                <button (click)="editarHuella(huella.id)" class="action-btn btn-editar">
+                                    <i class="fas fa-edit"></i> Editar
+                                </button>
+
+                                <button (click)="eliminarHuella(huella.id)" class="action-btn btn-eliminar">
+                                    <i class="fas fa-trash"></i> Eliminar
+                                </button>
+                            </td>
+                            <td>
+                                {{ huella.asignado ? 'Asignado' : 'No asignado' }}
+                            </td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="pagination-container">
+            <nav>
+                <ul class="pagination">
+                    <li class="page-item"[class.disabled]="paginaActual ===1">
+                        <button class="page-link" (click)="cambiarPagina(paginaActual -1)">
+                            <i class="fas fa-chevron-left"></i> Anterior
+                        </button>
+                    </li>
+
+                    <li class="page-item"
+                    *ngFor="let page of [].constructor(totalPaginas); let i = index"
+                    [class.active]="paginaActual === i+1">
+                    <button class="page-link" (click)="cambiarPagina(i + 1)">{{ i + 1}}</button>
+                    </li>
+
+                    <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
+                        <button class="page-link" (click)="cambiarPagina(paginaActual + 1)">
+                            Siguiente <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="text-center">
+            <button class="export-btn" (click)="exportarAExcel()">
+                <i class="fas fa-file-excel"></i> Exportar Excel
+            </button>
+        </div>
+    </div>
+</div>

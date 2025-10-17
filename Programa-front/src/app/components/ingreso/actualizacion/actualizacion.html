@@ -4,79 +4,85 @@
       <h2><i class="fas fa-user-edit"></i> Actualizar Usuario</h2>
       <p>Modifique los datos permitidos. Los campos opacos no pueden ser modificados.</p>
     </div>
-    <form [formGroup]="editarForm" (ngSubmit)="onSubmit()" class="editar-form">
+  <form [formGroup]="editarForm" (ngSubmit)="onSubmit()" class="editar-form">
       <div class="form-row">
         <div class="form-group">
           <label class="form-label"><i class="fas fa-user"></i> Nombres</label>
-          <input type="text" class="form-input campo-bloqueado" formControlName="nombres" readonly>
+          <input type="text" class="form-input campo-bloqueado" formControlName="nombres" readonly [placeholder]="editarForm.get('nombres')?.value || 'Nombres'">
         </div>
         <div class="form-group">
           <label class="form-label"><i class="fas fa-user"></i> Apellidos</label>
-          <input type="text" class="form-input campo-bloqueado" formControlName="apellidos" readonly>
+          <input type="text" class="form-input campo-bloqueado" formControlName="apellidos" readonly [placeholder]="editarForm.get('apellidos')?.value || 'Apellidos'">
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label"><i class="fas fa-id-card"></i> Cédula</label>
-          <input type="text" class="form-input campo-bloqueado" formControlName="cedula" readonly>
+          <input type="text" class="form-input campo-bloqueado" formControlName="cedula" readonly [placeholder]="editarForm.get('cedula')?.value || 'Cédula'">
         </div>
         <div class="form-group">
           <label class="form-label"><i class="fas fa-phone"></i> Teléfono</label>
-          <input type="text" class="form-input" formControlName="telefono">
+          <input type="text" class="form-input" formControlName="telefono" [placeholder]="editarForm.get('telefono')?.value || 'Teléfono'">
         </div>
       </div>
         <div class="form-row">
           <div class="form-group">
             <label class="form-label"><i class="fas fa-envelope"></i> Correo Electrónico</label>
-            <input type="email" class="form-input" formControlName="correo">
+            <input type="email" class="form-input campo-bloqueado" formControlName="correo" [placeholder]="editarForm.get('correo')?.value || 'Correo electrónico'">
           </div>
         <div class="form-group">
           <label class="form-label"><i class="fas fa-briefcase"></i> Cartera</label>
-          <input type="text" class="form-input campo-bloqueado" formControlName="cartera" readonly>
+          <input type="text" class="form-input campo-bloqueado" formControlName="cartera" readonly [placeholder]="editarForm.get('cartera')?.value || 'Cartera'">
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label"><i class="fas fa-desktop"></i> Número de Equipo</label>
-          <input type="text" class="form-input" formControlName="numero_equipo">
+          <input type="text" class="form-input " formControlName="numero_equipo" [placeholder]="editarForm.get('numero_equipo')?.value || 'Número de equipo'">
         </div>
         <div class="form-group">
           <label class="form-label"><i class="fas fa-user-circle"></i> Usuario de Equipo</label>
-          <input type="text" class="form-input" formControlName="usuario_equipo">
+          <input type="text" class="form-input campo-bloqueado" formControlName="usuario_equipo" [placeholder]="editarForm.get('usuario_equipo')?.value || 'Usuario de equipo'">
+          <div class="related-info" *ngIf="equipoId">
+            <small>ID equipo: {{ equipoId }}</small>
+          </div>
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label"><i class="fas fa-lock"></i> Clave de Equipo</label>
-          <input type="text" class="form-input" formControlName="clave_equipo">
+          <input type="text" class="form-input" formControlName="clave_equipo" [placeholder]="editarForm.get('clave_equipo')?.value || 'Clave de equipo'">
         </div>
         <div class="form-group">
           <label class="form-label"><i class="fas fa-fingerprint"></i> Usuario Huella</label>
-          <input type="text" class="form-input campo-bloqueado" formControlName="usuario_huella" readonly>
+          <input type="text" class="form-input campo-bloqueado" formControlName="usuario_huella" readonly [placeholder]="editarForm.get('usuario_huella')?.value || 'Usuario huella'">
+          <div class="related-info" *ngIf="huellaId">
+            <small>ID huella: {{ huellaId }}</small>
+          </div>
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label"><i class="fas fa-user-circle"></i> Nombre usuario huella</label>
-          <input type="text" class="form-input campo-bloqueado" formControlName="nombre_usuario_huella" readonly>
+          <input type="text" class="form-input campo-bloqueado" formControlName="nombre_usuario_huella" readonly [placeholder]="editarForm.get('nombre_usuario_huella')?.value || 'Nombre usuario huella'">
         </div>
         <div class="form-group">
           <label class="form-label"><i class="fas fa-key"></i> Contraseña Huella</label>
-          <input type="text" class="form-input" formControlName="clave_huella">
+          <input type="text" class="form-input" formControlName="clave_huella" [placeholder]="editarForm.get('clave_huella')?.value || 'Clave huella'">
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label"><i class="fas fa-phone"></i> Extensión</label>
-          <input type="text" class="form-input campo-bloqueado" formControlName="extension" readonly>
+          <input type="text" class="form-input campo-bloqueado" formControlName="extension" readonly [placeholder]="editarForm.get('extension')?.value || 'Extensión'">
         </div>
         <div class="form-group">
           <label class="form-label"><i class="fas fa-user"></i> Usuario BestVoIper</label>
-          <input type="text" class="form-input campo-bloqueado" formControlName="usuario_bestvoiper" readonly>
+          <input type="text" class="form-input campo-bloqueado" formControlName="usuario_bestvoiper" readonly [placeholder]="editarForm.get('usuario_bestvoiper')?.value || 'Usuario BestVoIper'">
         </div>
       </div>
       <div class="button-container">
-        <button type="submit" class="btn-guardar" [disabled]="editarForm.invalid">
+        <button type="submit" class="btn-guardar">
           <i class="fas fa-save"></i> Guardar Cambios
         </button>
         <button type="button" class="btn-cancelar" (click)="cancelar()">

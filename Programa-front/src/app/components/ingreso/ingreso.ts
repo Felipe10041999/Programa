@@ -36,7 +36,7 @@ export class Ingreso {
     try {
       const cedulaTrimmed = this.cedula.trim();
       const response: any = await this.http
-        .get(`http://192.168.112.18:8000/api/usuarios/cedula/${cedulaTrimmed}`)
+        .get(`http://http://192.168.112.18:8000/api/usuarios/cedula/${cedulaTrimmed}`)
         .toPromise();
 
       if (response && response.usuario) {

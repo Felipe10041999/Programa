@@ -13,13 +13,19 @@ class Usuario extends Model
         'telefono',
         'cartera',
         'numero_equipo',
-        'usuario_equipo',
-        'clave_equipo',
-        'usuario_huella',
-        'clave_huella',
+        'equipo_usuario',
+        'huella',
         'correo',
-        'nombre_usuario_huella',
         'usuario_bestvoiper',
         'extension',
     ];
+    public function equipoUsuario()
+    {
+        return $this->belongsTo(EquipoUsuario::class,'equipo_usuario');
+    }
+    public function huella()
+    {
+        return $this->belongsTo(Huella::class,'huella');
+    }
 }
+

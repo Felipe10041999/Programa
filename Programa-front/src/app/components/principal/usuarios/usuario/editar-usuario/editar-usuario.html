@@ -1,0 +1,198 @@
+<div class="editar-container">
+    <div class="editar-content">
+        <div class="editar-header">
+            <h2><i class="fas fa-user-edit"></i> Editar Usuario</h2>
+            <p> Modifique los datos del usuario segun sea necesario</p>
+        </div>
+
+        <form [formGroup]="editarForm"(ngSubmit)="onSubmit()" class="editar-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-user"></i> Nombres
+                    </label>
+                    <input 
+                    type="text"
+                    class="form-input"
+                    formControlName="nombres"
+                    placeholder="Ingrese los nombres">
+                    <span class="error-message" *ngIf="editarForm.get('nombres')!.invalid && editarForm.get('nombres')!.touched">
+                        Los nombres son Obligatorios
+                    </span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-user"></i> Apellidos
+                    </label>
+                    <input 
+                    type="text"
+                    class="form-input"
+                    formControlName="apellidos"
+                    placeholder="Ingrese los apellidos">
+                    <span class="error-message" *ngIf="editarForm.get('apellidos')!.invalid && editarForm.get('apellidos')!.touched">
+                        Los apellidos son obligatorios
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-id-card"></i> Cédula
+                    </label>
+                    <input 
+                    type="text"
+                    class="form-input"
+                    formControlName="cedula"
+                    placeholder="Ingrese el número de cédula">
+                    <span class="error-message" *ngIf="editarForm.get('cedula')!.invalid && editarForm.get('cedula')!.touched">
+                        La cedula es obligatoria
+                    </span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-phone"></i> Teléfono
+                    </label>
+                    <input 
+                    type="text"
+                    class="form-input"
+                    formControlName="telefono"
+                    placeholder="Ingrese el número de telefono">
+                    <span class="error-message" *ngIf="editarForm.get('telefono')!.invalid && editarForm.get('telefono')!.touched">
+                        El telefono es obligatorio
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-briefcase"></i> Cartera
+                    </label>
+                    <select class="form-input" formControlName="cartera">
+                        <option value="" style="color: black;">Seleccione una cartera</option>
+                        <option value="DESOCUPADOS" style="color: black;">DESOCUPADOS</option>
+                        <option value="DESISTIDOS" style="color: black;">DESISTIDOS</option>
+                        <option value="CASTIGO" style="color: black;">CASTIGO</option>
+                        <option value="DESOCUPADOS 2022-2023" style="color: black;">DESOCUPADOS 2022-2023</option>
+                        <option value="SUPERNUMERARIO" style="color: black;">SUPERNUMERARIO</option>
+                        <option value="LIDER" style="color: black;">LIDER</option>
+                    </select>
+                    <span class="error-message"  *ngIf="editarForm.get('cartera')!.invalid && editarForm.get('cartera')!.touched">
+                        La cartera es obligatoria
+                    </span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-desktop"></i> Número de equipo
+                    </label>
+                    <input 
+                    type="text"
+                    class="form-input"
+                    formControlName="numero_equipo"
+                    placeholder="Ingrese el número de equipo">
+                    <span class="error-message" *ngIf="editarForm.get('numero_equipo')!.invalid && editarForm.get('numero_equipo')!.touched">
+                        El número de equipo es obligatorio
+                    </span>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-user-circle"></i> Usuario de Equipo
+                    </label>
+                    <select class="form-input" formControlName="equipo_usuario">
+                        <option value="" style="color: black;"> Seleccione un usuario</option>
+                        <option *ngFor="let equipo of equiposDisponibles" [value]="equipo.id" style="color:black;">
+                            {{equipo.usuario}}
+                        </option>
+                    </select>
+                    <span class="error-message" *ngIf="editarForm.get('equipo_usuario')!.invalid && editarForm.get('equipo_usuario')!.touched">
+                        El usuario del equipo es obligatorio
+                    </span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-user-circle"></i> Usuario de Huella
+                    </label>
+                    <select class="form-input" formControlName="huella">
+                        <option value="" style="color: black;">Seleccione un usuario de huella</option>
+                        <option *ngFor="let huella of huellasDisponibles" [value]="huella.id" style="color: black;">
+                            {{ huella.nombre_usuario}}
+                        </option>
+                    </select>
+                    <span class="error-message" *ngIf="editarForm.get('huella')!.invalid && editarForm.get('huella')!.touched">
+                        El usuario de huella es obligatorio
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-fingerprint"></i> Usuario BestVoIper
+                    </label>
+                    <input 
+                    type="text"
+                    class="form-input"
+                    formControlName="usuario_bestvoiper"
+                    placeholder="Ingrese el nombre de usuario de BestVoIper">
+                    <span class="error-message" *ngIf="editarForm.get('usuario_bestvoiper')!.invalid && editarForm.get('usuario_bestvoiper')!.touched">
+                        El nombre de usuario de BestVoIper
+                    </span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-key"></i> Extensión
+                    </label>
+                    <input 
+                    type="text"
+                    class="form-input"
+                    formControlName="extension"
+                    placeholder="Ingrese el número de extensión">
+                    <span class="error-message" *ngIf="editarForm.get('extension')!.invalid && editarForm.get('extension')!.touched" >
+                        La extensión es obligatoria
+                    </span>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-key"></i> Correo
+                    </label>
+                    <input 
+                        type="text"
+                        class="form-input"
+                        formControlName="correo"
+                        placeholder="Ingrese o seleccione un correo"
+                        list="listaCorreosEditar">
+
+                    <datalist id="listaCorreosEditar">
+                        <option *ngFor="let correo of correosFiltrados" [value]="correo"></option>
+                    </datalist>
+
+                    <span class="error-message" *ngIf="editarForm.get('correo')?.invalid && editarForm.get('correo')?.touched">
+                        El correo es obligatorio y debe ser válido
+                    </span>
+                </div>
+            <div>
+            </div>
+        </div>      
+            
+            <div class="button-container">
+                <button type="submit" class="btn-guardar" [disabled]="editarForm.invalid">
+                    <i class="fas fa-save"></i> Actualizar Usuario
+                </button>
+                <button type="button" class="btn-cancelar" (click)="cancelarEditar()">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

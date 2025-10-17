@@ -1,0 +1,111 @@
+<div class="usuario-container">
+    <div class="usuario-content">
+        <div class="header-section">
+            <div class="logos-container">
+                <img src="../../../../assets/imagenes/NGSO.png" alt="logo">
+            </div>
+            <button class="nuevo-usuario-btn" (click)="irRegistro()">
+                <i class="fas fa-plus"></i> Nuevo usuario 
+            </button>
+        </div>
+
+        <div class="button-container">
+            <button class="btn-volver" (click)="volverPrincipal()">
+                <i class="fas fa-arrow-left"></i> Principal
+            </button>
+        </div>
+
+        <div class="search-container">
+            <input
+            [(ngModel)]="terminoBusqueda"
+            (input)="filtrarUsuarios()"
+            placeholder="Buscar agente por nombre"
+            class="search-input">
+        </div>
+
+        <div class="table-container">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Nombres</th>
+                            <th>Apellidos</th>
+                            <th>Cedula</th>
+                            <th>Telefono</th>
+                            <th>Cartera</th>
+                            <th>Numero de equipo</th>
+                            <th>Nombre del usuario del equipo</th>
+                            <th>Clave del usuario del equipo</th>
+                            <th>Usuario de huella</th>
+                            <th>Clave huella</th>
+                            <th>Nombre del usuario de huella</th>
+                            <th>Correo</th>
+                            <th>Nombre de usuario BestVoIper</th>
+                            <th>Extensión</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let usuario of usuariosPaginados">
+                            <td>{{ usuario.nombres}}</td>
+                            <td>{{ usuario.apellidos}}</td>
+                            <td>{{ usuario.cedula}}</td>
+                            <td>{{ usuario.telefono }}</td>
+                            <td>{{ usuario.cartera}}</td>
+                            <td>{{ usuario.numero_equipo}}</td>
+                            <td>{{ usuario.equipo_usuario.usuario}}</td>
+                            <td>{{ usuario.equipo_usuario.clave}}</td>
+                            <td>{{ usuario.huella.usuario}}</td>
+                            <td>{{ usuario.huella.clave}}</td>
+                            <td>{{ usuario.huella.nombre_usuario}}</td>
+                            <td>{{ usuario.correo}}</td>
+                            <td>{{ usuario.usuario_bestvoiper}}</td>
+                            <td>{{ usuario.extension}}</td>
+                            <td>
+                                <button (click)="editarUsuario(usuario.id, usuario)" class="action-btn btn-editar">
+                                    <i class="fas fa-edit"></i> Editar
+                                </button>
+
+                                <button (click)="eliminarUsuario(usuario.id)" class="action-btn btn-eliminar">
+                                    <i class="fas fa-trash"></i> Eliminar
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="pagination-container">
+            <nav>
+                <ul class="pagination">
+                    <li class="page-item" [class.disabled]="paginaActual === 1">
+                        <button class="page-link" (click)="cambiarPagina(paginaActual -1)">
+                            <i class="fas fa-chevron-left"></i> Anterior
+                        </button>
+                    </li>
+
+                    <li class="page-item" 
+                    *ngFor="let page of [].constructor(totalPaginas); let i = index"
+                    [class.active]="paginaActual === i + 1">
+                    <button class="page-link" (click)="cambiarPagina(i + 1)">{{ i + 1}}</button>
+                    </li>
+
+                    <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
+                        <button class="page-link" (click)="cambiarPagina(paginaActual +1)">
+                            Siguiente <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </li>
+                    
+                </ul>
+            </nav>
+        </div>
+
+        <div class="text-center">
+            <button class="export-btn" (click)="exportarAExcel()">
+                <i class="fas fa-file-excel"></i> Exportar  Excel
+            </button>
+        </div>
+        
+    </div>
+</div>

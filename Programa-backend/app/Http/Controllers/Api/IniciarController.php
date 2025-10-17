@@ -4,16 +4,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Iniciar;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Route; 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 class IniciarController extends Controller
 {
-   
     public function registrar(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -90,9 +87,7 @@ class IniciarController extends Controller
                 ], 401);
             }
 
-
-
-            // Generar nuevo token y actualizar solo el token y último acceso (no cambiar estado_sesion)
+            
             $inicioSesion->update([
                 'token_sesion' => Str::random(60),
                 'ultimo_acceso' => now()
@@ -119,7 +114,7 @@ class IniciarController extends Controller
         }
     }
 
-   
+    
     public function logout(Request $request)
     {
         try {
@@ -134,7 +129,7 @@ class IniciarController extends Controller
                 ], 422);
             }
 
-           
+            
             $inicioSesion = Iniciar::where('token_sesion', $request->token_sesion)
                                   ->first();
 
@@ -145,7 +140,7 @@ class IniciarController extends Controller
                 ], 404);
             }
 
-            // Marcar sesión como cerrada
+            
             $inicioSesion->update([
                 'estado_sesion' => 'activa',
                 'token_sesion' => null
@@ -165,7 +160,6 @@ class IniciarController extends Controller
         }
     }
 
-    
     public function verificarAutenticacion(Request $request)
     {
         try {
@@ -180,7 +174,6 @@ class IniciarController extends Controller
                 ], 422);
             }
 
-            // Verificar si la sesión está activa
             $inicioSesion = Iniciar::where('token_sesion', $request->token_sesion)
                                   ->where('estado_sesion', 'activa')
                                   ->first();
@@ -192,7 +185,6 @@ class IniciarController extends Controller
                 ], 401);
             }
 
-            // Actualizar último acceso
             $inicioSesion->update(['ultimo_acceso' => now()]);
 
             return response()->json([
@@ -215,7 +207,6 @@ class IniciarController extends Controller
         }
     }
 
-    
     public function historialInicios(Request $request)
     {
         try {
@@ -244,7 +235,6 @@ class IniciarController extends Controller
         }
     }
 
-  
     public function sesionesActivas(Request $request)
     {
         try {
@@ -268,7 +258,6 @@ class IniciarController extends Controller
         }
     }
 
-    
     public function index(Request $request)
     {
         return response()->json([

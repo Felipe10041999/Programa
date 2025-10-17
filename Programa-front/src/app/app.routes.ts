@@ -47,18 +47,52 @@ export const routes: Routes = [
     .then(m=> m.Nuevos),
     canActivate: [AuthGuard]
   },
-  { 
-    path: 'registro',
-    loadComponent:() => import('./components/principal/usuarios/registrar-usuarios/registrar-usuarios')
-    .then(m=> m.RegistrarUsuarios),
-    canActivate: [AuthGuard]
-  },
-  { 
-    path: 'editar/:id',
-    loadComponent:() => import('./components/principal/usuarios/editar-usuarios/editar-usuarios')
-    .then(m=> m.EditarUsuarios),
-    canActivate: [AuthGuard]
-  },
+
+  {
+        path:'huella',
+        loadComponent:() => import('./components/principal/usuarios/huella/huella')
+        .then(m => m.Huella)
+    },
+    {
+        path:'registrar-huella',
+        loadComponent:() => import ('./components/principal/usuarios/huella/registrar-huella/registrar-huella')
+        .then(m =>m.RegistrarHuella)
+    },
+    {
+        path:'editar-huella/:id',
+        loadComponent:() => import ('./components/principal/usuarios/huella/editar-huella/editar-huella')
+        .then(m => m.EditarHuella)
+    },
+    {
+        path: 'equipo',
+        loadComponent: () => import('./components/principal/usuarios/equipo/equipo')
+        .then(m => m.Equipo)
+    },
+    {
+        path: 'registrar-equipo',
+        loadComponent: () => import('./components/principal/usuarios/equipo/registrar-equipo/registrar-equipo')
+        .then(m => m.RegistrarEquipo)
+    },
+    {
+        path: 'editar-equipo/:id',
+        loadComponent: () => import('./components/principal/usuarios/equipo/editar-equipo/editar-equipo')
+        .then(m => m.EditarEquipo)
+    },
+    {
+        path: 'usuario',
+        loadComponent:() => import('./components/principal/usuarios/usuario/usuario')
+        .then(m => m.Usuario)
+    },
+    {
+        path: 'registrar-usuario',
+        loadComponent:() => import('./components/principal/usuarios/usuario/registrar-usuario/registrar-usuario')
+        .then(m => m.RegistrarUsuario)
+    },
+    {
+        path: 'editar-usuario/:id',
+        loadComponent:() => import('./components/principal/usuarios/usuario/editar-usuario/editar-usuario')
+        .then(m => m.EditarUsuario)
+    },
   { 
     path: 'informes',
     loadComponent:() => import('./components/principal/informes/informes')
