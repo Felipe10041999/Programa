@@ -16,9 +16,10 @@ class NuevosController extends Controller
             'archivo2' => 'required|file|mimes:xlsx,xls',
         ]);
 
-        $archivo1 = $request->file('archivo1');
-        $archivo2 = $request->file('archivo2');
-        $usuarios = \App\Models\Usuario::all();
+    $archivo1 = $request->file('archivo1');
+    $archivo2 = $request->file('archivo2');
+    // Cargar la relación huella para que podamos acceder a huella->nombre_usuario si existe
+    $usuarios = \App\Models\Usuario::with('huella')->get();
         $datos1 = $this->leerArchivo1($archivo1);
         $resumen2 = $this->leerArchivo2($archivo2, $usuarios);
         return $this->generarArchivo($datos1, $resumen2, $usuarios);
@@ -113,8 +114,9 @@ class NuevosController extends Controller
             $nombreCompleto = trim(substr($nombreCompleto, strlen('Outsourcing NGSO -')));
         }
         // Buscar usuario por nombre completo en la base de datos
-        $usuario = $this->buscarUsuarioPorNombreCompleto($nombreCompleto, $usuarios);
-        $asesor = $usuario ? $usuario->nombre_usuario_huella : '';
+    $usuario = $this->buscarUsuarioPorNombreCompleto($nombreCompleto, $usuarios);
+    // Preferir el nombre de usuario desde la tabla huellas, con fallback a la columna antigua
+    $asesor = $usuario ? strtoupper(trim($usuario->apellidos . ' ' . $usuario->nombres)) : '';
         $asesorReal = $usuario ? trim($usuario->nombres . ' ' . $usuario->apellidos) : '';
         // Buscar gestiones de la solicitud antes y después de las 12
         $manana = $tarde = $gestionManana = $gestionTarde = '';
@@ -160,11 +162,12 @@ class NuevosController extends Controller
         if (!isset($solicitudesProcesadas[$solicitud])) {
             // Buscar asignacion para esta solicitud
             $asignacion = $solicitudes[$solicitud] ?? '';
-            // Buscar usuario por nombre_usuario_huella = asignacion
+            // Buscar usuario por nombre de huella (preferible) o por la columna antigua
             $usuario = $usuarios->first(function($u) use ($asignacion) {
-                return strtolower(trim($u->nombre_usuario_huella)) === strtolower(trim($asignacion));
+                $nombreHuella = $u->huella->nombre_usuario ?? $u->nombre_usuario_huella;
+                return strtolower(trim($nombreHuella)) === strtolower(trim($asignacion));
             });
-            $asesor = $usuario ? $usuario->nombre_usuario_huella : $asignacion;
+            $asesor = $usuario ? ($usuario->huella->nombre_usuario ?? $usuario->nombre_usuario_huella) : $asignacion;
             $asesorReal = $usuario ? trim($usuario->nombres . ' ' . $usuario->apellidos) : '';
             $filas[] = [
                 $solicitud,

@@ -1,0 +1,196 @@
+<div class="registrar-container">
+    <div class="registrar-content">
+
+        <div class="registrar-header">
+            <h2><i class="fas fa-user-plus"></i> Registrar nuevo usuario</h2>
+            <p>Complete todos los campos para crear un nuevo usuario en el sistema</p>
+        </div>
+
+        <form [formGroup]="registroForm" (ngSubmit)="registrarUsuario()" class="registrar-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-user"></i> Nombres
+                    </label>
+                    <input 
+                    type="text"
+                    class="form-input"
+                    formControlName="nombres"
+                    placeholder="Ingrese los nombres">
+                    <span class="error-message" *ngIf="registroForm.get('nombres')?.invalid && registroForm.get('nombres')?.touched">
+                        Los nombres son requeridos
+                    </span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-user"></i> Apellidos
+                    </label>
+                    <input 
+                    type="text"
+                    class="form-input"
+                    formControlName="apellidos"
+                    placeholder="Ingrese los apellidos">
+                    <span class="error-message" *ngIf="registroForm.get('apellidos')?.invalid && registroForm.get('apellidos')?.touched">
+                        Los apellidos son requeridos
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-id-card"></i> Cedula
+                    </label>
+                    <input
+                    type="text"
+                    class="form-input"
+                    formControlName="cedula"
+                    placeholder="Ingrese el número de cedula">
+                    <span class="error-message" *ngIf="registroForm.get('cedula')?.invalid && registroForm.get('cedula')?.touched">
+                        La cedula debe ser obligatoria
+                    </span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-phone"></i>Teléfono
+                    </label>
+                    <input 
+                    type="text"
+                    class="form-input"
+                    formControlName="telefono"
+                    placeholder="Ingrese el número de teléfono">
+                    <span class="error-message" *ngIf="registroForm.get('telefono')?.invalid && registroForm.get('telefono')?.touched"> 
+                        El teléfono es requerido
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-briefcase"></i> Cartera
+                    </label>
+                    <select class="form-input" formControlName="cartera">
+                        <option value="" style="color: black;">Seleccione una cartera</option>
+                        <option value="DESOCUPADOS" style="color: black;">DESOCUPADOS</option>
+                        <option value="DESISTIDOS" style="color: black;">DESISTIDOS</option>
+                        <option value="CASTIGO" style="color: black;">CASTIGO</option>
+                        <option value="SUPERNUMERARIO" style="color: black;">SUPERNUMERARIO</option>
+                        <option value="DESOCUPADOS 2022-2023" style="color: black;">DESOCUPADOS 2022-2023</option>
+                        <option value="LIDER" style="color: black;">LIDER</option>
+                    </select>
+                    <span class="error-message" *ngIf="registroForm.get('cartera')?.invalid && registroForm.get('cartera')?.touched">
+                        La cartera es obligatoria
+                    </span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-desktop"></i> Numero de equipo
+                    </label>
+                    <input 
+                    type="text"
+                    class="form-input"
+                    formControlName="numero_equipo"
+                    placeholder="Ingrese el numero de equipo">
+                    <span class="error-message" *ngIf="registroForm.get('numero_equipo')?.invalid && registroForm.get('numero_equipo')?.touched">
+                        El numero de equipo es obligatorio
+                    </span>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-user-circle"></i> Usuario de Equipo
+                    </label>
+                    <select class="form-input" formControlName="equipo_usuario">
+                        <option value="" style="color: black;">Seleccione un equipo</option>
+                        <option *ngFor="let equipo of equiposDisponibles" [value]="equipo.id" style="color: black;">
+                            {{equipo.usuario}}
+                        </option>
+                    </select>
+                    <span class="error-message" *ngIf="registroForm.get('equipo_usuario')?.invalid && registroForm.get('equipo_usuario')?.touched">
+                        El usuario de huella es obligatorio 
+                    </span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-lock"></i> Huella
+                    </label>
+                    <select class="form-input" formControlName="huella">
+                        <option value="" style="color: black;">Seleccionar usuario de huella</option>
+                        <option *ngFor="let huella of huellasDisponibles" [value]="huella.id" style="color: black;">
+                            {{ huella.nombre_usuario}}
+                        </option> 
+                    </select>
+                    <span class="error-message" *ngIf="registroForm.get('huella')?.invalid && registroForm.get('huella')?.touched">
+                        El usuario de huella es obligatorio 
+                    </span>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-fingerprint"></i> Usuario BestVoIper
+                    </label>
+                    <input 
+                    type="text"
+                    class="form-input"
+                    formControlName="usuario_bestvoiper"
+                    placeholder="Ingrese el nombre de usuario BestVoIper">
+                    <span class="error-message" *ngIf="registroForm.get('usuario_bestvoiper')!.invalid && registroForm.get('usuario_bestvoiper')!.touched">
+                        El nombre de usuario bestvoiper es obligatorio
+                    </span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-key"></i> Extensión
+                    </label>
+                    <input 
+                    type="text"
+                    class="form-input"
+                    formControlName="extension"
+                    placeholder="Ingrese el numero de extension">
+                    <span class="error-message" *ngIf="registroForm.get('extension')!.invalid && registroForm.get('extension')!.touched">
+                        la extension es obligatoria
+                    </span>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-key"></i> Correo
+                        </label>
+                        <input 
+                            type="text"
+                            class="form-input"
+                            formControlName="correo"
+                            placeholder="Ingrese o seleccione un correo"
+                            list="listaCorreosDisponibles">
+
+                        <datalist id="listaCorreosDisponibles">
+                            <option *ngFor="let correo of correosFiltrados" [value]="correo">
+                        </datalist>
+                        <span class="error-message" *ngIf="registroForm.get('correo')?.invalid && registroForm.get('correo')?.touched">
+                            El correo es obligatorio y debe ser válido
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-container">
+                <button type="submit" class="btn-registrar" [disabled]="registroForm.invalid">
+                    <i class="fas fa-save"></i> Registrar Usuario
+                </button>
+                <button type="button" class="btn-cancelar" (click)="cancelarRegistro()">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
