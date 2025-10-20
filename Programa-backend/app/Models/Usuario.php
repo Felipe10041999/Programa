@@ -24,6 +24,10 @@ class Usuario extends Model
     {
         return $this->belongsTo(EquipoUsuario::class,'equipo_usuario');
     }
+    public function huella()
+    {
+        return $this->belongsTo(Huella::class,'huella');
+    }
 
     public function huellaRelacion()
     {

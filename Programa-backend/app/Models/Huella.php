@@ -12,6 +12,9 @@ class Huella extends Model
         'nombre_usuario',
     ];
     public function usuario(){
+        return $this->hasMany(Usuario::class,'huella');
+    }
+    public function usuarioMostrar(){
         return $this->hasMany(Usuario::class,'huella', 'id');
     }
 }
