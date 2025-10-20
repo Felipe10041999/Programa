@@ -21,6 +21,8 @@ export interface UsuarioModel {
     correo: string
     usuario_bestvoiper: string
     extension: string
+    no_diadema: String
+
 }
 
 

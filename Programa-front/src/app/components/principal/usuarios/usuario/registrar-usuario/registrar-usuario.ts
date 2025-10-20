@@ -52,6 +52,8 @@ export class RegistrarUsuario implements OnInit {
       correo: ['', [Validators.required, Validators.email]],
       usuario_bestvoiper: ['', Validators.required],
       extension: ['', Validators.required],
+      no_diadema:['',Validators.required],
+
     });
   }
 

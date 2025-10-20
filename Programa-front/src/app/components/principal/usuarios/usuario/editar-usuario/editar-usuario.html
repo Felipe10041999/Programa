@@ -181,8 +181,21 @@
                         El correo es obligatorio y debe ser válido
                     </span>
                 </div>
-            <div>
-            </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-key"></i> Número de diadema
+                    </label>
+                    <input 
+                        type="text"
+                        class="form-input"
+                        formControlName="no_diadema"
+                        placeholder="Ingrese o seleccione un correo">
+
+                    <span class="error-message" *ngIf="editarForm.get('no_diadema')?.invalid && editarForm.get('no_diadema')?.touched">
+                        El número de la diadema es obligatorio y debe ser válido
+                    </span>
+                </div>
         </div>      
             
             <div class="button-container">

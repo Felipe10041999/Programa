@@ -52,6 +52,8 @@ export class EditarUsuario implements OnInit {
       correo: ['', [Validators.required, Validators.email]],
       usuario_bestvoiper: ['', Validators.required],
       extension: ['', [Validators.required, Validators.minLength(2)]],
+      no_diadema: ['', Validators.required]
+
     });
   }
 

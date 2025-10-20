@@ -14,18 +14,19 @@ class Usuario extends Model
         'cartera',
         'numero_equipo',
         'equipo_usuario',
-        'huella',
+        'huella', // id de la tabla huellas
         'correo',
         'usuario_bestvoiper',
         'extension',
     ];
+
     public function equipoUsuario()
     {
         return $this->belongsTo(EquipoUsuario::class,'equipo_usuario');
     }
-    public function huella()
+
+    public function huellaRelacion()
     {
-        return $this->belongsTo(Huella::class,'huella');
+        return $this->belongsTo(Huella::class, 'huella', 'id');
     }
 }
-

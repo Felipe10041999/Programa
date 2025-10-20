@@ -159,25 +159,41 @@
                         la extension es obligatoria
                     </span>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">
-                            <i class="fas fa-key"></i> Correo
-                        </label>
-                        <input 
-                            type="text"
-                            class="form-input"
-                            formControlName="correo"
-                            placeholder="Ingrese o seleccione un correo"
-                            list="listaCorreosDisponibles">
+            </div>
 
-                        <datalist id="listaCorreosDisponibles">
-                            <option *ngFor="let correo of correosFiltrados" [value]="correo">
-                        </datalist>
-                        <span class="error-message" *ngIf="registroForm.get('correo')?.invalid && registroForm.get('correo')?.touched">
-                            El correo es obligatorio y debe ser válido
-                        </span>
-                    </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-key"></i> Correo
+                    </label>
+                    <input 
+                        type="text"
+                        class="form-input"
+                        formControlName="correo"
+                        placeholder="Ingrese o seleccione un correo"
+                        list="listaCorreosDisponibles">
+
+                    <datalist id="listaCorreosDisponibles">
+                        <option *ngFor="let correo of correosFiltrados" [value]="correo">
+                    </datalist>
+                    <span class="error-message" *ngIf="registroForm.get('correo')?.invalid && registroForm.get('correo')?.touched">
+                        El correo es obligatorio y debe ser válido
+                    </span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-key"></i> Número de diadema
+                    </label>
+                    <input 
+                        type="text"
+                        class="form-input"
+                        formControlName="no_diadema"
+                        placeholder="Ingrese el número de diadema asigando"
+                        >                   
+                    <span class="error-message" *ngIf="registroForm.get('no_diadema')?.invalid && registroForm.get('no_diadema')?.touched">
+                        El numero de diadema es obligatorio y debe ser válido
+                    </span>
                 </div>
             </div>
 

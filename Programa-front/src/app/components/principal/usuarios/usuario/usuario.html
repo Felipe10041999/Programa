@@ -11,7 +11,7 @@
 
         <div class="button-container">
             <button class="btn-volver" (click)="volverPrincipal()">
-                <i class="fas fa-arrow-left"></i> Usuarios
+                <i class="fas fa-arrow-left"></i> Principal
             </button>
         </div>
 
@@ -42,6 +42,7 @@
                             <th>Correo</th>
                             <th>Nombre de usuario BestVoIper</th>
                             <th>Extensión</th>
+                            <th>Numero de diadema</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -61,6 +62,7 @@
                             <td>{{ usuario.correo}}</td>
                             <td>{{ usuario.usuario_bestvoiper}}</td>
                             <td>{{ usuario.extension}}</td>
+                            <td>{{ usuario.no_diadema}}</td>
                             <td>
                                 <button (click)="editarUsuario(usuario.id, usuario)" class="action-btn btn-editar">
                                     <i class="fas fa-edit"></i> Editar

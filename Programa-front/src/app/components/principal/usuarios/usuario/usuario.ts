@@ -110,7 +110,9 @@ export class Usuario implements OnInit{
       'Clave huella': usuario.huella.clave,
       Correo: usuario.correo,
       Extensión: usuario.extension,
-      'Usuario BestVoIper': usuario.usuario_bestvoiper
+      'Usuario BestVoIper': usuario.usuario_bestvoiper,
+      'No_diadema': usuario.no_diadema
+
     }));
 
       const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(dataParaExportar);

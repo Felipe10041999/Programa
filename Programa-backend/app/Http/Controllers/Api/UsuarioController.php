@@ -41,6 +41,8 @@ class UsuarioController extends Controller
         'correo' => 'required|email',
         'usuario_bestvoiper' => 'required',
         'extension' => 'required',
+        'no_diadema' => 'required',
+
         ]);
         
         if (!isset($validated['usuario_bestvoiper'])){
@@ -73,6 +75,8 @@ class UsuarioController extends Controller
             'correo' => 'required|email',
             'usuario_bestvoiper' => 'required',
             'extension' => 'required',
+            'no_diadema' => 'required',
+
         ]);
         $usuario->update($validar);
         return response()->json([
@@ -141,6 +145,8 @@ class UsuarioController extends Controller
             'correo' => 'required|email',
             'usuario_bestvoiper' => 'required',
             'extension' => 'required',
+            'no_diadema' => 'required',
+
         ]);
 
         $usuario->update($validated);
