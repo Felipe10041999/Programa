@@ -35,7 +35,7 @@ export class Login {
 
     this.isLoading = true;
     try {
-      const response: any = await this.authService.http.post('http://localhost:8000/api/login', {
+      const response: any = await this.authService.http.post('http://192.168.112.18:8000/api/login', {
         nombre_usuario: this.nombreUsuario.trim(),
         contrasena: this.contrasena
       }).toPromise();
