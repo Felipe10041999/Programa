@@ -284,7 +284,6 @@
   font-weight: bold;
 }
 
-/* Responsive design */
 @media (max-width: 768px) {
   .logueo-container {
     padding: 1rem;
