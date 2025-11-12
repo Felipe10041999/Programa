@@ -6,6 +6,8 @@ use App\Models\Usuario;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\DatosExport;
 use Illuminate\Support\Facades\File;
+use App\Http\Controllers\Api\ExcelController;
+
 
 class GenerarInformeAutomatizado extends Command
 {
@@ -14,8 +16,9 @@ class GenerarInformeAutomatizado extends Command
 
     // Rutas de las carpetas
     private $carpeta1 = 'C:\\Users\\aprendiz.sena\\Downloads\\Documentos prueba\\Gestion Total';
-    private $carpeta2 = 'C:\\Users\\aprendiz.sena\\Downloads\\Documentos prueba\\Gestion Castigada';
-    private $carpeta3 = 'C:\\Users\\aprendiz.sena\\Downloads\\Documentos prueba\\Marcacion BestVoIper';
+    private $carpeta2 = 'C:\\Users\\aprendiz.sena\\Downloads\\Documentos prueba\\Marcacion BestVoIper';
+    private $carpeta3 = 'C:\\Users\\aprendiz.sena\\Downloads\\Documentos prueba\\Gestion Castigada';
+
     // Usaremos el disco 'informes' configurado en config/filesystems.php
 
     public function handle()
@@ -32,12 +35,12 @@ class GenerarInformeAutomatizado extends Command
             $this->error('No se encontraron archivos en una de las carpetas.');
             return 1;
         }
-            
-        $resumen1 = app('App\\Http\\Controllers\\Api\\ExcelController')->leerArchivoProductividad($file1, $usuarios, $horaLimite);
-        $resumen2 = app('App\\Http\\Controllers\\Api\\ExcelController')->leerArchivoGrabaciones($file2, $usuarios, $horaLimite);
-        $resumen3 = app('App\\Http\\Controllers\\Api\\ExcelController')->leerArchivoProductividad($file3, $usuarios, $horaLimite);
+        $controller = ExcelController::class;
+        $resumen1 = app($controller)->leerArchivoProductividad($file1, $usuarios, $horaLimite);
+        $resumen2 = app($controller)->leerArchivoGrabaciones($file2, $usuarios, $horaLimite);
+        $resumen3 = app($controller)->leerArchivoProductividad($file3, $usuarios, $horaLimite);
 
-        [$filas, $encabezados] = app('App\\Http\\Controllers\\Api\\ExcelController')->generarResumenFinalTres($resumen1, $resumen2, $resumen3, $usuarios);
+        [$filas, $encabezados] = app($controller)->generarResumenFinalTres($resumen1, $resumen2, $resumen3, $usuarios);
 
     // Generar nombre de archivo con fecha y hora
     $nombreArchivo = 'Informe_Gestiones_' . date('Ymd_His') . '.xlsx';
@@ -48,7 +51,7 @@ class GenerarInformeAutomatizado extends Command
     return 0;
     }
 
-    private function getLatestFile($dir)
+    public function getLatestFile($dir)
     {
         $files = File::files($dir);
         if (empty($files)) return null;

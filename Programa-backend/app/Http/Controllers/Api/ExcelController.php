@@ -8,7 +8,6 @@ use App\Models\Usuario;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\DatosExport;
 
-
 class ExcelController extends Controller
 {
     public function procesar(Request $request)
@@ -21,7 +20,7 @@ class ExcelController extends Controller
 
         $horaLimite = $request->input('hora_limite', 18);
         $carteraSeleccionada = $request->input('cartera', '');
-        $usuarios = Usuario::with('huella')->get();
+        $usuarios = Usuario::with('huellaRelacion')->get();
 
         $resumen1 = $this->leerArchivoProductividad($request->file('file'), $usuarios, $horaLimite);
         $resumen2 = $this->leerArchivoGrabaciones($request->file('file2'), $usuarios, $horaLimite);
@@ -32,7 +31,7 @@ class ExcelController extends Controller
         return $this->exportarExcel($filas, $encabezados);
     }
 
-    public function generarResumenFinalTres($resumen1, $resumen2, $resumen3, $usuarios)
+    public function generarResumenFinalTres($resumen1, $resumen2, $resumen3, $usuarios, $carteraSeleccionada = '')
     {
         if (!is_array($resumen2) || !isset($resumen2['resumen']) || !isset($resumen2['primerMarcacion'])) {
             $resumen2 = [
@@ -41,30 +40,56 @@ class ExcelController extends Controller
             ];
         }
 
+        // Build the list of hours available across the three fuentes.
         $horas = array_unique(array_merge(
-            ...array_map('array_keys', array_merge(array_values($resumen1), array_values($resumen2['resumen']), array_values($resumen3)))
+            ...array_map('array_keys', array_merge(array_values($resumen1), array_values($resumen2['resumen'] ?? []), array_values($resumen3)))
         ));
+
+        // ensure we include lunch columns when needed:
+        // - almuerzo 1 -> show 12:00 as ALMUERZO (and later we'll move their 12->13 counts)
+        // - almuerzo 2 -> show 13:00 as ALMUERZO (and move their 13->14 counts)
+        // - almuerzo 3 -> show 13:00 as ALMUERZO (and move their 13->14 counts)
+        // - almuerzo 4 -> show 14:00 as ALMUERZO (and move their 14->15 counts)
+        $hasAlmuerzo1 = $hasAlmuerzo2 = $hasAlmuerzo3 = $hasAlmuerzo4 = false;
+        if (is_iterable($usuarios)) {
+            foreach ($usuarios as $u) {
+                if (isset($u->almuerzo)) {
+                    $code = intval($u->almuerzo);
+                    if ($code === 1) $hasAlmuerzo1 = true;
+                    if ($code === 2) $hasAlmuerzo2 = true;
+                    if ($code === 3) $hasAlmuerzo3 = true;
+                    if ($code === 4) $hasAlmuerzo4 = true;
+                }
+                if ($hasAlmuerzo1 && $hasAlmuerzo2 && $hasAlmuerzo3 && $hasAlmuerzo4) break;
+            }
+        }
+        if ($hasAlmuerzo1) $horas[] = 12;
+        if ($hasAlmuerzo2 || $hasAlmuerzo3) $horas[] = 13;
+        if ($hasAlmuerzo2 || $hasAlmuerzo3 || $hasAlmuerzo4) $horas[] = 14;
+        if ($hasAlmuerzo4) $horas[] = 15;
+
         $horas = array_filter($horas, fn($h) => intval($h) !== 7);
+        $horas = array_unique($horas);
         sort($horas);
 
         $filas = [];
         $todos = array_unique(array_merge(array_keys($resumen1), array_keys($resumen2['resumen']), array_keys($resumen3)));
 
-        // Agregar todos los usuarios (incluyendo los que tienen huella relacionada)
         foreach ($usuarios as $usuario) {
-            $nombreHuella = optional($usuario->huella)->nombre_usuario; // ahora toma el nombre_usuario real
-            $keyNorm = $this->normalizar($nombreHuella);
-            $todos[] = $keyNorm;
+            $nombreUsuario = $this->normalizar($usuario->huellaRelacion->nombre_usuario ?? '');
+            $todos[] = $nombreUsuario;
         }
         $todos = array_unique($todos);
-
+        
         $porCartera = [];
         foreach ($todos as $keyNorm) {
             if (empty(trim($keyNorm))) continue;
             $usuario = $this->buscarUsuarioPorNombreUsuarioHuella($keyNorm, $usuarios)
                 ?? $this->buscarUsuarioPorNombreCompleto($keyNorm, $usuarios);
+
             $cartera = $usuario ? $usuario->cartera : '';
             if (strtoupper(trim($cartera)) === 'LIDER') continue;
+
             $porCartera[$cartera][] = [
                 'keyNorm' => $keyNorm,
                 'usuario' => $usuario
@@ -79,35 +104,93 @@ class ExcelController extends Controller
                 $nombreReal = $usuario ? trim($usuario->nombres . ' ' . $usuario->apellidos) : '';
                 $tp = $tg = 0;
                 $valores = [];
-                $primerMarcacion = '';
-                if (isset($resumen2['primerMarcacion'][$keyNorm])){
-                    $primerMarcacion = $resumen2['primerMarcacion'][$keyNorm];
+                $primerMarcacion = $resumen2['primerMarcacion'][$keyNorm] ?? '';
+
+                // determine if this usuario has a lunch slot that maps to a specific hour column
+                $almuerzoHora = null;
+                if ($usuario && isset($usuario->almuerzo)) {
+                    // map almuerzo code to the hour that should be marked as ALMUERZO
+                    // almuerzo 1: 12:30-13:30 -> mark 13
+                    // almuerzo 2: 13:00-14:00 -> mark 13
+                    // almuerzo 3: 13:30-14:30 -> mark 14
+                    // almuerzo 4: 14:00-15:00 -> mark 14
+                    switch (intval($usuario->almuerzo)) {
+                        // map almuerzo 1 to 12:00 (user requested ALMUERZO at 12:00)
+                        case 1:
+                            $almuerzoHora = 12;
+                            break;
+                        // almuerzo 2 remains mapped to 13:00
+                        case 2:
+                            $almuerzoHora = 13;
+                            break;
+                        // user requested: almuerzo 3 should mark 13:00 as ALMUERZO and its gestiones move to 14:00
+                        case 3:
+                            $almuerzoHora = 13;
+                            break;
+                        case 4:
+                            $almuerzoHora = 14;
+                            break;
+                        default:
+                            $almuerzoHora = null;
+                    }
                 }
+
                 foreach ($horas as $h) {
                     $p1 = $resumen1[$keyNorm][$h] ?? 0;
                     $p3 = $resumen3[$keyNorm][$h] ?? 0;
                     $productividad = $p1 + $p3;
                     $g = $resumen2['resumen'][$keyNorm][$h] ?? 0;
-                    $valores[] = $productividad;
-                    $valores[] = $g;
-                    $tp += $productividad;
-                    $tg += $g;
+
+                    // If this usuario has almuerzo == 1, their gestiones at 12:00 should be counted in 13:00
+                    if ($usuario && isset($usuario->almuerzo) && intval($usuario->almuerzo) === 1 && intval($h) === 13) {
+                        $productividad += ($resumen1[$keyNorm][12] ?? 0) + ($resumen3[$keyNorm][12] ?? 0);
+                        $g += ($resumen2['resumen'][$keyNorm][12] ?? 0);
+                    }
+
+                    // If this usuario has almuerzo == 2, their gestiones at 13:00 should be counted in 14:00
+                    if ($usuario && isset($usuario->almuerzo) && intval($usuario->almuerzo) === 2 && intval($h) === 14) {
+                        $productividad += ($resumen1[$keyNorm][13] ?? 0) + ($resumen3[$keyNorm][13] ?? 0);
+                        $g += ($resumen2['resumen'][$keyNorm][13] ?? 0);
+                    }
+
+                    // If this usuario has almuerzo == 3, their gestiones at 13:00 should be counted in 14:00
+                    if ($usuario && isset($usuario->almuerzo) && intval($usuario->almuerzo) === 3 && intval($h) === 14) {
+                        $productividad += ($resumen1[$keyNorm][13] ?? 0) + ($resumen3[$keyNorm][13] ?? 0);
+                        $g += ($resumen2['resumen'][$keyNorm][13] ?? 0);
+                    }
+
+                    // If this usuario has almuerzo == 4, their gestiones at 14:00 should be counted in 15:00
+                    if ($usuario && isset($usuario->almuerzo) && intval($usuario->almuerzo) === 4 && intval($h) === 15) {
+                        $productividad += ($resumen1[$keyNorm][14] ?? 0) + ($resumen3[$keyNorm][14] ?? 0);
+                        $g += ($resumen2['resumen'][$keyNorm][14] ?? 0);
+                    }
+
+                    // if this hour corresponds to the user's lunch, mark both cells as ALMUERZO (do not add to totals)
+                    if ($almuerzoHora !== null && intval($h) === intval($almuerzoHora)) {
+                        $valores[] = 'ALMUERZO';
+                        $valores[] = 'ALMUERZO';
+                        // do not increment tp/tg
+                    } else {
+                        $valores[] = $productividad;
+                        $valores[] = $g;
+                        $tp += $productividad;
+                        $tg += $g;
+                    }
                 }
 
                 $valores[] = $tp;
                 $valores[] = $tg;
-                $tieneRegistros = array_sum($valores) > 0;
-                $novedad = $tieneRegistros ? 'SIN NOVEDAD' : 'NOVEDAD';
+                $novedad = array_sum($valores) > 0 ? 'SIN NOVEDAD' : 'NOVEDAD';
 
-                $fila = [$contador,$keyNorm,$nombreReal,$cartera,$primerMarcacion];
+                $fila = [$contador, $keyNorm, $nombreReal, $cartera, $primerMarcacion];
                 $fila = array_merge($fila, $valores);
-                $fila[]= $novedad; 
+                $fila[] = $novedad;
                 $filas[] = $fila;
                 $contador++;
             }
         }
 
-        $enc = ['N°','Asesor','Asesor Real','Cartera','Primer Marcacion'];
+        $enc = ['N°', 'Asesor', 'Asesor Real', 'Cartera', 'Primer Marcacion'];
         foreach ($horas as $h) {
             $enc[] = $h . ':00 Productividad';
             $enc[] = $h . ':00 Grabaciones';
@@ -118,15 +201,15 @@ class ExcelController extends Controller
 
         return [$filas, $enc];
     }
-    
 
     public function leerArchivoProductividad($file, $usuarios, $horaLimite)
     {
         $datos = Excel::toArray([], $file)[0];
         $headings = array_map([$this, 'normalizar'], $datos[2]);
+
         $idxNombre = array_search('nombre completo', $headings);
         $fechaCreacionIndices = array_keys($headings, 'fecha de creacion');
-        $idxHora = isset($fechaCreacionIndices[1]) ? $fechaCreacionIndices[1] : false;
+        $idxHora = $fechaCreacionIndices[1] ?? false;
         $idxGestion = array_search('gestion de pago', $headings);
 
         if ($idxNombre === false || $idxHora === false) {
@@ -137,12 +220,13 @@ class ExcelController extends Controller
 
         foreach (array_slice($datos, 1) as $fila) {
             $nombre = trim($fila[$idxNombre] ?? '');
-            if(stripos($nombre, 'Outsourcing NGSO -')===0){
+            if (stripos($nombre, 'Outsourcing NGSO -') === 0) {
                 $nombre = trim(substr($nombre, strlen('Outsourcing NGSO -')));
             }
 
             if ($nombre === '') continue;
-            if ($idxGestion !== false){
+
+            if ($idxGestion !== false) {
                 $gestion = $this->normalizar($fila[$idxGestion] ?? '');
                 if ($gestion === 'sin gestion') continue;
             }
@@ -151,123 +235,94 @@ class ExcelController extends Controller
             if (!$horaExtraida || $horaExtraida < 7 || $horaExtraida > $horaLimite) continue;
 
             $nombreNormalizado = $this->normalizar($nombre);
-            $usuarioPorHuella = $usuarios->first(fn($u) =>
-                 $this->normalizar(optional($u->huella)->nombre_usuario ?? '') === $nombreNormalizado
-            );
-
-            $clave = $usuarioPorHuella
-                ? $this->normalizar(optional($usuarioPorHuella->huella)->nombre_usuario ?? '')
-                : $nombreNormalizado;
+            $usuario = $this->buscarUsuarioPorNombreCompleto($nombre, $usuarios);
+            $clave = $usuario ? $this->normalizar($usuario->huellaRelacion->nombre_usuario ?? '') : $nombreNormalizado;
 
             $resumen[$clave][$horaExtraida] = ($resumen[$clave][$horaExtraida] ?? 0) + 1;
         }
+
         return $resumen;
     }
 
-    private function leerArchivoGrabaciones($file2, $usuarios, $horaLimite){
+    public function leerArchivoGrabaciones($file2, $usuarios, $horaLimite)
+    {
+        $datos = Excel::toArray([], $file2)[0];
+        $headings = array_map([$this, 'normalizar'], $datos[6]);
 
-    $datos = Excel::toArray([], $file2)[0];
-    $headings = array_map([$this, 'normalizar'], $datos[6]);
-    // Índices para las columnas necesarias
-    $idxAgente = $idxFechaHora = $idxOrigen = null;
-   
-    foreach ($headings as $i => $col) {
-        if (in_array($col, ['agente que atendio', 'agente que atendió', 'agente'])) {
-            $idxAgente = $i;
+        $idxAgente = $idxFechaHora = $idxOrigen = null;
+
+        foreach ($headings as $i => $col) {
+            if (in_array($col, ['agente que atendio', 'agente que atendió', 'agente'])) {
+                $idxAgente = $i;
+            }
+            if (in_array($col, ['fechahora', 'fecha hora', 'Fecha/hora'])) {
+                $idxFechaHora = $i;
+            }
+            if ($col === 'origen') {
+                $idxOrigen = $i;
+            }
         }
-        if (in_array($col, ['fechahora', 'fecha hora', 'fecha/hora'])) {
-            $idxFechaHora = $i;
+
+        if ($idxFechaHora === null) {
+            abort(422, "Columna 'Fecha/Hora' no encontrada.");
         }
-        if ($col === 'origen') {
-            $idxOrigen = $i;
-        }
-    }
 
-    if ($idxFechaHora === null) {
-        abort(422, "Columna 'Fecha/Hora' no encontrada en archivo de grabaciones.");
-    }
+        $resumen = [];
+        $primerMarcacion = [];
 
-    $resumen = [];
-    $primerMarcacion = [];
+        foreach (array_slice($datos, 7) as $fila) {
+            $agente = $idxAgente !== null ? trim($fila[$idxAgente] ?? '') : '';
+            $fechaHora = trim($fila[$idxFechaHora] ?? '');
+            $origen = $idxOrigen !== null ? trim($fila[$idxOrigen] ?? '') : '';
 
-    // Recorrer cada fila de datos (desde la fila 8 en adelante)
-    foreach (array_slice($datos, 7) as $fila) {
-        // Obtener y limpiar valores de la fila actual
-        $agente = $idxAgente !== null ? trim($fila[$idxAgente] ?? '') : '';
-        $fechaHora = trim($fila[$idxFechaHora] ?? '');
-        $origen = $idxOrigen !== null ? trim($fila[$idxOrigen] ?? '') : '';
+            $horaExtra = $this->extraerHora($fechaHora);
+            if (!$horaExtra || $horaExtra < 7 || $horaExtra > $horaLimite) continue;
 
-        // Extraer solo la hora en formato entero (por ejemplo: 8, 9, 10)
-        $horaExtra = $this->extraerHora($fechaHora);
-
-        // Omitir si la hora no es válida o está fuera del rango permitido
-        if (!$horaExtra || $horaExtra < 7 || $horaExtra > $horaLimite) continue;
-
-        $clave = null;
-
-        // Intentar identificar al usuario por coincidencia parcial de nombre completo
-        if ($agente !== '') {
-            $agNorm = $this->normalizar($agente);
-
-            $mejorUsuario = null;
-            $mejorPct = 0;
-
-            // Buscar el usuario con mayor porcentaje de coincidencia en nombre completo
-            foreach ($usuarios as $u) {
-                $nombreBD = $this->normalizar(trim($u->nombres . ' ' . $u->apellidos));
-                similar_text($agNorm, $nombreBD, $pct);
-                if ($pct > $mejorPct) {
-                    $mejorPct = $pct;
-                    $mejorUsuario = $u;
+            $clave = null;
+            if ($agente !== '') {
+                $agNorm = $this->normalizar($agente);
+                $mejorUsuario = null;
+                $mejorPct = 0;
+                foreach ($usuarios as $u) {
+                    $nombreBD = $this->normalizar(trim($u->nombres . ' ' . $u->apellidos));
+                    similar_text($agNorm, $nombreBD, $pct);
+                    if ($pct > $mejorPct) {
+                        $mejorPct = $pct;
+                        $mejorUsuario = $u;
+                    }
+                }
+                if ($mejorPct >= 70 && $mejorUsuario) {
+                    $clave = $this->normalizar($mejorUsuario->huellaRelacion->nombre_usuario ?? '');
                 }
             }
 
-            // Si la coincidencia es suficientemente buena, usar huella->nombre_usuario como clave
-            if ($mejorPct >= 70) {
-                $clave = $this->normalizar( $mejorUsuario->nombres. ' ' .$mejorUsuario->apellidos);
+            if ($clave === null && $origen !== '') {
+                $usuarioPorExt = $usuarios->first(fn($u) => isset($u->extension) && $u->extension == $origen);
+                if ($usuarioPorExt) {
+                    $clave = $this->normalizar($usuarioPorExt->huellaRelacion->nombre_usuario ?? '');
+                }
+            }
+
+            if ($clave === null && $agente !== '') {
+                $usuario = $this->buscarUsuarioPorNombreCompleto($agente, $usuarios);
+                if ($usuario) {
+                    $clave = $this->normalizar($usuario->huellaRelacion->nombre_usuario ?? '');
+                }
+            }
+
+            if ($clave === null) continue;
+
+            $resumen[$clave][$horaExtra] = ($resumen[$clave][$horaExtra] ?? 0) + 1;
+
+            if (!isset($primerMarcacion[$clave]) || strtotime($fechaHora) < strtotime($primerMarcacion[$clave])) {
+                if (preg_match('/([01]?\d|2[0-3]):[0-5]\d/', $fechaHora, $m)) {
+                    $primerMarcacion[$clave] = $m[0];
+                }
             }
         }
 
-        // Si no se encontró por nombre, intentar por número de extensión (origen)
-        if ($clave === null && $origen !== '') {
-            $usuarioPorExt = $usuarios->first(function ($u) use ($origen) {
-                return isset($u->extension) && $u->extension == $origen;
-            });
-
-            if ($usuarioPorExt) {
-                $clave = $this->normalizar($usuarioPorExt->nombres. ' ' .$usuarioPorExt->apellidos);
-            }
-        }
-
-        // Si aún no se encuentra, intentar con una búsqueda más laxa por nombre completo 
-        if ($clave === null && $agente !== '') {
-            $usuario = $this->buscarUsuarioPorNombreCompleto($agente, $usuarios);
-            if ($usuario) {
-                $clave = $this->normalizar($usuario->nombres . ' ' . $usuario->apellidos);
-            }
-        }
-
-        // Si aún no se pudo identificar al usuario, omitir el registro
-        if ($clave === null || $clave === '') continue;
-
-        // Acumular 1 en la hora correspondiente para ese usuario
-        if (!isset($resumen[$clave][$horaExtra])) {
-            $resumen[$clave][$horaExtra] = 0;
-        }
-        $resumen[$clave][$horaExtra]++;
-
-        // Registrar la primera hora exacta de entrada (en formato hh:mm)
-        if (!isset($primerMarcacion[$clave]) || strtotime($fechaHora) < strtotime($primerMarcacion[$clave])) {
-            // Buscar coincidencia de formato hh:mm dentro de la cadena de fecha/hora
-            if (preg_match('/([01]?\d|2[0-3]):[0-5]\d/', $fechaHora, $m)) {
-                $primerMarcacion[$clave] = $m[0]; // Guardar solo la hora y minutos
-            }
-        }
+        return ['resumen' => $resumen, 'primerMarcacion' => $primerMarcacion];
     }
-
-    // Devolver el resumen por hora y la primera marcación por usuario
-    return ['resumen' => $resumen, 'primerMarcacion' => $primerMarcacion];
-}
 
     private function exportarExcel($filas, $encabezados)
     {
@@ -276,28 +331,12 @@ class ExcelController extends Controller
     }
 
     private function normalizar($cadena)
-{
-    if (!is_string($cadena)) return '';
-
-    // Convertir a minúsculas
-    $cadena = strtolower($cadena);
-
-    // Proteger la ñ (y Ñ si fuera necesario)
-    $cadena = str_replace(['ñ', 'Ñ'], ['__enie__', '__ENIE__'], $cadena);
-
-    // Quitar tildes y otros caracteres con iconv
-    $cadena = iconv('UTF-8', 'ASCII//TRANSLIT', $cadena);
-
-    // Restaurar la ñ
-    $cadena = str_replace(['__enie__', '__ENIE__'], ['ñ', 'ñ'], $cadena);
-
-    // Eliminar todo lo que no sea letras, números o espacios
-    $cadena = preg_replace('/[^a-z0-9 ]/', '', $cadena);
-
-    // Eliminar espacios extra
-    return trim(preg_replace('/\s+/', ' ', $cadena));
-}
-
+    {
+        $cadena = strtolower($cadena);
+        $cadena = iconv('UTF-8', 'ASCII//TRANSLIT', $cadena);
+        $cadena = preg_replace('/[^a-z0-9 ]/', '', $cadena);
+        return trim(preg_replace('/\s+/', ' ', $cadena));
+    }
 
     private function extraerHora($texto)
     {
@@ -310,8 +349,7 @@ class ExcelController extends Controller
     private function buscarUsuarioPorNombreUsuarioHuella($nombreNormalizado, $usuarios)
     {
         return $usuarios->first(function ($u) use ($nombreNormalizado) {
-            $nombreHuella = $u->huella->nombre_usuario ?? ($u->nombre_usuario_huella ?? '');
-            return $this->normalizar($nombreHuella) === $nombreNormalizado;
+            return $this->normalizar($u->huellaRelacion->nombre_usuario ?? '') === $nombreNormalizado;
         });
     }
 
@@ -332,30 +370,7 @@ class ExcelController extends Controller
             }
         }
 
-        // Usamos 70% como umbral mínimo de similitud
         return $mayorSimilitud >= 70 ? $mejorCoincidencia : null;
     }
-
-    /**
-     * Devuelve el campo nombre_usuario de la huella asociada a un usuario.
-     * Si la relación no está cargada pero el campo 'huella' en Usuario es un id,
-     * intenta cargar la huella por su id. Devuelve cadena vacía si no existe.
-     */
-    private function nombreHuellaDeUsuario($usuario)
-    {
-        if (!$usuario) return '';
-        // Si la relación ya está cargada
-        if (isset($usuario->huella) && $usuario->huella) {
-            return $usuario->huella->nombre_usuario ?? '';
-        }
-        // Si el campo huella guarda un id, intentar cargar el modelo
-        if (isset($usuario->huella) && is_numeric($usuario->huella)) {
-            $h = \App\Models\Huella::find((int)$usuario->huella);
-            return $h ? ($h->nombre_usuario ?? '') : '';
-        }
-        // Fallback a la columna antigua si existe
-        return $usuario->nombre_usuario_huella ?? '';
-    }
-
-}
     
+}
