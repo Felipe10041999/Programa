@@ -81,13 +81,21 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
 
         $colIndex = 6; 
         foreach ($horas as $hora) {
-            $widths[Coordinate::stringFromColumnIndex($colIndex++)] = 9; // Huella
-            $widths[Coordinate::stringFromColumnIndex($colIndex++)] = 9; // Marcación
+            // If this hour is 12/13/14 make the two columns slightly wider
+            if (preg_match('/^(\d{1,2}):00/', $hora, $m)) {
+                $hnum = intval($m[1]);
+            } else {
+                $hnum = null;
+            }
+            $w1 = ($hnum !== null && in_array($hnum, [12,13,14])) ? 14 : 9;
+            $w2 = ($hnum !== null && in_array($hnum, [12,13,14])) ? 14 : 9;
+            $widths[Coordinate::stringFromColumnIndex($colIndex++)] = $w1; // Huella
+            $widths[Coordinate::stringFromColumnIndex($colIndex++)] = $w2; // Marcación
         }
 
         
-        $widths[Coordinate::stringFromColumnIndex($colIndex++)] = 9;
-        $widths[Coordinate::stringFromColumnIndex($colIndex++)] = 9;
+    $widths[Coordinate::stringFromColumnIndex($colIndex++)] = 9;
+    $widths[Coordinate::stringFromColumnIndex($colIndex++)] = 9;
 
         
         $widths[Coordinate::stringFromColumnIndex($colIndex)] = 15;
@@ -120,7 +128,7 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
                 $sheet->mergeCells('B1:B2');
                 $sheet->mergeCells('C1:C2');
                 $sheet->mergeCells('D1:D2');
-                $sheet->mergeCells('E1:E2'); // Nueva Columna
+                $sheet->mergeCells('E1:E2'); 
                 $sheet->getStyle('A1:E2')->getAlignment()->setHorizontal('center');
                 $sheet->getStyle('A1:E2')->getAlignment()->setVertical('center');
                 $sheet->getStyle('A1:E2')->getFont()->setBold(true);
@@ -171,10 +179,25 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
                     for ($col = $colStart; $col <= $colEnd; $col++) {
                         $cell = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($col) . $row;
                         $value = $sheet->getCell($cell)->getValue();
+                        // If cell is empty keep zero for numeric columns
                         if ($value === null || $value === '') {
                             $sheet->setCellValue($cell, 0);
                             $value = 0;
                         }
+
+                        // If this is an ALMUERZO cell (string) color fucsia and skip numeric coloring
+                        if (!is_numeric($value) && strtoupper(trim((string)$value)) === 'ALMUERZO') {
+                            // Use a softer pastel magenta that plays well with red/yellow/green heatmap
+                            $bgColor = 'FFFFCCFF'; // pale magenta
+                            $sheet->getStyle($cell)->getFill()->setFillType('solid')->getStartColor()->setARGB($bgColor);
+                            // Center and emphasize text for readability
+                            $sheet->getStyle($cell)->getAlignment()->setHorizontal('center');
+                            $sheet->getStyle($cell)->getAlignment()->setVertical('center');
+                            $sheet->getStyle($cell)->getFont()->getColor()->setARGB('FF000000'); // black text
+                            $sheet->getStyle($cell)->getFont()->setBold(true);
+                            continue;
+                        }
+
                         // Colorear de rojo si es cero
                         if (is_numeric($value) && $value == 0) {
                             $sheet->getStyle($cell)->getFill()->setFillType('solid')->getStartColor()->setARGB('FFFF0000');
@@ -193,10 +216,8 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
                 }
 
                 
-                // Obtener índices de las dos últimas columnas
                 $totalCol1 = $colEnd - 2; // Total Huella
                 $totalCol2 = $colEnd - 1; // Total Marcación
-                // Recopilar valores de cada columna de total 
                 $valoresTotal1 = [];
                 $valoresTotal2 = [];
                 for ($row = 3; $row <= $highestRow; $row++) {
@@ -214,31 +235,29 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
                 $max2 = count($valoresTotal2) ? max($valoresTotal2) : 1;
                 // Aplicar degradado
                 for ($row = 3; $row <= $highestRow; $row++) {
-                    // Total Huella
                     $cell1 = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($totalCol1) . $row;
                     $v1 = $sheet->getCell($cell1)->getValue();
                     if (is_numeric($v1)) {
                         $porcentaje = $max1 > 0 ? ($v1 / $max1) : 0;
                         if ($porcentaje >= 0.7) {
-                            $color = 'FF00FF00'; // Verde
+                            $color = 'FF00FF00'; 
                         } elseif ($porcentaje >= 0.5) {
-                            $color = 'FFFFFF00'; // Amarillo
+                            $color = 'FFFFFF00'; 
                         } else {
-                            $color = 'FFFF0000'; // Rojo
+                            $color = 'FFFF0000'; 
                         }
                         $sheet->getStyle($cell1)->getFill()->setFillType('solid')->getStartColor()->setARGB($color);
                     }
-                    // Total Marcación
                     $cell2 = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($totalCol2) . $row;
                     $v2 = $sheet->getCell($cell2)->getValue();
                     if (is_numeric($v2)) {
                         $porcentaje = $max2 > 0 ? ($v2 / $max2) : 0;
                         if ($porcentaje >= 0.7) {
-                            $color = 'FF00FF00'; // Verde
+                            $color = 'FF00FF00'; 
                         } elseif ($porcentaje >= 0.5) {
-                            $color = 'FFFFFF00'; // Amarillo
+                            $color = 'FFFFFF00'; 
                         } else {
-                            $color = 'FFFF0000'; // Rojo
+                            $color = 'FFFF0000';
                         }
                         $sheet->getStyle($cell2)->getFill()->setFillType('solid')->getStartColor()->setARGB($color);
                     }

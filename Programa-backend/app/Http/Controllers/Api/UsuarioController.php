@@ -42,7 +42,6 @@ class UsuarioController extends Controller
         'usuario_bestvoiper' => 'required',
         'extension' => 'required',
         'no_diadema' => 'required',
-
         ]);
         
         if (!isset($validated['usuario_bestvoiper'])){
@@ -76,7 +75,6 @@ class UsuarioController extends Controller
             'usuario_bestvoiper' => 'required',
             'extension' => 'required',
             'no_diadema' => 'required',
-
         ]);
         $usuario->update($validar);
         return response()->json([

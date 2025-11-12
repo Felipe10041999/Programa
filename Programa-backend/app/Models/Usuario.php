@@ -18,6 +18,7 @@ class Usuario extends Model
         'correo',
         'usuario_bestvoiper',
         'extension',
+        'no_diadema'
     ];
 
     public function equipoUsuario()
