@@ -51,7 +51,7 @@
 }
 
 .upload-area.dragover {
-  border-color: rgba(209, 168, 78, 0.8);
+  border-color: rgba(0, 0, 0, 0.8);
   background: rgba(209, 168, 78, 0.1);
   transform: scale(1.02);
 }
@@ -96,9 +96,9 @@
 .file-info {
   margin-top: 1rem;
   padding: 1rem;
-  background: rgba(209, 168, 78, 0.1);
+  background: rgba(206, 205, 202, 0.1);
   border-radius: 8px;
-  border: 1px solid rgba(209, 168, 78, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .file-details {
@@ -109,7 +109,7 @@
 
 .file-details i {
   font-size: 2rem;
-  color: rgba(209, 168, 78, 0.8);
+  color: rgba(8, 8, 8, 0.8);
 }
 
 .file-text h4 {
@@ -125,7 +125,7 @@
 }
 
 .remove-btn {
-  background: #e74c3c;
+  background: #cbc9c9;
   color: white;
   border: none;
   border-radius: 50%;
@@ -137,7 +137,7 @@
 }
 
 .remove-btn:hover {
-  background: #c0392b;
+  background: #ffffff;
 }
 
 .progress-section {
@@ -185,8 +185,8 @@
 }
 
 .message.success {
-  background: rgba(209, 168, 78, 0.1);
-  color: #ffd93d;
+  background: rgba(0, 0, 0, 0.1);
+  color: #ffffff;
   border: 1px solid rgba(209, 168, 78, 0.3);
 }
 
@@ -204,9 +204,9 @@
 }
 
 .process-btn {
-  background: rgba(209, 168, 78, 0.8);
+  background: rgba(0, 0, 0, 0.8);
   color: white;
-  border: 1px solid rgba(209, 168, 78, 0.3);
+  border: 1px solid rgb(255, 255, 255);
   padding: 12px 24px;
   border-radius: 8px;
   font-size: 1rem;
@@ -218,7 +218,7 @@
 }
 
 .process-btn:hover:not(:disabled) {
-  background: rgba(209, 168, 78, 1);
+  background: rgb(10, 10, 10);
   transform: translateY(-2px);
 }
 
@@ -253,7 +253,7 @@
   padding: 1.5rem;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
-  border-left: 4px solid rgba(209, 168, 78, 0.6);
+  border-left: 4px solid rgb(251, 251, 251);
 }
 
 .info-section h3 {
@@ -279,7 +279,7 @@
   content: "✓";
   position: absolute;
   left: 0;
-  color: rgba(209, 168, 78, 0.8);
+  color: rgb(255, 255, 255);
   font-weight: bold;
 }
 

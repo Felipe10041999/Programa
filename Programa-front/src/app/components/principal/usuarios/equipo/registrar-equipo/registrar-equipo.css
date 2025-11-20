@@ -1,6 +1,5 @@
 .registrar-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, rgb(74, 90, 103) 0%, rgb(209, 168, 78) 100%);
   padding: 2rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
@@ -76,8 +75,8 @@
 .form-input:focus {
   outline: none;
   background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(209, 168, 78, 0.8);
-  box-shadow: 0 0 20px rgba(209, 168, 78, 0.3);
+  border-color: rgba(7, 7, 7, 0.8);
+  box-shadow: 0 0 20px rgb(248, 247, 246);
 }
 
 .form-input.ng-invalid.ng-touched {
@@ -86,7 +85,7 @@
 }
 
 .error-message {
-  color: #a21616;
+  color: #f49494;
   font-size: 0.85rem;
   margin-top: 0.25rem;
   display: block;
@@ -99,7 +98,7 @@
 }
 
 .btn-registrar {
-  background: rgba(209, 168, 78, 0.8);
+  background: rgba(16, 15, 15, 0.8);
   color: white;
   padding: 14px 32px;
   border-radius: 25px;
@@ -112,9 +111,9 @@
 }
 
 .btn-registrar:hover:not(:disabled) {
-  background: rgba(209, 168, 78, 1);
+  background: rgb(15, 15, 15);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(209, 168, 78, 0.4);
+  box-shadow: 0 6px 20px rgb(255, 255, 255);
 }
 
 .btn-registrar:disabled {

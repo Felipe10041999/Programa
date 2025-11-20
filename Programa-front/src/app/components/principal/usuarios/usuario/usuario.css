@@ -1,6 +1,5 @@
 .usuario-container{
     min-height: 100vh;
-    background: linear-gradient(135deg, rgb(74, 90, 103) 0% rgb(209, 168, 78) 100%);
     padding: 2rem;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
@@ -213,8 +212,8 @@
 }
 
 .page-item.active .page-link {
-  background: rgba(209, 168, 78, 0.8);
-  border-color: rgba(209, 168, 78, 0.8);
+  background: rgba(1, 9, 6 );
+  border-color: rgba(58, 58, 57, 0.8);
 }
 
 .page-item.disabled .page-link {
@@ -222,7 +221,7 @@
   cursor: not-allowed;
 }
 .export-btn {
-  background: rgba(209, 168, 78, 0.8);
+  background: rgba(18, 18, 18, 0.8);
   color: white;
   padding: 12px 24px;
   border-radius: 25px;
@@ -235,9 +234,9 @@
 }
 
 .export-btn:hover {
-  background: rgba(209, 168, 78, 1);
+  background: rgb(1, 9, 6);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(209, 168, 78, 0.4);
+  box-shadow: 0 6px 20px rgb(255, 255, 255);
 }
 
 

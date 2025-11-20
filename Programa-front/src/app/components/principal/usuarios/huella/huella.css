@@ -1,6 +1,5 @@
 .huella-container{
     min-height: 100vh;
-    background: linear-gradient(135deg, rgb(74,90,103) 30%, rgb(209,168,78)100%);
     padding: 2rem;
     font-family: 'Segoe UI', 'Segoe UI', Tahoma, Geneva, Verdana,sans-serif
 }
@@ -187,15 +186,15 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 .page-item.active .page.link{
-    background: rgba(209, 168, 78, 0.8);
-    border-color: rgba(209, 168, 78, 0.8)
+    background: rgba(23, 23, 23, 0.8);
+    border-color: rgba(255, 255, 255, 0.99)
 }
 .page-item.disabled .page-link{
     opacity: 0.5;
     cursor: not-allowed;
 }
 .export-btn {
-  background: rgba(209, 168, 78, 0.8);
+  background: rgba(14, 13, 13, 0.8);
   color: white;
   padding: 12px 24px;
   border-radius: 25px;
@@ -208,7 +207,7 @@
 }
 
 .export-btn:hover {
-  background: rgba(209, 168, 78, 1);
+  background: rgb(17, 16, 16);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(209, 168, 78, 0.4);
+  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.958);
 }

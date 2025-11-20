@@ -1,6 +1,5 @@
 .informes-container {
     min-height: 100vh;
-    background: linear-gradient(135deg, rgb(74, 90, 103) 0%, rgb(209, 168, 78) 100%);
     display: flex;
     justify-content: center;
     align-items: center;

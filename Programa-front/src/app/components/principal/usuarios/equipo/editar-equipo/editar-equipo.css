@@ -1,6 +1,5 @@
 .editar-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, rgb(74, 90, 103) 0%, rgb(209, 168, 78) 100%);
   padding: 2rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
@@ -77,8 +76,8 @@
 .form-input:focus {
   outline: none;
   background: rgba(255, 255, 255, 0.3);
-  border-color: rgba(209, 168, 78, 0.8);
-  box-shadow: 0 0 20px rgba(209, 168, 78, 0.3);
+  border-color: rgba(11, 11, 11, 0.8);
+  box-shadow: 0 0 20px rgb(255, 255, 255);
 }
 
 .form-input.ng-invalid.ng-touched {

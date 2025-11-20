@@ -1,6 +1,5 @@
 .registrar-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, rgb(74, 90, 103) 0%, rgb(209, 168, 78) 100%);
   padding: 2rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
@@ -76,7 +75,7 @@
 .form-input:focus {
   outline: none;
   background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(209, 168, 78, 0.8);
+  border-color: rgba(255, 253, 249, 0.8);
   box-shadow: 0 0 20px rgba(209, 168, 78, 0.3);
 }
 
@@ -86,7 +85,7 @@
 }
 
 .error-message{
-    color: #a21616;
+    color: #f78a8a;
     font-size: 0.85rem;
     margin-top:0.25rem;
     display: block;
@@ -98,7 +97,7 @@
 }
 
 .btn-registrar {
-  background: rgba(209, 168, 78, 0.8);
+  background: rgba(1, 9, 6);
   color: white;
   padding: 14px 32px;
   border-radius: 25px;
@@ -111,9 +110,9 @@
 }
 
 .btn-registrar:hover:not(:disabled) {
-  background: rgba(209, 168, 78, 1);
+  background: rgb(14, 14, 14);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(209, 168, 78, 0.4);
+  box-shadow: 0 6px 20px rgba(242, 242, 242, 0.937);
 }
 
 .btn-registrar:disabled {

@@ -1,6 +1,5 @@
 .equipos-container{
     min-height: 100vh;
-    background: linear-gradient(135deg,rgb(74,90,103) 30%, rgb(209,168,78)100%);
     padding: 2rem;   
     font-family: 'Segoe UI', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
 }
@@ -196,8 +195,8 @@
 }
 
 .page-item.active .page-link {
-  background: rgba(209, 168, 78, 0.8);
-  border-color: rgba(209, 168, 78, 0.8);
+  background: rgba(4, 4, 4, 0.8);
+  border-color: rgb(255, 255, 255);
 }
 
 .page-item.disabled .page-link {
@@ -205,7 +204,7 @@
   cursor: not-allowed;
 }
 .export-btn {
-  background: rgba(209, 168, 78, 0.8);
+  background: rgba(10, 10, 10, 0.8);
   color: white;
   padding: 12px 24px;
   border-radius: 25px;
@@ -218,9 +217,9 @@
 }
 
 .export-btn:hover {
-  background: rgba(209, 168, 78, 1);
+  background: rgb(2, 2, 2);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(209, 168, 78, 0.4);
+  box-shadow: 0 6px 20px rgb(248, 248, 248);
 }
 
 
