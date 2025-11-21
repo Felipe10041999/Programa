@@ -143,8 +143,6 @@ class UsuarioController extends Controller
             'correo' => 'required|email',
             'usuario_bestvoiper' => 'required',
             'extension' => 'required',
-            'no_diadema' => 'required',
-
         ]);
 
         $usuario->update($validated);
