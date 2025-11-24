@@ -105,7 +105,6 @@ export const routes: Routes = [
     .then(m=> m.Logueo),
     canActivate: [AuthGuard]
   },
-  // Ruta para capturar cualquier ruta no definida
   { 
     path: '**', 
     redirectTo: '/ingreso' 

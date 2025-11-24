@@ -23,12 +23,6 @@ export class LogueoService {
 
   constructor(private http: HttpClient) { }
 
-  /**
-   * Sube un archivo Excel para procesar las marcaciones
-   * @param archivo - El archivo Excel a subir
-   * @returns Observable con el progreso de la carga y la respuesta final
-   */
-
   subirArchivo(archivo: File): Observable<HttpEvent<any>> {
     const formData = new FormData();
     formData.append('archivo', archivo);
@@ -40,13 +34,6 @@ export class LogueoService {
     });
   }
 
-
-
-  /**
-   * Procesa el progreso de la carga y retorna un objeto con información del progreso
-   * @param event - Evento HTTP del progreso
-   * @returns Objeto con información del progreso o null si no es un evento de progreso
-   */
   procesarProgreso(event: HttpEvent<any>): UploadProgress | null {
     if (event.type === HttpEventType.UploadProgress) {
       const loaded = event.loaded;
@@ -61,23 +48,11 @@ export class LogueoService {
     }
     return null;
   }
-
-  /**
-   * Verifica si el evento es una respuesta exitosa
-   * @param event - Evento HTTP
-   * @returns true si es una respuesta exitosa
-   */
-
   
   esRespuestaExitosa(event: HttpEvent<any>): boolean {
     return event instanceof HttpResponse && event.status === 200;
   }
 
-  /**
-   * Obtiene la respuesta final del servidor
-   * @param event - Evento HTTP
-   * @returns La respuesta del servidor o null si no es una respuesta
-   */
   obtenerRespuesta(event: HttpEvent<any>): any {
     if (event instanceof HttpResponse) {
       return event.body;
@@ -85,11 +60,6 @@ export class LogueoService {
     return null;
   }
 
-  /**
-   * Valida si el archivo es un archivo Excel válido
-   * @param archivo - El archivo a validar
-   * @returns true si es un archivo Excel válido
-   */
   validarArchivoExcel(archivo: File): boolean {
     const tiposValidos = [
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
@@ -99,11 +69,6 @@ export class LogueoService {
     return tiposValidos.includes(archivo.type);
   }
 
-  /**
-   * Obtiene el tamaño del archivo en formato legible
-   * @param bytes - Tamaño en bytes
-   * @returns Tamaño formateado (KB, MB, etc.)
-   */
   formatearTamañoArchivo(bytes: number): string {
     if (bytes === 0) return '0 Bytes';
     
@@ -114,12 +79,7 @@ export class LogueoService {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 
-  /**
-   * Descarga el archivo procesado
-   * @param blob - El blob del archivo
-   * @param nombreArchivo - Nombre del archivo a descargar
-   */
-  descargarArchivo(blob: Blob, nombreArchivo: string = 'archivo_dos_resultado.xlsx'): void {
+    descargarArchivo(blob: Blob, nombreArchivo: string = 'archivo_dos_resultado.xlsx'): void {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;

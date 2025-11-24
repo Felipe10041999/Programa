@@ -14,21 +14,16 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   canActivate(): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-    // Verificar si el usuario está autenticado
     if (this.authService.isAuthenticated()) {
-      // Verificar si la sesión ha expirado
       if (this.authService.isSessionExpired()) {
-        // Sesión expirada, cerrar sesión y redirigir al login
         this.authService.logout();
         return this.router.createUrlTree(['/login']);
       }
       
-      // Renovar la sesión si es válida
       this.authService.renovarSesion();
       return true;
     }
     
-    // Usuario no autenticado, redirigir al login
     return this.router.createUrlTree(['/login']);
   }
 } 

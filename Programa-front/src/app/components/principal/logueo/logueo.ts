@@ -26,7 +26,6 @@ export class Logueo {
   onFileSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
-      // Validar que sea un archivo Excel usando el servicio
       if (this.logueoService.validarArchivoExcel(file)) {
         this.archivoSeleccionado = file;
         this.mensaje = `Archivo seleccionado: ${file.name} (${this.logueoService.formatearTamañoArchivo(file.size)})`;
@@ -49,17 +48,14 @@ export class Logueo {
 
     this.logueoService.subirArchivo(this.archivoSeleccionado).subscribe({
       next: (event: any) => {
-        // Procesar progreso de carga
         const progresoInfo = this.logueoService.procesarProgreso(event);
         if (progresoInfo) {
           this.progreso = progresoInfo.percentage;
         }
 
-        // Verificar si es respuesta exitosa
         if (this.logueoService.esRespuestaExitosa(event)) {
           const respuesta = this.logueoService.obtenerRespuesta(event);
           if (respuesta) {
-            // Descargar el archivo procesado directamente
             this.logueoService.descargarArchivo(respuesta, 'Archivo hora de llegada.xlsx');
             this.mensaje = 'Archivo procesado exitosamente. Descarga iniciada.';
             this.cargando = false;

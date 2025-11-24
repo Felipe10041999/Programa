@@ -169,7 +169,6 @@
   font-size: 12px;
 }
 
-/* Responsive design */
 @media (max-width: 480px) {
   .login-card {
     padding: 30px 20px;
@@ -187,14 +186,12 @@
   }
 }
 
-/* Animaciones adicionales */
 .form-input:focus + label,
 .form-input:not(:placeholder-shown) + label {
   transform: translateY(-20px) scale(0.8);
   color: rgba(102, 126, 234, 0.3);
 }
 
-/* Hover effects */
 .login-card:hover {
   transform: translateY(-5px);
   transition: transform 0.3s ease;

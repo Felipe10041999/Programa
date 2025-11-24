@@ -16,16 +16,15 @@ export class Informes implements OnInit {
   archivoSeleccionado: File | null = null;
   archivoGrabacionesSeleccionado: File | null = null;
   archivoSeleccionado3: File | null = null;
-  horaLimite: number = 19; // Valor por defecto
+  horaLimite: number = 19;
   horasDisponibles: number[] = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19];
-  carteraSeleccionada: string = ''; // Valor por defecto (todas las carteras)
+  carteraSeleccionada: string = '';
   
   constructor(
     private router: Router,
     private informesService: InformesService
   ) {}
   ngOnInit(): void {
-    // Inicialización del componente
   }
   onFileSelected(event: any) {
     const file = event.target.files[0];
@@ -75,7 +74,6 @@ export class Informes implements OnInit {
 
     this.generandoInforme = true;
 
-    // Crear FormData para enviar los tres archivos
     const formData = new FormData();
     formData.append('file', this.archivoSeleccionado);
     formData.append('file2', this.archivoGrabacionesSeleccionado);
@@ -103,7 +101,6 @@ export class Informes implements OnInit {
     });
   }
   descargarArchivo(archivo: any) {
-    // Lógica para descargar el archivo si es necesario
     const link = document.createElement('a');
     link.href = archivo.url;
     link.download = archivo.nombre;

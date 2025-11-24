@@ -35,7 +35,6 @@ export class Huella implements OnInit{
     this.servicio.listaHuella().subscribe({
       next: (data) =>{
         this.huellas = data;
-        // Consultar estado asignado para cada huella
         this.huellas.forEach((huella, idx) => {
           this.servicio.verificarAsignacionHuella(huella.id).subscribe({
             next: (res) => {

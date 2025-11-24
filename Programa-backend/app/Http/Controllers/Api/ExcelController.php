@@ -40,16 +40,10 @@ class ExcelController extends Controller
             ];
         }
 
-        // Build the list of hours available across the three fuentes.
         $horas = array_unique(array_merge(
             ...array_map('array_keys', array_merge(array_values($resumen1), array_values($resumen2['resumen'] ?? []), array_values($resumen3)))
         ));
 
-        // ensure we include lunch columns when needed:
-        // - almuerzo 1 -> show 12:00 as ALMUERZO (and later we'll move their 12->13 counts)
-        // - almuerzo 2 -> show 13:00 as ALMUERZO (and move their 13->14 counts)
-        // - almuerzo 3 -> show 13:00 as ALMUERZO (and move their 13->14 counts)
-        // - almuerzo 4 -> show 14:00 as ALMUERZO (and move their 14->15 counts)
         $hasAlmuerzo1 = $hasAlmuerzo2 = $hasAlmuerzo3 = $hasAlmuerzo4 = false;
         if (is_iterable($usuarios)) {
             foreach ($usuarios as $u) {
@@ -106,24 +100,15 @@ class ExcelController extends Controller
                 $valores = [];
                 $primerMarcacion = $resumen2['primerMarcacion'][$keyNorm] ?? '';
 
-                // determine if this usuario has a lunch slot that maps to a specific hour column
                 $almuerzoHora = null;
                 if ($usuario && isset($usuario->almuerzo)) {
-                    // map almuerzo code to the hour that should be marked as ALMUERZO
-                    // almuerzo 1: 12:30-13:30 -> mark 13
-                    // almuerzo 2: 13:00-14:00 -> mark 13
-                    // almuerzo 3: 13:30-14:30 -> mark 14
-                    // almuerzo 4: 14:00-15:00 -> mark 14
                     switch (intval($usuario->almuerzo)) {
-                        // map almuerzo 1 to 12:00 (user requested ALMUERZO at 12:00)
                         case 1:
                             $almuerzoHora = 12;
                             break;
-                        // almuerzo 2 remains mapped to 13:00
                         case 2:
                             $almuerzoHora = 13;
                             break;
-                        // user requested: almuerzo 3 should mark 13:00 as ALMUERZO and its gestiones move to 14:00
                         case 3:
                             $almuerzoHora = 13;
                             break;
@@ -141,35 +126,29 @@ class ExcelController extends Controller
                     $productividad = $p1 + $p3;
                     $g = $resumen2['resumen'][$keyNorm][$h] ?? 0;
 
-                    // If this usuario has almuerzo == 1, their gestiones at 12:00 should be counted in 13:00
                     if ($usuario && isset($usuario->almuerzo) && intval($usuario->almuerzo) === 1 && intval($h) === 13) {
                         $productividad += ($resumen1[$keyNorm][12] ?? 0) + ($resumen3[$keyNorm][12] ?? 0);
                         $g += ($resumen2['resumen'][$keyNorm][12] ?? 0);
                     }
 
-                    // If this usuario has almuerzo == 2, their gestiones at 13:00 should be counted in 14:00
                     if ($usuario && isset($usuario->almuerzo) && intval($usuario->almuerzo) === 2 && intval($h) === 14) {
                         $productividad += ($resumen1[$keyNorm][13] ?? 0) + ($resumen3[$keyNorm][13] ?? 0);
                         $g += ($resumen2['resumen'][$keyNorm][13] ?? 0);
                     }
 
-                    // If this usuario has almuerzo == 3, their gestiones at 13:00 should be counted in 14:00
                     if ($usuario && isset($usuario->almuerzo) && intval($usuario->almuerzo) === 3 && intval($h) === 14) {
                         $productividad += ($resumen1[$keyNorm][13] ?? 0) + ($resumen3[$keyNorm][13] ?? 0);
                         $g += ($resumen2['resumen'][$keyNorm][13] ?? 0);
                     }
 
-                    // If this usuario has almuerzo == 4, their gestiones at 14:00 should be counted in 15:00
                     if ($usuario && isset($usuario->almuerzo) && intval($usuario->almuerzo) === 4 && intval($h) === 15) {
                         $productividad += ($resumen1[$keyNorm][14] ?? 0) + ($resumen3[$keyNorm][14] ?? 0);
                         $g += ($resumen2['resumen'][$keyNorm][14] ?? 0);
                     }
 
-                    // if this hour corresponds to the user's lunch, mark both cells as ALMUERZO (do not add to totals)
                     if ($almuerzoHora !== null && intval($h) === intval($almuerzoHora)) {
                         $valores[] = 'ALMUERZO';
                         $valores[] = 'ALMUERZO';
-                        // do not increment tp/tg
                     } else {
                         $valores[] = $productividad;
                         $valores[] = $g;

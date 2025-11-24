@@ -1,4 +1,3 @@
-// Componentes principales
 export { Login } from './login/login';
 export { Principal } from './principal/principal';
 export { Usuarios } from './principal/usuarios/usuarios';

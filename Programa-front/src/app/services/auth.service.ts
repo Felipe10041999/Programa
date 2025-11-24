@@ -40,9 +40,7 @@ export class AuthService {
     }
   }
 
-  /**
-   * Obtener la sesión del localStorage
-   */
+  
   getSesion(): Sesion | null {
     const sesionStr = localStorage.getItem('sesion');
     return sesionStr ? JSON.parse(sesionStr) : null;
@@ -52,25 +50,16 @@ export class AuthService {
     return this.isAuthenticatedSubject.value;
   }
 
-  /**
-   * Obtener el token de sesión actual
-   */
   getToken(): string | null {
     const sesion = this.getSesion();
     return sesion ? sesion.token_sesion : null;
   }
 
-  /**
-   * Obtener el nombre de usuario actual
-   */
   getCurrentUser(): string | null {
     const sesion = this.getSesion();
     return sesion ? sesion.nombre_usuario : null;
   }
 
-  /**
-   * Verificar la autenticación con el servidor
-   */
   verificarAutenticacion(): Observable<any> {
     const token = this.getToken();
     if (!token) {
@@ -124,8 +113,7 @@ export class AuthService {
     const ahora = new Date();
     const diferenciaHoras = (ahora.getTime() - ultimoAcceso.getTime()) / (1000 * 60 * 60);
 
-    // Considerar expirada después de 30 minutos de inactividad
-    return diferenciaHoras > 0.5; // 30 minutos
+    return diferenciaHoras > 0.5; 
   }
 
 

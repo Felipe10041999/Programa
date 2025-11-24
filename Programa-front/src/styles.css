@@ -1,5 +1,4 @@
 
-/* Estilos globales para toda la aplicación */
 * {
   margin: 0;
   padding: 0;
@@ -21,7 +20,6 @@ body {
   padding: 0 !important;
 }
 
-/* Forzar el fondo en el elemento raíz */
 app-root {
   display: block;
   min-height: 100vh;
@@ -29,7 +27,6 @@ app-root {
   background-attachment: fixed !important;
 }
 
-/* Estilo de fondo consistente para todos los contenedores principales */
 .principal-container,
 .login-container,
 .logueo-container {
@@ -38,7 +35,6 @@ app-root {
   background-attachment: fixed !important;
 }
 
-/* Scrollbar personalizada */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -56,12 +52,10 @@ app-root {
   background: rgba(255, 255, 255, 0.5);
 }
 
-/* Estilos para elementos de formulario consistentes */
 input, select, textarea {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Animaciones globales */
 @keyframes fadeIn {
   from {
     opacity: 0;

@@ -18,7 +18,6 @@ class NuevosController extends Controller
 
     $archivo1 = $request->file('archivo1');
     $archivo2 = $request->file('archivo2');
-    // Cargar la relación huella para que podamos acceder a huella->nombre_usuario si existe
     $usuarios = \App\Models\Usuario::with('huella')->get();
         $datos1 = $this->leerArchivo1($archivo1);
         $resumen2 = $this->leerArchivo2($archivo2, $usuarios);
@@ -33,7 +32,6 @@ class NuevosController extends Controller
         abort(422, 'No se encontró la segunda hoja en el archivo 1.');
     }
     $datos1 = $datos1Array[$sheetIndex];
-    // Buscar encabezados
     $filaEncabezados = 0;
     foreach ($datos1 as $i => $fila) {
         if (is_array($fila) && count(array_filter($fila, fn($v) => trim((string)$v) !== '')) > 0) {
@@ -50,7 +48,6 @@ class NuevosController extends Controller
         abort(422, 'Encabezado "solicitud" no encontrado en archivo 1.');
     }
     $datos1Filas = array_slice($datos1, $filaEncabezados + 1);
-    // Retornar array asociativo solicitud => asignacion
     $solicitudes = [];
     foreach ($datos1Filas as $fila) {
         $solicitud = $fila[$idxSolicitud] ?? null;
@@ -75,7 +72,7 @@ class NuevosController extends Controller
             abort(422, 'Encabezados requeridos no encontrados en archivo 2.');
         }
         $registros = [];
-        foreach (array_slice($datos, 3) as $fila) { // Saltar encabezados y subtotales
+        foreach (array_slice($datos, 3) as $fila) { 
             $solicitud = trim($fila[$idxSolicitud] ?? '');
             $nombreCompleto = trim($fila[$idxNombre] ?? '');
             $fechaCreacion = trim($fila[$idxFechaCreacion] ?? '');
@@ -97,7 +94,6 @@ class NuevosController extends Controller
     $solicitudesUnicas = array_keys($solicitudes);
     $solicitudesProcesadas = [];
     foreach ($solicitudesUnicas as $solicitud) {
-        // Buscar en archivo2 (resumen2) el registro con esa solicitud
         $registro = null;
         foreach ($resumen2['registros'] ?? [] as $r) {
             if (isset($r['solicitud']) && $r['solicitud'] == $solicitud) {
@@ -108,17 +104,13 @@ class NuevosController extends Controller
         if (!$registro) {
             continue;
         }
-        // Limpiar nombre completo (quitar Outsourcing NGSO -)
         $nombreCompleto = trim($registro['nombre_completo'] ?? '');
         if (stripos($nombreCompleto, 'Outsourcing NGSO -') === 0) {
             $nombreCompleto = trim(substr($nombreCompleto, strlen('Outsourcing NGSO -')));
         }
-        // Buscar usuario por nombre completo en la base de datos
     $usuario = $this->buscarUsuarioPorNombreCompleto($nombreCompleto, $usuarios);
-    // Preferir el nombre de usuario desde la tabla huellas, con fallback a la columna antigua
     $asesor = $usuario ? strtoupper(trim($usuario->apellidos . ' ' . $usuario->nombres)) : '';
         $asesorReal = $usuario ? trim($usuario->nombres . ' ' . $usuario->apellidos) : '';
-        // Buscar gestiones de la solicitud antes y después de las 12
         $manana = $tarde = $gestionManana = $gestionTarde = '';
         foreach ($resumen2['registros'] as $r) {
             if (($r['solicitud'] ?? null) == $solicitud) {
@@ -157,12 +149,9 @@ class NuevosController extends Controller
         $solicitudesProcesadas[$solicitud] = true;
     }
 
-    // Agregar solicitudes que no se encontraron en archivo 2 al final
     foreach ($solicitudesUnicas as $solicitud) {
         if (!isset($solicitudesProcesadas[$solicitud])) {
-            // Buscar asignacion para esta solicitud
             $asignacion = $solicitudes[$solicitud] ?? '';
-            // Buscar usuario por nombre de huella (preferible) o por la columna antigua
             $usuario = $usuarios->first(function($u) use ($asignacion) {
                 $nombreHuella = $u->huella->nombre_usuario ?? $u->nombre_usuario_huella;
                 return strtolower(trim($nombreHuella)) === strtolower(trim($asignacion));
@@ -173,10 +162,10 @@ class NuevosController extends Controller
                 $solicitud,
                 $asesor,
                 $asesorReal,
-                '00:00', // Mañana
-                'No aplica', // Gestión de pago mañana
-                '00:00', // Tarde
-                'No aplica', // Gestión de pago tarde
+                '00:00', 
+                'No aplica', 
+                '00:00', 
+                'No aplica', 
             ];
         }
     }

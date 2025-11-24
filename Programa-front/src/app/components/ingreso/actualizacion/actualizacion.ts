@@ -20,7 +20,6 @@ export class Actualizacion implements OnInit {
   usuarioEncontrado: boolean = false;
   errorMessage: string = '';
   successMessage: string = '';
-  // ids y objetos relacionados expuestos para la plantilla
   public equipoId: number | null = null;
   public huellaId: number | null = null;
   public equipo: any = null;
@@ -75,7 +74,6 @@ export class Actualizacion implements OnInit {
         console.log('Usuario obtenido:', usuario);
         this.usuarioEncontrado = true;
         this.editarForm.patchValue(usuario);
-        // Equipo: puede venir como objeto en `equipo_usuario` o `equipoUsuario` o solo id
         let equipoId: number | null = null;
         const uAny: any = usuario as any;
         const equipoObj = uAny.equipo_usuario ?? uAny.equipoUsuario ?? null;
@@ -85,7 +83,6 @@ export class Actualizacion implements OnInit {
           equipoId = uAny.equipo_usuario;
         }
 
-        // Huella: puede venir como objeto en `huella` o `Huella` o solo id
         let huellaId: number | null = null;
         const huellaObj = uAny.huella ?? uAny.Huella ?? null;
         if (huellaObj && typeof huellaObj === 'object') {
@@ -94,17 +91,14 @@ export class Actualizacion implements OnInit {
           huellaId = uAny.huella;
         }
 
-        // Patchear primero los campos del usuario
         this.editarForm.patchValue(usuario);
 
-  // Guardar ids en el componente y cargar objetos relacionados si existen
   this.equipoId = equipoId;
   this.huellaId = huellaId;
 
         if (equipoId) {
           this.equipoService.obtenerUsuarioId(equipoId).subscribe({
             next: (eq) => {
-              // completar campos de equipo en el formulario para permitir edición
               this.editarForm.patchValue({
                 usuario_equipo: eq.usuario ?? '',
                 clave_equipo: eq.clave ?? ''
@@ -147,13 +141,10 @@ export class Actualizacion implements OnInit {
 
     const formData = this.editarForm.getRawValue(); 
     const cedula = formData.cedula;
-    // Actualizar equipo y huella si existen ids asociados, luego actualizar usuario
   const equipoId: number | null = this.equipoId ?? null;
   const huellaId: number | null = this.huellaId ?? null;
 
-    // Ejecutar secuencia: crear/actualizar equipo -> crear/actualizar huella -> actualizar usuario
     const runUpdateSequence = () => {
-      // After equipo/huella are created/updated, perform usuario update
       const userPayload: any = {
         nombres: formData.nombres,
         apellidos: formData.apellidos,
@@ -161,8 +152,8 @@ export class Actualizacion implements OnInit {
         telefono: formData.telefono,
         cartera: formData.cartera,
         numero_equipo: formData.numero_equipo,
-        equipo_usuario: this.equipoId, // id esperado por backend
-        huella: this.huellaId, // id esperado por backend
+        equipo_usuario: this.equipoId,
+        huella: this.huellaId, 
         correo: formData.correo,
         usuario_bestvoiper: formData.usuario_bestvoiper,
         extension: formData.extension
@@ -183,7 +174,6 @@ export class Actualizacion implements OnInit {
       });
     };
 
-    // 1) Equipo: crear si no existe id y hay datos, o actualizar si existe
     const equipoPayload = { id: equipoId ?? undefined, usuario: formData.usuario_equipo, clave: formData.clave_equipo };
     console.log('Payload equipo (antes de crear/editar):', equipoPayload);
     const equipoOperacion$ = equipoId ? this.equipoService.editarEquipos(equipoId, {
@@ -194,12 +184,10 @@ export class Actualizacion implements OnInit {
 
     equipoOperacion$.subscribe({
       next: (eqRes: any) => {
-        // si se creó, setear el id retornado (puede venir en res.usuario.id o res.id)
         if (!equipoId && eqRes) {
           const newEquipoId = (eqRes.usuario && eqRes.usuario.id) ?? eqRes.id ?? (eqRes.usuario?.id ?? null);
           if (newEquipoId) this.equipoId = newEquipoId;
         }
-        // 2) Huella: crear si no existe id y hay datos, o actualizar si existe
         const huellaOperacion$ = huellaId ? this.huellaService.editarHuella(huellaId, {
           id: huellaId,
           usuario: formData.usuario_huella,
@@ -209,12 +197,10 @@ export class Actualizacion implements OnInit {
 
         huellaOperacion$.subscribe({
           next: (hRes: any) => {
-            // extraer id que pudo venir en res.usuario.id o res.id
             if (!huellaId && hRes) {
               const newHuellaId = (hRes.usuario && hRes.usuario.id) ?? hRes.id ?? (hRes.usuario?.id ?? null);
               if (newHuellaId) this.huellaId = newHuellaId;
             }
-            // Ejecutar actualización de usuario
             runUpdateSequence();
           },
           error: (err: any) => {

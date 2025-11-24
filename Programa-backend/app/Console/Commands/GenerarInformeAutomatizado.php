@@ -14,19 +14,16 @@ class GenerarInformeAutomatizado extends Command
     protected $signature = 'informe:automatizado';
     protected $description = 'Genera el informe automáticamente tomando los archivos más recientes de cada carpeta';
 
-    // Rutas de las carpetas
     private $carpeta1 = 'C:\\Users\\aprendiz.sena\\Downloads\\Documentos prueba\\Gestion Total';
     private $carpeta2 = 'C:\\Users\\aprendiz.sena\\Downloads\\Documentos prueba\\Marcacion BestVoIper';
     private $carpeta3 = 'C:\\Users\\aprendiz.sena\\Downloads\\Documentos prueba\\Gestion Castigada';
 
-    // Usaremos el disco 'informes' configurado en config/filesystems.php
 
     public function handle()
     {
         $usuarios = Usuario::all();
-        $horaLimite = 18; // Puedes parametrizar esto si lo necesitas
+        $horaLimite = 18; 
 
-        // Obtener el archivo más reciente de cada carpeta
         $file1 = $this->getLatestFile($this->carpeta1);
         $file2 = $this->getLatestFile($this->carpeta2);
         $file3 = $this->getLatestFile($this->carpeta3);
@@ -42,10 +39,8 @@ class GenerarInformeAutomatizado extends Command
 
         [$filas, $encabezados] = app($controller)->generarResumenFinalTres($resumen1, $resumen2, $resumen3, $usuarios);
 
-    // Generar nombre de archivo con fecha y hora
     $nombreArchivo = 'Informe_Gestiones_' . date('Ymd_His') . '.xlsx';
 
-    // Guardar el informe en el disco 'informes' (ver config/filesystems.php)
     Excel::store(new DatosExport($filas, $encabezados), $nombreArchivo, 'informes');
     $this->info('Informe generado y guardado en disco "informes" con nombre: ' . $nombreArchivo);
     return 0;

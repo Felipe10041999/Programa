@@ -79,21 +79,17 @@ export class EditarUsuario implements OnInit {
   }
 
   cargarUsuarios() {
-    // 1. Obtener todos los usuarios para filtrar correos asignados
     this.servicio.listaUsuarios().subscribe({
       next: (usuarios) => {
         this.usuarios = usuarios;
-        // Filtrar correos ya usados (excepto del usuario actual)
         this.correosAsignados = usuarios
           .filter(u => u.id !== this.id)
           .map(u => u.correo?.toLowerCase())
           .filter(c => !!c);
 
-        // 2. Obtener datos del usuario actual
         this.servicio.obtenerUsuarioId(this.id).subscribe({
           next: usuario => {
             this.editarForm.patchValue(usuario);
-            // Asegurarse que el correo actual siga visible
             this.correosFiltrados = this.filtrarCorreos('');
           },
           error: err => console.error('Error al cargar el usuario', err)

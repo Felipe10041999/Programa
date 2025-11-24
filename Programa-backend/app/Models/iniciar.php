@@ -21,17 +21,11 @@ class Iniciar extends Model
         'updated_at' => 'datetime'
     ];
 
-    /**
-     * Verificar si la sesión está activa
-     */
     public function isActive()
     {
         return $this->estado_sesion === 'activa' && $this->token_sesion !== null;
     }
 
-    /**
-     * Verificar si la sesión ha expirado (más de 24 horas sin actividad)
-     */
     public function isExpired()
     {
         if (!$this->ultimo_acceso) {
@@ -41,9 +35,6 @@ class Iniciar extends Model
         return $this->ultimo_acceso->diffInHours(now()) > 24;
     }
 
-    /**
-     * Marcar sesión como expirada
-     */
     public function markAsExpired()
     {
         $this->update([

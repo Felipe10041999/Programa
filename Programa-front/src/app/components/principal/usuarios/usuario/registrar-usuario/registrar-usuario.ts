@@ -28,7 +28,6 @@ export class RegistrarUsuario implements OnInit {
   error: string = '';
   mensaje: string = '';
 
-  // Nuevas propiedades para el autocompletado de correos
   listaCorreos: string[] = [];
   correosAsignados: string[] = [];
   correosFiltrados: string[] = [];
@@ -63,7 +62,6 @@ export class RegistrarUsuario implements OnInit {
     this.cargarEquipos();
     this.cargarHuellas();
 
-    // Escucha dinámica para el campo correo
     this.registroForm.get('correo')?.valueChanges
       .pipe(
         startWith(''),
@@ -83,12 +81,10 @@ export class RegistrarUsuario implements OnInit {
       next: (data) => {
         this.usuarios = data;
 
-        // Extraer correos ya usados
         this.correosAsignados = this.usuarios
           .map(u => u.correo?.toLowerCase())
-          .filter(correo => !!correo); // Elimina undefined/null
+          .filter(correo => !!correo);
 
-        // Inicializar correos filtrados excluyendo los usados
         this.correosFiltrados = this.filtrarCorreos('');
       },
       error: (error) => {

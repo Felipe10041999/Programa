@@ -29,7 +29,6 @@ class LogueoExport implements FromArray, WithHeadings, WithStyles, WithColumnWid
             $minutosSobrantes = 0;
 
             if (!empty($hora) && strtotime($hora)) {
-                // Redondear al minuto más cercano
                 $timestamp = strtotime($hora);
                 $segundos = date('s', $timestamp);
 
@@ -41,7 +40,6 @@ class LogueoExport implements FromArray, WithHeadings, WithStyles, WithColumnWid
 
                 $horaRedondeada = date('H:i', $timestamp);
 
-                // Comparar con la hora límite
                 $horaLimite = strtotime('07:30:00');
                 if ($timestamp > $horaLimite) {
                     $diferencia = $timestamp - $horaLimite;
@@ -79,7 +77,6 @@ class LogueoExport implements FromArray, WithHeadings, WithStyles, WithColumnWid
 
     public function styles(Worksheet $sheet)
     {
-        // Estilo para el encabezado
         $sheet->getStyle('A1:E1')->applyFromArray([
             'font' => [
                 'bold' => true,
@@ -127,10 +124,8 @@ class LogueoExport implements FromArray, WithHeadings, WithStyles, WithColumnWid
             ]);
         }
 
-        // Alinear a la izquierda los nombres de Asesor (columna A)
         $sheet->getStyle('A2:A' . $lastRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
 
-        // Altura de filas
         $sheet->getRowDimension('1')->setRowHeight(25);
         for ($row = 2; $row <= $lastRow; $row++) {
             $cellValue = $sheet->getCell('A' . $row)->getValue();
@@ -139,7 +134,6 @@ class LogueoExport implements FromArray, WithHeadings, WithStyles, WithColumnWid
             }
         }
 
-        // Colores condicionales en columna Logueo
         for ($row = 2; $row <= $lastRow; $row++) {
             $horaLogueo = $sheet->getCell('D' . $row)->getFormattedValue();
 
@@ -151,11 +145,10 @@ class LogueoExport implements FromArray, WithHeadings, WithStyles, WithColumnWid
 
                 if (!empty($horaLogueo)) {
                     if ($horaLogueo === 'NOVEDAD') {
-                        // Estilo azul para "NOVEDAD"
                         $sheet->getStyle('D' . $row)->applyFromArray([
                             'fill' => [
                                 'fillType' => Fill::FILL_SOLID,
-                                'startColor' => ['rgb' => 'D6EAF8'] // azul claro
+                                'startColor' => ['rgb' => 'D6EAF8']
                             ],
                             'font' => [
                                 'bold' => true,
@@ -179,11 +172,11 @@ class LogueoExport implements FromArray, WithHeadings, WithStyles, WithColumnWid
                         $colorFondo = null;
                 
                         if ($horaLogueoTimestamp < $horaVerde) {
-                            $colorFondo = 'D4EFDF'; // verde claro
+                            $colorFondo = 'D4EFDF';
                         } elseif ($horaLogueoTimestamp <= $horaAmarillo) {
-                            $colorFondo = 'FCF3CF'; // amarillo claro
+                            $colorFondo = 'FCF3CF';
                         } else {
-                            $colorFondo = 'F5B7B1'; // rojo claro
+                            $colorFondo = 'F5B7B1';
                         }
                 
                         $sheet->getStyle('D' . $row)->applyFromArray([
@@ -212,7 +205,6 @@ class LogueoExport implements FromArray, WithHeadings, WithStyles, WithColumnWid
         }
     
 
-        // Centrar todo el contenido
         $sheet->getStyle('A1:E' . $lastRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
         $sheet->getStyle('A1:E' . $lastRow)->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
 

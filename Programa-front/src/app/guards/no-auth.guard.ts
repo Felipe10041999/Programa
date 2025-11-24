@@ -14,7 +14,6 @@ export class NoAuthGuard implements CanActivate {
   ) {}
 
   canActivate(): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-    // Si el usuario ya está autenticado, redirigir al panel principal
     if (this.authService.isAuthenticated() && !this.authService.isSessionExpired()) {
       return this.router.createUrlTree(['/principal']);
     }

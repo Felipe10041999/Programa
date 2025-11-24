@@ -156,7 +156,6 @@
     color: white;
   }
   
-  /* Responsive design */
   @media (max-width: 768px) {
     .informes-container {
       padding: 1rem;

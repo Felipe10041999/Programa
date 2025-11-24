@@ -1,8 +1,6 @@
 <?php
 namespace App\Exports;
 
-use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
@@ -28,7 +26,6 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
     }
     public function headings(): array
     {
-        // Extraer las horas de los headings recibidos
         $horas = [];
         foreach ($this->headings as $h) {
             if (preg_match('/^(\d{1,2}):00 Productividad$/', $h, $m)) {
@@ -36,16 +33,13 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
             }
         }
         
-        // Cambiar encabezados principales
         $headerRow1 = ['N°','Asesor', 'Asesor Real', 'Cartera', 'Logueo'];
         foreach ($horas as $hora) {
             $headerRow1[] = sprintf('%02d:00', $hora);
             $headerRow1[] = '';
         }
-        // Para Total, igual que las horas: dos columnas
         $headerRow1[] = 'Total';
         $headerRow1[] = '';
-        // Para Novedad, una sola columna
         $headerRow1[] = 'Novedades';
 
         $headerRow2 = ['N°','Asesor', 'Asesor Real', 'Cartera', ''];
@@ -55,7 +49,6 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
         }
         $headerRow2[] = 'Huella';
         $headerRow2[] = 'Marcación';
-        // Para Novedad, celda vacía
         $headerRow2[] = '';
 
         $headerRow1 = array_slice($headerRow1, 0, count($headerRow2));
@@ -81,7 +74,6 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
 
         $colIndex = 6; 
         foreach ($horas as $hora) {
-            // If this hour is 12/13/14 make the two columns slightly wider
             if (preg_match('/^(\d{1,2}):00/', $hora, $m)) {
                 $hnum = intval($m[1]);
             } else {
@@ -89,8 +81,8 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
             }
             $w1 = ($hnum !== null && in_array($hnum, [12,13,14])) ? 14 : 9;
             $w2 = ($hnum !== null && in_array($hnum, [12,13,14])) ? 14 : 9;
-            $widths[Coordinate::stringFromColumnIndex($colIndex++)] = $w1; // Huella
-            $widths[Coordinate::stringFromColumnIndex($colIndex++)] = $w2; // Marcación
+            $widths[Coordinate::stringFromColumnIndex($colIndex++)] = $w1; 
+            $widths[Coordinate::stringFromColumnIndex($colIndex++)] = $w2; 
         }
 
         
@@ -123,7 +115,6 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
-                // Unificar las cinco primeras columnas en las filas 1 y 2
                 $sheet->mergeCells('A1:A2');
                 $sheet->mergeCells('B1:B2');
                 $sheet->mergeCells('C1:C2');
@@ -133,7 +124,6 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
                 $sheet->getStyle('A1:E2')->getAlignment()->setVertical('center');
                 $sheet->getStyle('A1:E2')->getFont()->setBold(true);
 
-                // Extraer las horas reales de los headings
                 $horas = [];
                 foreach ($this->headings as $h) {
                     if (preg_match('/^(\d{1,2}):00 Productividad$/', $h, $m)) {
@@ -141,7 +131,7 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
                     }
                 }
 
-                $startColumnIndex = 6; // Las horas empiezan en la columna F
+                $startColumnIndex = 6; 
                 foreach ($horas as $hora) {
                     $col1 = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($startColumnIndex);
                     $col2 = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($startColumnIndex + 1);
@@ -153,7 +143,6 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
                     $startColumnIndex += 2;
                 }
 
-                // Para Total, igual que las horas: dos columnas
                 $col1 = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($startColumnIndex);
                 $col2 = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($startColumnIndex + 1);
                 $sheet->mergeCells("{$col1}1:{$col2}1");
@@ -162,7 +151,6 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
                 $sheet->getStyle("{$col1}1:{$col2}1")->getFont()->setBold(true);
                 $sheet->getStyle("{$col1}1:{$col2}1")->getFill()->setFillType('solid')->getStartColor()->setARGB('FFB7E1FA');
 
-                // Unificar la última columna (Novedad) en las filas 1 y 2
                 $colEnd = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($sheet->getHighestColumn());
                 $lastColLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colEnd);
                 $sheet->mergeCells("{$lastColLetter}1:{$lastColLetter}2");
@@ -170,7 +158,6 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
                 $sheet->getStyle("{$lastColLetter}1:{$lastColLetter}2")->getAlignment()->setVertical('center');
                 $sheet->getStyle("{$lastColLetter}1:{$lastColLetter}2")->getFont()->setBold(true);
 
-                // Rellenar con ceros las celdas vacías en las columnas de horas y total
                 $highestRow = $sheet->getHighestRow();
                 $highestColumn = $sheet->getHighestColumn();
                 $colStart = 4; 
@@ -179,18 +166,14 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
                     for ($col = $colStart; $col <= $colEnd; $col++) {
                         $cell = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($col) . $row;
                         $value = $sheet->getCell($cell)->getValue();
-                        // If cell is empty keep zero for numeric columns
                         if ($value === null || $value === '') {
                             $sheet->setCellValue($cell, 0);
                             $value = 0;
                         }
 
-                        // If this is an ALMUERZO cell (string) color fucsia and skip numeric coloring
                         if (!is_numeric($value) && strtoupper(trim((string)$value)) === 'ALMUERZO') {
-                            // Use a softer pastel magenta that plays well with red/yellow/green heatmap
-                            $bgColor = 'FFFFCCFF'; // pale magenta
+                            $bgColor = 'FFFFCCFF'; 
                             $sheet->getStyle($cell)->getFill()->setFillType('solid')->getStartColor()->setARGB($bgColor);
-                            // Center and emphasize text for readability
                             $sheet->getStyle($cell)->getAlignment()->setHorizontal('center');
                             $sheet->getStyle($cell)->getAlignment()->setVertical('center');
                             $sheet->getStyle($cell)->getFont()->getColor()->setARGB('FF000000'); // black text
@@ -198,11 +181,9 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
                             continue;
                         }
 
-                        // Colorear de rojo si es cero
                         if (is_numeric($value) && $value == 0) {
                             $sheet->getStyle($cell)->getFill()->setFillType('solid')->getStartColor()->setARGB('FFFF0000');
                         }
-                        // Colorear solo archivo 1 (Productividad/Huella): columnas pares (D, F, H, ...)
                         if (is_numeric($value) && $col >= $colStart && ($col - $colStart) % 2 == 0) {
                             if ($value >= 1 && $value <= 3) {
                                 $sheet->getStyle($cell)->getFill()->setFillType('solid')->getStartColor()->setARGB('FFFF0000'); // Rojo
@@ -216,8 +197,8 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
                 }
 
                 
-                $totalCol1 = $colEnd - 2; // Total Huella
-                $totalCol2 = $colEnd - 1; // Total Marcación
+                $totalCol1 = $colEnd - 2; 
+                $totalCol2 = $colEnd - 1; 
                 $valoresTotal1 = [];
                 $valoresTotal2 = [];
                 for ($row = 3; $row <= $highestRow; $row++) {
@@ -228,12 +209,10 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
                     if (is_numeric($v1)) $valoresTotal1[] = $v1;
                     if (is_numeric($v2)) $valoresTotal2[] = $v2;
                 }
-                // Calcular min y max para cada columna
                 $min1 = count($valoresTotal1) ? min($valoresTotal1) : 0;
                 $max1 = count($valoresTotal1) ? max($valoresTotal1) : 1;
                 $min2 = count($valoresTotal2) ? min($valoresTotal2) : 0;
                 $max2 = count($valoresTotal2) ? max($valoresTotal2) : 1;
-                // Aplicar degradado
                 for ($row = 3; $row <= $highestRow; $row++) {
                     $cell1 = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($totalCol1) . $row;
                     $v1 = $sheet->getCell($cell1)->getValue();
@@ -263,9 +242,7 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
                     }
                 }
 
-                // Degradado en las columnas de horas del segundo archivo (Marcación/Grabaciones)
-                // Calcular para cada columna impar desde F en adelante (Marcación)
-                for ($col = $colStart + 1; $col <= $colEnd - 2; $col += 2) { // Excluye las dos últimas (totales)
+                for ($col = $colStart + 1; $col <= $colEnd - 2; $col += 2) {
                     $valoresCol = [];
                     for ($row = 3; $row <= $highestRow; $row++) {
                         $cell = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($col) . $row;
@@ -279,47 +256,44 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
                         $v = $sheet->getCell($cell)->getValue();
                         if (is_numeric($v)) {
                             if ($v == $min) {
-                                $color = 'FFFF0000'; // Rojo
+                                $color = 'FFFF0000';
                             } elseif ($v == $max) {
-                                $color = 'FF00FF00'; // Verde
+                                $color = 'FF00FF00';
                             } else {
-                                $color = 'FFFFFF00'; // Amarillo
+                                $color = 'FFFFFF00';
                             }
                             $sheet->getStyle($cell)->getFill()->setFillType('solid')->getStartColor()->setARGB($color);
                         }
                     }
                 }
 
-                // Colorear la columna de Novedad
                 $novedadCol = $colEnd;
                 for ($row = 3; $row <= $highestRow; $row++) {
                     $cell = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($novedadCol) . $row;
                     $valor = $sheet->getCell($cell)->getValue();
                     if ($valor === 'NOVEDAD') {
-                        $sheet->getStyle($cell)->getFill()->setFillType('solid')->getStartColor()->setARGB('FFFF0000'); // Rojo
+                        $sheet->getStyle($cell)->getFill()->setFillType('solid')->getStartColor()->setARGB('FFFF0000'); 
                     } elseif ($valor === 'SIN NOVEDAD') {
-                        $sheet->getStyle($cell)->getFill()->setFillType('solid')->getStartColor()->setARGB('FF00B0F0'); // Azul
+                        $sheet->getStyle($cell)->getFill()->setFillType('solid')->getStartColor()->setARGB('FF00B0F0'); 
                     }
                 }
 
-                // Colorear la columna de numeración (N°) con un color pastel diferente por cartera
                 $coloresCartera = [
-                    'CASTIGO' => 'FFFFF2CC', // Amarillo pastel
-                    'DESISTIDOS' => 'FFD9EAD3', // Verde pastel
-                    'DESOCUPADOS' => 'FFD9D2E9', // Lila pastel
-                    'DESOCUPADOS 2022-2023' => 'FFFCE5CD', // Naranja pastel
-                    'SUPERNUMERARIO' => 'FFCCE5FF', // Azul pastel
-                    '' => 'FFFFFFFF', // Blanco para vacío
+                    'CASTIGO' => 'FFFFF2CC', 
+                    'DESISTIDOS' => 'FFD9EAD3',
+                    'DESOCUPADOS' => 'FFD9D2E9',
+                    'DESOCUPADOS 2022-2023' => 'FFFCE5CD', 
+                    'SUPERNUMERARIO' => 'FFCCE5FF', 
+                    '' => 'FFFFFFFF', 
                 ];
-                $colCartera = 'D'; // Columna Cartera
-                $colNum = 'A'; // Columna N°
+                $colCartera = 'D'; 
+                $colNum = 'A'; 
                 for ($row = 3; $row <= $highestRow; $row++) {
                     $cartera = $sheet->getCell($colCartera . $row)->getValue();
                     $color = $coloresCartera[$cartera] ?? 'FFFFFFFF';
                     $sheet->getStyle($colNum . $row)->getFill()->setFillType('solid')->getStartColor()->setARGB($color);
                 }
 
-                // Convertir la columna de Asesor (B) a mayúsculas
                 $highestRow = $sheet->getHighestRow();
                 for ($row = 3; $row <= $highestRow; $row++) {
                     $cell = 'B' . $row; 
@@ -329,21 +303,19 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
                     }
                 }
 
-                // Excepción: primera columna de huella (primer hora)
-                // Determinar la columna de la primera huella (después de las columnas fijas y primer marcación)
                 $colPrimeraHuella = 6;
                 for ($row = 3; $row <= $highestRow; $row++) {
                     $cell = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colPrimeraHuella) . $row;
                     $v = $sheet->getCell($cell)->getValue();
                     if (is_numeric($v)) {
                         if ($v >= 0 && $v <= 2) {
-                            $color = 'FFFF0000'; // Rojo
+                            $color = 'FFFF0000'; 
                         } elseif ($v == 3 || $v == 4) {
-                            $color = 'FFFFFF00'; // Amarillo
+                            $color = 'FFFFFF00'; 
                         } elseif ($v > 4) {
-                            $color = 'FF00FF00'; // Verde
+                            $color = 'FF00FF00'; 
                         } else {
-                            $color = 'FFFFFFFF'; // Blanco por defecto
+                            $color = 'FFFFFFFF'; 
                         }
                         $sheet->getStyle($cell)->getFill()->setFillType('solid')->getStartColor()->setARGB($color);
                     }

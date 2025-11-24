@@ -14,7 +14,7 @@ class Usuario extends Model
         'cartera',
         'numero_equipo',
         'equipo_usuario',
-        'huella', // id de la tabla huellas
+        'huella', 
         'correo',
         'usuario_bestvoiper',
         'extension',
