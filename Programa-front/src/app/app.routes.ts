@@ -105,6 +105,12 @@ export const routes: Routes = [
     .then(m=> m.Logueo),
     canActivate: [AuthGuard]
   },
+  {
+      path: 'juridico',
+      loadComponent: () => import('./components/principal/juridico/juridico')
+      .then(m => m.Juridico),
+      canActivate: [AuthGuard]
+    },
   { 
     path: '**', 
     redirectTo: '/ingreso' 
