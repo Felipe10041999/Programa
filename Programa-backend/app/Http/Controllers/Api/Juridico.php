@@ -116,7 +116,9 @@ class Juridico extends Controller
             $targetExt = ['331','362'];
             $totals = [ '331' => 0, '362' => 0 ];
             $agentNames = [ '331' => '', '362' => '' ]; // guardar primer agente no vacío por extensión
-            $hourlyTotals = [ '331' => [], '362' => [] ]; // agrupar por hora: [ext][hora] => segundos
+            $hourlyCounts = [ '331' => [], '362' => [] ]; // agrupar por hora: [ext][hora] => conteo de gestiones
+            $firstLogueo = [ '331' => '', '362' => '' ]; // hora de la primera gestión por extensión (HH:MM:SS)
+            $firstLogueoTs = [ '331' => null, '362' => null ]; // timestamp usado para comparar
             $totalAll = 0;
             $allHours = []; // para detectar todas las horas presentes en el archivo
 
@@ -145,17 +147,39 @@ class Juridico extends Controller
                 // Extraer hora de Fecha/Hora (formato esperado: "26-11-2025 13:58:18" o similar)
                 $fechaVal = isset($row[$fechaCol]) ? trim((string)$row[$fechaCol]) : '';
                 $hour = $this->extractHour($fechaVal);
-                
+
                 // Registrar todas las horas encontradas
                 if (!in_array($hour, $allHours)) {
                     $allHours[] = $hour;
                 }
-                
-                // Agrupar por extensión y hora
-                if (!isset($hourlyTotals[$extValNum][$hour])) {
-                    $hourlyTotals[$extValNum][$hour] = 0;
+
+                // Contabilizar gestión por hora (conteo)
+                if (!isset($hourlyCounts[$extValNum][$hour])) {
+                    $hourlyCounts[$extValNum][$hour] = 0;
                 }
-                $hourlyTotals[$extValNum][$hour] += $seconds;
+                $hourlyCounts[$extValNum][$hour] += 1;
+
+                // Registrar primer logueo (hora de la primera gestión) usando timestamp si es posible
+                if (!empty($fechaVal)) {
+                    $ts = strtotime($fechaVal);
+                    if ($ts !== false) {
+                        if ($firstLogueoTs[$extValNum] === null || $ts < $firstLogueoTs[$extValNum]) {
+                            $firstLogueoTs[$extValNum] = $ts;
+                            // Guardar logueo sin segundos (HH:MM)
+                            $firstLogueo[$extValNum] = date('H:i', $ts);
+                        }
+                    } else {
+                        // Si no se pudo parsear, usar valor bruto si no hay ninguno guardado
+                        if (empty($firstLogueo[$extValNum])) {
+                            // Intentar extraer hora y minutos del valor bruto
+                            if (preg_match('/(\d{1,2}:\d{2})/', $fechaVal, $mm)) {
+                                $firstLogueo[$extValNum] = $mm[1];
+                            } else {
+                                $firstLogueo[$extValNum] = $fechaVal;
+                            }
+                        }
+                    }
+                }
             }
 
             // Ordenar las horas encontradas
@@ -179,12 +203,13 @@ class Juridico extends Controller
             }
 
             // Preparar filas para exportar a Excel
-            // Columnas: Usuario BestVoIper | Extensión | [horas dinámicas] | Total
-            $headerRow = ['Usuario BestVoIper', 'Extensión'];
+            // Columnas: Usuario BestVoIper | Extensión | Logueo | [horas dinámicas - conteo] | Total Gestion | Total
+            $headerRow = ['Usuario BestVoIper', 'Extensión', 'Logueo'];
             foreach ($hours as $h) {
                 $headerRow[] = $h;
             }
-            $headerRow[] = 'Total';
+            $headerRow[] = 'Total Gestion';
+            $headerRow[] = 'Total Tiempo';
             
             $exportRows = [$headerRow];
 
@@ -192,15 +217,20 @@ class Juridico extends Controller
             foreach ($targetExt as $ext) {
                 // Obtener usuario_bestvoiper de la BD usando la extensión
                 $bestVoIper = $this->getBestVoIperByExtension($ext);
-                $row = [$bestVoIper, $ext];
+                $row = [$bestVoIper, $ext, $firstLogueo[$ext] ?? ''];
                 
-                // Agregar duraciones por hora (en orden de $hours)
+                // Agregar conteo de gestiones por hora (en orden de $hours)
+                $totalGestiones = 0;
                 foreach ($hours as $h) {
-                    $hourSeconds = $hourlyTotals[$ext][$h] ?? 0;
-                    $row[] = $this->secondsToHms($hourSeconds);
+                    $count = $hourlyCounts[$ext][$h] ?? 0;
+                    $row[] = $count;
+                    $totalGestiones += $count;
                 }
-                
-                // Agregar total
+
+                // Agregar total de gestiones (conteo)
+                $row[] = $totalGestiones;
+
+                // Agregar total (duración en HH:MM:SS)
                 $totalSeconds = $totals[$ext] ?? 0;
                 $row[] = $this->secondsToHms($totalSeconds);
                 
