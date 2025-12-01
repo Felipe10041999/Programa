@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\Archivologueo;
 use App\Http\Controllers\Api\NuevosController;
 use App\Http\Controllers\Api\EquipoUsuarios;
 use App\Http\Controllers\Api\Huella;
+use App\Http\Controllers\Api\Juridico;
 
 
 Route::get('/iniciar', [IniciarController::class, 'index']);
@@ -44,6 +45,8 @@ Route::put('/huella/{id}',[Huella::class, 'Actualizar']);
 Route::delete('/huella/{id}',[Huella::class, 'Eliminar']);
 
 Route::post('/archivologueo/subir', [Archivologueo::class, 'subir']);
+
+Route::post('/juridico/sumar-duracion', [Juridico::class, 'subir']);
 
 Route::post('/gestiones-nuevos', [NuevosController::class, 'gestionesNuevos']);
 
