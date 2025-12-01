@@ -54,15 +54,15 @@
                             <td>{{ usuario.telefono }}</td>
                             <td>{{ usuario.cartera}}</td>
                             <td>{{ usuario.numero_equipo}}</td>
-                            <td>{{ usuario.equipo_usuario.usuario}}</td>
-                            <td>{{ usuario.equipo_usuario.clave}}</td>
-                            <td>{{ usuario.huella.usuario}}</td>
-                            <td>{{ usuario.huella.clave}}</td>
-                            <td>{{ usuario.huella.nombre_usuario}}</td>
-                            <td>{{ usuario.correo}}</td>
-                            <td>{{ usuario.usuario_bestvoiper}}</td>
-                            <td>{{ usuario.extension}}</td>
-                            <td>{{ usuario.no_diadema}}</td>
+                            <td>{{ usuario.equipo_usuario?.usuario || 'No aplica' }}</td>
+                            <td>{{ usuario.equipo_usuario?.clave || 'No aplica' }}</td>
+                            <td>{{ usuario.huella?.usuario || 'No aplica' }}</td>
+                            <td>{{ usuario.huella?.clave || 'No aplica' }}</td>
+                            <td>{{ usuario.huella?.nombre_usuario || 'No aplica' }}</td>
+                            <td>{{ usuario.correo || 'No aplica' }}</td>
+                            <td>{{ usuario.usuario_bestvoiper || 'No aplica' }}</td>
+                            <td>{{ usuario.extension || 'No aplica' }}</td>
+                            <td>{{ usuario.no_diadema || 'No aplica' }}</td>
                             <td>
                                 <button (click)="editarUsuario(usuario.id, usuario)" class="action-btn btn-editar">
                                     <i class="fas fa-edit"></i> Editar

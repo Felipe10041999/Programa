@@ -52,6 +52,9 @@ export class Principal implements OnInit, OnDestroy {
   navegarANuevos() {
     this.router.navigate(['/nuevos']);
   }
+  navegarAJuridico(){
+    this.router.navigate(['/juridico']);
+  }
   async cerrarSesion() {
     await this.authService.logout();
   }
