@@ -96,22 +96,22 @@ export class Usuario implements OnInit{
   }
   exportarAExcel(): void {
     const dataParaExportar = this.usuariosFiltrados.map(usuario => ({
-      ID: usuario.id,
-      Nombres: usuario.nombres,
-      Apellidos: usuario.apellidos,
-      Cédula: usuario.cedula,
-      Teléfono: usuario.telefono,
-      Cartera: usuario.cartera,
-      'Número de equipo': usuario.numero_equipo,
-      'Usuario equipo': usuario.equipo_usuario.usuario,
-      'Clave equipo': usuario.equipo_usuario.clave,
-      'Usuario huella': usuario.huella.usuario,
-      'Nombre usuario huella': usuario.huella.nombre_usuario,
-      'Clave huella': usuario.huella.clave,
-      Correo: usuario.correo,
-      Extensión: usuario.extension,
-      'Usuario BestVoIper': usuario.usuario_bestvoiper,
-      'No_diadema': usuario.no_diadema
+      ID: usuario.id ?? '',
+      Nombres: usuario.nombres ?? '',
+      Apellidos: usuario.apellidos ?? '',
+      Cédula: usuario.cedula ?? '',
+      Teléfono: usuario.telefono ?? '',
+      Cartera: usuario.cartera ?? '',
+      'Número de equipo': usuario.numero_equipo ?? '',
+      'Usuario equipo': usuario.equipo_usuario?.usuario ?? '',
+      'Clave equipo': usuario.equipo_usuario?.clave ?? '',
+      'Usuario huella': usuario.huella?.usuario ?? '',
+      'Nombre usuario huella': usuario.huella?.nombre_usuario ?? '',
+      'Clave huella': usuario.huella?.clave ?? '',
+      Correo: usuario.correo ?? '',
+      Extensión: usuario.extension ?? '',
+      'Usuario BestVoIper': usuario.usuario_bestvoiper ?? '',
+      'No_diadema': usuario.no_diadema ?? ''
 
     }));
 
