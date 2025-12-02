@@ -117,6 +117,8 @@ class Juridico extends Controller
             $totals = [ '331' => 0, '362' => 0 ];
             $agentNames = [ '331' => '', '362' => '' ]; // guardar primer agente no vacío por extensión
             $hourlyCounts = [ '331' => [], '362' => [] ]; // agrupar por hora: [ext][hora] => conteo de gestiones
+            $almuerzos = []; // cache de almuerzo por extension
+            $almuerzoMarkers = [ '331' => [], '362' => [] ]; // marcar 'ALMUERZO' en celdas por extension
             $firstLogueo = [ '331' => '', '362' => '' ]; // hora de la primera gestión por extensión (HH:MM:SS)
             $firstLogueoTs = [ '331' => null, '362' => null ]; // timestamp usado para comparar
             $totalAll = 0;
@@ -146,18 +148,55 @@ class Juridico extends Controller
 
                 // Extraer hora de Fecha/Hora (formato esperado: "26-11-2025 13:58:18" o similar)
                 $fechaVal = isset($row[$fechaCol]) ? trim((string)$row[$fechaCol]) : '';
-                $hour = $this->extractHour($fechaVal);
+                $hourNum = $this->extractHourNumber($fechaVal);
 
-                // Registrar todas las horas encontradas
-                if (!in_array($hour, $allHours)) {
-                    $allHours[] = $hour;
+                // Agrupar gestiones por rango: gestiones de 7:00-7:59 -> columna 8:00, 8:00-8:59 -> columna 9:00, etc.
+                $nextHour = $hourNum + 1;
+                $colHora = sprintf('%02d:00', $nextHour);
+
+                // Registrar todas las horas de columna encontradas
+                if (!in_array($colHora, $allHours)) {
+                    $allHours[] = $colHora;
                 }
 
-                // Contabilizar gestión por hora (conteo)
-                if (!isset($hourlyCounts[$extValNum][$hour])) {
-                    $hourlyCounts[$extValNum][$hour] = 0;
+                // Obtener almuerzo desde BD (cacheado)
+                if (!array_key_exists($extValNum, $almuerzos)) {
+                    $almuerzos[$extValNum] = $this->getAlmuerzoByExtension($extValNum);
                 }
-                $hourlyCounts[$extValNum][$hour] += 1;
+                $alm = $almuerzos[$extValNum];
+
+                // Mapear valor de almuerzo a hora objetivo: 1 -> 12:00, 2|3 -> 13:00, 4 -> 14:00
+                $almHour = null;
+                if ($alm !== null) {
+                    $almInt = (int)$alm;
+                    if ($almInt === 1) $almHour = '12:00';
+                    elseif ($almInt === 2 || $almInt === 3) $almHour = '13:00';
+                    elseif ($almInt === 4) $almHour = '14:00';
+                }
+
+                // Contabilizar gestión (la hora actual se agrupa en la siguiente columna)
+                if ($almHour !== null && $colHora === $almHour) {
+                    // Si esta gestión cae en la hora de almuerzo, marcar y mover a siguiente hora
+                    $almuerzoMarkers[$extValNum][$almHour] = true;
+
+                    // Calcular siguiente hora
+                    $nextHourNum = $nextHour + 1;
+                    if ($nextHourNum > 23) $nextHourNum = 23;
+                    $nextAlmHour = sprintf('%02d:00', $nextHourNum);
+
+                    if (!isset($hourlyCounts[$extValNum][$nextAlmHour])) {
+                        $hourlyCounts[$extValNum][$nextAlmHour] = 0;
+                    }
+                    $hourlyCounts[$extValNum][$nextAlmHour] += 1;
+
+                    // Asegurar que la siguiente hora aparezca en el listado
+                    if (!in_array($nextAlmHour, $allHours)) $allHours[] = $nextAlmHour;
+                } else {
+                    if (!isset($hourlyCounts[$extValNum][$colHora])) {
+                        $hourlyCounts[$extValNum][$colHora] = 0;
+                    }
+                    $hourlyCounts[$extValNum][$colHora] += 1;
+                }
 
                 // Registrar primer logueo (hora de la primera gestión) usando timestamp si es posible
                 if (!empty($fechaVal)) {
@@ -189,18 +228,50 @@ class Juridico extends Controller
                 return $aNum - $bNum;
             });
             
-            // Asegurar que comenzamos desde la hora 7 (si existen horas menores, omitirlas en el reporte)
+            // Asegurar que comenzamos desde la hora 8 (gestiones de 7-8 van en columna 8)
             $hours = [];
             foreach ($allHours as $h) {
                 $hourNum = (int)explode(':', $h)[0];
-                if ($hourNum >= 7) {
+                if ($hourNum >= 8) {
                     $hours[] = $h;
                 }
             }
-            // Si no hay horas >= 7, usar todas las encontradas
+            // Si no hay horas >= 8, usar todas las encontradas
             if (empty($hours)) {
                 $hours = $allHours;
             }
+
+            // Asegurar marcar ALMUERZO por extensión incluso si no hubo gestiones en esa hora
+            foreach ($targetExt as $extKey) {
+                if (!array_key_exists($extKey, $almuerzos)) {
+                    $almuerzos[$extKey] = $this->getAlmuerzoByExtension($extKey);
+                }
+                $alm = $almuerzos[$extKey];
+                if ($alm !== null) {
+                    $almInt = (int)$alm;
+                    $almHour = null;
+                    if ($almInt === 1) $almHour = '12:00';
+                    elseif ($almInt === 2 || $almInt === 3) $almHour = '13:00';
+                    elseif ($almInt === 4) $almHour = '14:00';
+
+                    if ($almHour !== null) {
+                        // marcar ALMUERZO para esta extensión
+                        $almuerzoMarkers[$extKey][$almHour] = true;
+                        // asegurarse de que la columna de almuerzo y la siguiente estén en $hours
+                        if (!in_array($almHour, $hours)) $hours[] = $almHour;
+                        $hourNum = (int)explode(':', $almHour)[0];
+                        $nextHour = sprintf('%02d:00', min(23, $hourNum + 1));
+                        if (!in_array($nextHour, $hours)) $hours[] = $nextHour;
+                    }
+                }
+            }
+
+            // Reordenar horas después de insertar posibles horas de almuerzo
+            usort($hours, function($a, $b) {
+                $aNum = (int)explode(':', $a)[0];
+                $bNum = (int)explode(':', $b)[0];
+                return $aNum - $bNum;
+            });
 
             // Preparar filas para exportar a Excel
             // Columnas: Usuario BestVoIper | Extensión | Logueo | [horas dinámicas - conteo] | Total Gestion | Total
@@ -209,7 +280,7 @@ class Juridico extends Controller
                 $headerRow[] = $h;
             }
             $headerRow[] = 'Total Gestion';
-            $headerRow[] = 'Total Tiempo';
+            $headerRow[] = 'Total';
             
             $exportRows = [$headerRow];
 
@@ -222,6 +293,12 @@ class Juridico extends Controller
                 // Agregar conteo de gestiones por hora (en orden de $hours)
                 $totalGestiones = 0;
                 foreach ($hours as $h) {
+                    // Si esta hora está marcada como ALMUERZO para esta extensión, mostrar texto y no contarla
+                    if (!empty($almuerzoMarkers[$ext][$h])) {
+                        $row[] = 'ALMUERZO';
+                        continue;
+                    }
+
                     $count = $hourlyCounts[$ext][$h] ?? 0;
                     $row[] = $count;
                     $totalGestiones += $count;
@@ -249,27 +326,19 @@ class Juridico extends Controller
         }
     }
 
-    /**
-     * Extrae la hora de un valor de fecha/hora en formato "26-11-2025 13:58:18" o similar
-     * Devuelve un string en formato "HH:00" (ej: "13:00")
-     *
-     * @param mixed $val
-     * @return string hora en formato "HH:00"
-     */
-    private function extractHour($val)
+   
+    private function extractHourNumber($val)
     {
-        if (empty($val)) return '00:00';
+        if (empty($val)) return 0;
         $s = trim((string)$val);
         
-        // Intentar extraer horas numéricas usando regex
         // Busca patrones como "13:58:18" o "13"
         if (preg_match('/(\d{1,2}):/', $s, $m)) {
-            $hour = (int)$m[1];
-            return sprintf('%02d:00', $hour);
+            return (int)$m[1];
         }
         
-        // Si no encuentra, devolver formato por defecto
-        return '00:00';
+        // Si no encuentra, devolver 0
+        return 0;
     }
     
     private function parseDurationToSeconds($val)
@@ -324,12 +393,6 @@ class Juridico extends Controller
         return sprintf('%02d:%02d:%02d', $h, $m, $sec);
     }
 
-    /**
-     * Obtiene el usuario_bestvoiper de la BD usando la extensión como referencia
-     *
-     * @param string $extension
-     * @return string usuario_bestvoiper o string vacío si no se encuentra
-     */
     private function getBestVoIperByExtension($extension)
     {
         try {
@@ -342,5 +405,18 @@ class Juridico extends Controller
             return '';
         }
         return '';
+    }
+
+    private function getAlmuerzoByExtension($extension)
+    {
+        try {
+            $usuario = Usuario::where('extension', $extension)->first();
+            if ($usuario && isset($usuario->almuerzo)) {
+                return $usuario->almuerzo;
+            }
+        } catch (\Exception $e) {
+            return null;
+        }
+        return null;
     }
 }
