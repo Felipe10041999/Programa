@@ -18,15 +18,15 @@ class NuevosController extends Controller
 
     $archivo1 = $request->file('archivo1');
     $archivo2 = $request->file('archivo2');
-    $usuarios = \App\Models\Usuario::with('huella')->get();
+    $usuarios = Usuario::with('huella')->get();
         $datos1 = $this->leerArchivo1($archivo1);
         $resumen2 = $this->leerArchivo2($archivo2, $usuarios);
         return $this->generarArchivo($datos1, $resumen2, $usuarios);
     }
 
     public function leerArchivo1($archivo1)
-{
-    $datos1Array = \Maatwebsite\Excel\Facades\Excel::toArray([], $archivo1, null);
+    {
+    $datos1Array = Excel::toArray([], $archivo1, null);
     $sheetIndex = 1;
     if (!isset($datos1Array[$sheetIndex])) {
         abort(422, 'No se encontró la segunda hoja en el archivo 1.');
@@ -57,11 +57,10 @@ class NuevosController extends Controller
         }
     }
     return $solicitudes;
-}
-
+    }
     public function leerArchivo2($archivo2, $usuarios)
     {
-        $datos = \Maatwebsite\Excel\Facades\Excel::toArray([], $archivo2)[0];
+        $datos = Excel::toArray([], $archivo2)[0];
         $headings = array_map([$this, 'normalizar'], $datos[2]);
         $idxSolicitud = array_search('solicitud', $headings);
         $idxNombre = array_search('nombre completo', $headings);
@@ -87,9 +86,9 @@ class NuevosController extends Controller
         }
         return ['registros' => $registros];
     }
-
-   public function generarArchivo($solicitudes, $resumen2, $usuarios)
-{
+    
+    public function generarArchivo($solicitudes, $resumen2, $usuarios)
+    {
     $filas = [];
     $solicitudesUnicas = array_keys($solicitudes);
     $solicitudesProcesadas = [];
@@ -108,8 +107,8 @@ class NuevosController extends Controller
         if (stripos($nombreCompleto, 'Outsourcing NGSO -') === 0) {
             $nombreCompleto = trim(substr($nombreCompleto, strlen('Outsourcing NGSO -')));
         }
-    $usuario = $this->buscarUsuarioPorNombreCompleto($nombreCompleto, $usuarios);
-    $asesor = $usuario ? strtoupper(trim($usuario->apellidos . ' ' . $usuario->nombres)) : '';
+        $usuario = $this->buscarUsuarioPorNombreCompleto($nombreCompleto, $usuarios);
+        $asesor = $usuario ? strtoupper(trim($usuario->apellidos . ' ' . $usuario->nombres)) : '';
         $asesorReal = $usuario ? trim($usuario->nombres . ' ' . $usuario->apellidos) : '';
         $manana = $tarde = $gestionManana = $gestionTarde = '';
         foreach ($resumen2['registros'] as $r) {
@@ -153,10 +152,10 @@ class NuevosController extends Controller
         if (!isset($solicitudesProcesadas[$solicitud])) {
             $asignacion = $solicitudes[$solicitud] ?? '';
             $usuario = $usuarios->first(function($u) use ($asignacion) {
-                $nombreHuella = $u->huella->nombre_usuario ?? $u->nombre_usuario_huella;
+                $nombreHuella = $u->huellaRelacion->nombre_usuario ?? $u->nombre_usuario_huella;
                 return strtolower(trim($nombreHuella)) === strtolower(trim($asignacion));
             });
-            $asesor = $usuario ? ($usuario->huella->nombre_usuario ?? $usuario->nombre_usuario_huella) : $asignacion;
+            $asesor = $usuario ? ($usuario->huellaRelacion->nombre_usuario ?? $usuario->nombre_usuario_huella) : $asignacion; 
             $asesorReal = $usuario ? trim($usuario->nombres . ' ' . $usuario->apellidos) : '';
             $filas[] = [
                 $solicitud,
@@ -165,16 +164,15 @@ class NuevosController extends Controller
                 '00:00', 
                 'No aplica', 
                 '00:00', 
-                'No aplica', 
+                'No aplica',
             ];
         }
     }
 
     $encabezados = ['Solicitud', 'Asesor', 'Asesor Real', 'Mañana', 'Gestion de pago (mañana)', 'Tarde', 'Gestion de pago (tarde)'];
-    $export = new \App\Exports\SolicitudesExport($filas, $encabezados);
-    return \Maatwebsite\Excel\Facades\Excel::download($export, 'reporte_solicitudes.xlsx');
-}
-
+    $export = new SolicitudesExport($filas, $encabezados);
+    return Excel::download($export, 'reporte_solicitudes.xlsx');
+    }
     public function normalizar($cadena)
     {
         $cadena = strtolower($cadena);
@@ -182,7 +180,6 @@ class NuevosController extends Controller
         $cadena = preg_replace('/[^a-z0-9 ]/', '', $cadena);
         return trim(preg_replace('/\s+/', ' ', $cadena));
     }
-
     public function buscarUsuarioPorNombreCompleto($nombreTexto, $usuarios)
     {
         $nombreNormalizado = $this->normalizar($nombreTexto);
@@ -198,7 +195,6 @@ class NuevosController extends Controller
         }
         return $mayorSimilitud >= 70 ? $mejorCoincidencia : null;
     }
-
     public function extraerHora($texto)
     {
         if (preg_match('/([01]?\d|2[0-3]):[0-5]\d/', $texto, $matches)) {

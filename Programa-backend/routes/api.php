@@ -4,10 +4,11 @@ use App\Http\Controllers\Api\UsuarioController;
 use App\Http\Controllers\Api\ExcelController;
 use App\Http\Controllers\Api\IniciarController;
 use App\Http\Controllers\Api\Archivologueo;
+use App\Http\Controllers\Api\Juridico;
 use App\Http\Controllers\Api\NuevosController;
 use App\Http\Controllers\Api\EquipoUsuarios;
 use App\Http\Controllers\Api\Huella;
-use App\Http\Controllers\Api\Juridico;
+use App\Http\Controllers\Api\Usuarios_best;
 
 
 Route::get('/iniciar', [IniciarController::class, 'index']);
@@ -19,10 +20,12 @@ Route::get('/historial-inicios', [IniciarController::class, 'historialInicios'])
 Route::get('/sesiones-activas', [IniciarController::class, 'sesionesActivas']);
 
 Route::get('/usuarios', [UsuarioController::class,'Listar']);
+Route::get('/usuarios/sinpos', [UsuarioController::class, 'ListarSinPos']);
 Route::get('/usuarios/{id}',[UsuarioController::class,'UsuarioPorId']);
 Route::get('/usuarios/buscar/{cartera}',[UsuarioController::class,'BuscarPorCartera']);
 Route::post('/usuarios',[UsuarioController::class,'Registrar']);
 Route::put('/usuarios/{id}',[UsuarioController::class,'Actualizar']);
+Route::patch('/usuarios/{id}/pos', [UsuarioController::class, 'actualizarPos']);
 Route::delete('/usuarios/{id}',[UsuarioController::class,'Eliminar']);
 Route::get('/usuarios/cedula/{cedula}', [UsuarioController::class, 'obtenerPorCedula']);
 Route::put('/usuarios/cedula/{cedula}', [UsuarioController::class, 'actualizarPorCedula']);
@@ -34,7 +37,6 @@ Route::get('/equipo/{id}', [EquipoUsuarios::class, 'Verificar']);
 Route::post('/equipos',[EquipoUsuarios::class,'Registrar']);
 Route::put('/equipos/{id}',[EquipoUsuarios::class,'Actualizar']);
 Route::delete('/equipos/{id}',[EquipoUsuarios::class,'Eliminar']);
-Route::post('/procesar-excel', [ExcelController::class, 'procesar']);
 
 //Huella CRUD
 Route::get('/huella',[Huella::class, 'Listar']);
@@ -44,13 +46,21 @@ Route::post('/huella',[Huella::class, 'Registrar']);
 Route::put('/huella/{id}',[Huella::class, 'Actualizar']);
 Route::delete('/huella/{id}',[Huella::class, 'Eliminar']);
 
+//Best CRUD
+Route::get('/best', [Usuarios_best::class, 'Listar']);
+Route::get('/best/{id}', [Usuarios_best::class, 'BuscarId']);
+Route::get('/bests/{id}', [Usuarios_best::class, 'Verificar']);
+Route::post('/best', [Usuarios_best::class, 'Registrar']);
+Route::put('/best/{id}',[Usuarios_best::class, 'Actualizar']);
+Route::delete('/best/{id}',[Usuarios_best::class,'Eliminar']);
+
 Route::post('/archivologueo/subir', [Archivologueo::class, 'subir']);
 
 Route::post('/juridico/sumar-duracion', [Juridico::class, 'subir']);
 
 Route::post('/gestiones-nuevos', [NuevosController::class, 'gestionesNuevos']);
 
-
+Route::post('/procesar-excel', [ExcelController::class, 'procesar']);
 
 
 

@@ -37,23 +37,18 @@ class JuridicoExport implements FromArray, WithHeadings, WithStyles, WithEvents
         return ['Extensión', 'Segundos', 'HH:MM:SS'];
     }
 
-    // Aplica estilos base y ajusta anchos de columna.
 
     public function styles(Worksheet $sheet)
     {
-        // 1. Estilo de Cabecera
         $this->applyHeaderStyles($sheet);
         
-        // 2. Ajuste de Ancho de Columnas
         $this->adjustColumnWidths($sheet);
 
-        // 3. Centrar toda la hoja excepto la columna A (Encabezado también se centra)
         $this->centerAllButFirstColumn($sheet);
 
         return [];
     }
     
-    // Aplica estilo a la cabecera (fila 1).
 
     protected function applyHeaderStyles(Worksheet $sheet)
     {
@@ -61,48 +56,37 @@ class JuridicoExport implements FromArray, WithHeadings, WithStyles, WithEvents
         $lastColumn = Coordinate::stringFromColumnIndex($headerCount);
         $headerRange = "A1:{$lastColumn}1";
         
-        // Estilo de texto: negrita y centrado
         $sheet->getStyle($headerRange)->getFont()->setBold(true);
         $sheet->getStyle($headerRange)->getAlignment()->setHorizontal('center');
         
-        // Color de fondo: azul suave (pastel)
         $sheet->getStyle($headerRange)->getFill()
             ->setFillType(Fill::FILL_SOLID)
             ->getStartColor()->setARGB('FFCCE5FF');
     }
     
-    
-    // Centra todo el contenido de la hoja de cálculo, excepto la columna A.
-
     protected function centerAllButFirstColumn(Worksheet $sheet)
     {
         $highestRow = $sheet->getHighestRow();
         $highestColumn = $sheet->getHighestColumn();
         
-        // Centrar de la columna B hasta la última, desde la fila 2
         $dataRange = "B2:{$highestColumn}{$highestRow}";
         $sheet->getStyle($dataRange)->getAlignment()->setHorizontal('center');
         
-        // Nota: La cabecera (fila 1) ya está centrada en applyHeaderStyles.
     }
     
-    // Ajusta el ancho y la fuente de las columnas.
 
     protected function adjustColumnWidths(Worksheet $sheet)
     {
         $headerCount = count($this->rows[0] ?? []);
 
-        // Anchos específicos
         $sheet->getColumnDimension('A')->setWidth(36);
         $sheet->getColumnDimension('B')->setWidth(10);
         
-        // Ancho para las demás columnas
         for ($i = 3; $i <= $headerCount; $i++) {
             $colLetter = Coordinate::stringFromColumnIndex($i);
             $sheet->getColumnDimension($colLetter)->setWidth(14);
         }
 
-        // Fuente ligeramente más grande para A y B
         $sheet->getStyle('A')->getFont()->setSize(11);
         $sheet->getStyle('B')->getFont()->setSize(11);
     }
@@ -113,24 +97,19 @@ class JuridicoExport implements FromArray, WithHeadings, WithStyles, WithEvents
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
                 
-                // 1. Obtener el rango de columnas horarias
                 list($startCol, $endCol, $highestRow) = $this->getHourlyRangeAndRows($sheet);
 
                 if (empty($startCol) || empty($endCol)) {
                     return;
                 }
 
-                // 2. Aplicar formato directo (ALMUERZO en magenta)
-                // Esto DEBE ejecutarse antes del formato condicional
                 $this->applyDirectFormattingForLunch($sheet, $startCol, $endCol, $highestRow);
 
-                // 3. Aplicar formato condicional (solo a celdas numéricas)
                 $this->applyConditionalFormatting($sheet, $startCol, $endCol, $highestRow);
             },
         ];
     }
     
-    // Determina el rango de columnas para los datos por hora.
     
     protected function getHourlyRangeAndRows(Worksheet $sheet): array
     {
@@ -142,10 +121,8 @@ class JuridicoExport implements FromArray, WithHeadings, WithStyles, WithEvents
         $logIndex = array_search('Logueo', $headerRow);
         $totalGestionIndex = array_search('Total Gestion', $headerRow);
 
-        // Índice de inicio (C o más allá)
         $startColIndex = ($logIndex !== false) ? ($logIndex + 2) : 3; 
         
-        // Índice de fin (antes de Total Gestion)
         if ($totalGestionIndex !== false) {
             $endColIndex = $totalGestionIndex; 
         } else {
@@ -163,7 +140,6 @@ class JuridicoExport implements FromArray, WithHeadings, WithStyles, WithEvents
     }
 
     
-    //Aplica el formato directo (color magenta) SÓLO a las celdas 'ALMUERZO'.
     
     protected function applyDirectFormattingForLunch(Worksheet $sheet, string $startCol, string $endCol, int $highestRow): void
     {
@@ -175,7 +151,6 @@ class JuridicoExport implements FromArray, WithHeadings, WithStyles, WithEvents
                 $cellRef = Coordinate::stringFromColumnIndex($col) . $row;
                 $cellVal = $sheet->getCell($cellRef)->getCalculatedValue(); // Usar CalculatedValue
 
-                // Si es 'ALMUERZO', aplicar color magenta (esto no será anulado por las reglas numéricas)
                 if (is_string($cellVal) && strtoupper(trim($cellVal)) === 'ALMUERZO') {
                     $sheet->getStyle($cellRef)->getFill()
                         ->setFillType(Fill::FILL_SOLID)
@@ -186,15 +161,11 @@ class JuridicoExport implements FromArray, WithHeadings, WithStyles, WithEvents
         }
     }
 
-    // Aplica el formato condicional al rango de celdas horarias.
     protected function applyConditionalFormatting(Worksheet $sheet, string $startCol, string $endCol, int $highestRow): void
     {
-        // Rango de aplicación del formato condicional (solo filas de datos)
         $condRange = sprintf('%s2:%s%d', $startCol, $endCol, $highestRow);
 
-        // Las reglas condicionales se definen para valores numéricos, no afectarán a 'ALMUERZO' (texto).
 
-        // Condicional 1: <= 10 -> rojo claro
         $cond1 = new Conditional();
         $cond1->setConditionType(Conditional::CONDITION_CELLIS)
             ->setOperatorType(Conditional::OPERATOR_LESSTHANOREQUAL)
@@ -202,7 +173,6 @@ class JuridicoExport implements FromArray, WithHeadings, WithStyles, WithEvents
             ->getStyle()->getFill()->setFillType(Fill::FILL_SOLID)
             ->getStartColor()->setARGB('FFFF8A8A');
 
-        // Condicional 2: entre 11 y 20 -> amarillo claro
         $cond2 = new Conditional();
         $cond2->setConditionType(Conditional::CONDITION_CELLIS)
             ->setOperatorType(Conditional::OPERATOR_BETWEEN)
@@ -211,7 +181,6 @@ class JuridicoExport implements FromArray, WithHeadings, WithStyles, WithEvents
             ->getStyle()->getFill()->setFillType(Fill::FILL_SOLID)
             ->getStartColor()->setARGB('FFFFD966');
 
-        // Condicional 3: >= 21 -> verde claro
         $cond3 = new Conditional();
         $cond3->setConditionType(Conditional::CONDITION_CELLIS)
             ->setOperatorType(Conditional::OPERATOR_GREATERTHANOREQUAL)

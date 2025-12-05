@@ -3,11 +3,11 @@ namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Illuminate\Support\Facades\Storage;
 use App\Exports\LogueoExport;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Models\Usuario; 
 
 class Archivologueo extends Controller
 {
@@ -24,15 +24,14 @@ class Archivologueo extends Controller
         $sheet = $spreadsheet->getActiveSheet();
         $rows = $sheet->toArray();
 
-        $extensiones = DB::table('usuarios')
-            ->select('nombres', 'apellidos', 'extension', 'cartera')
+        $usuarios = Usuario::with('bestRelacion') 
             ->where('cartera', '!=', 'lider')
             ->get();
 
         $resultados = [];
         $usuariosPorCartera = [];
 
-        foreach ($extensiones as $usuario) {
+        foreach ($usuarios as $usuario) {
             $cartera = $usuario->cartera;
             if (!isset($usuariosPorCartera[$cartera])) {
                 $usuariosPorCartera[$cartera] = [];
@@ -41,10 +40,14 @@ class Archivologueo extends Controller
         }
 
         ksort($usuariosPorCartera);
+
         foreach ($usuariosPorCartera as $cartera => $usuarios) {
             foreach ($usuarios as $usuario) {
-                $marcaciones = array_filter($rows, function($row) use ($usuario) {
-                    return isset($row[1]) && $row[1] == $usuario->extension;
+
+                $extension = optional($usuario->bestRelacion)->extension;
+
+                $marcaciones = array_filter($rows, function($row) use ($extension) {
+                    return isset($row[1]) && $row[1] == $extension;
                 });
 
                 $horaMasTemprana = null;
@@ -71,7 +74,7 @@ class Archivologueo extends Controller
 
                 $resultados[] = [
                     'Asesor' => $usuario->nombres . ' ' . $usuario->apellidos,
-                    'Extensión' => $usuario->extension,
+                    'Extensión' => $extension,
                     'Cartera' => $cartera,
                     'Logueo' => $horaMasTempranaStr,
                     'Minutos Sobrantes' => $minutosSobrantesDisplay,
@@ -92,14 +95,7 @@ class Archivologueo extends Controller
             return 0;
         } else {
             $diferencia = $horaActual - $horaLimite;
-            $minutosSobrantes = floor($diferencia / 60);
-            return $minutosSobrantes;
+            return floor($diferencia / 60);
         }
-        foreach ($resultados as &$resultado) {
-    if ($resultado['Minutos Sobrantes'] <= 0) {
-        $resultado['Minutos Sobrantes'] .= ' (A tiempo)';
     }
-}
-    }
-
 }

@@ -20,7 +20,8 @@ class ExcelController extends Controller
 
         $horaLimite = $request->input('hora_limite', 18);
         $carteraSeleccionada = $request->input('cartera', '');
-        $usuarios = Usuario::with('huellaRelacion')->get();
+
+        $usuarios = Usuario::with('bestRelacion', 'huellaRelacion')->get();
 
         $resumen1 = $this->leerArchivoProductividad($request->file('file'), $usuarios, $horaLimite);
         $resumen2 = $this->leerArchivoGrabaciones($request->file('file2'), $usuarios, $horaLimite);
@@ -41,47 +42,48 @@ class ExcelController extends Controller
         }
 
         $horas = array_unique(array_merge(
-            ...array_map('array_keys', array_merge(array_values($resumen1), array_values($resumen2['resumen'] ?? []), array_values($resumen3)))
+            ...array_map('array_keys', array_merge(array_values($resumen1), array_values($resumen2['resumen']), array_values($resumen3)))
         ));
 
         $hasAlmuerzo1 = $hasAlmuerzo2 = $hasAlmuerzo3 = $hasAlmuerzo4 = false;
-        if (is_iterable($usuarios)) {
-            foreach ($usuarios as $u) {
-                if (isset($u->almuerzo)) {
-                    $code = intval($u->almuerzo);
-                    if ($code === 1) $hasAlmuerzo1 = true;
-                    if ($code === 2) $hasAlmuerzo2 = true;
-                    if ($code === 3) $hasAlmuerzo3 = true;
-                    if ($code === 4) $hasAlmuerzo4 = true;
-                }
-                if ($hasAlmuerzo1 && $hasAlmuerzo2 && $hasAlmuerzo3 && $hasAlmuerzo4) break;
-            }
+        foreach ($usuarios as $u) {
+            $code = intval($u->almuerzo);
+            if ($code === 1) $hasAlmuerzo1 = true;
+            if ($code === 2) $hasAlmuerzo2 = true;
+            if ($code === 3) $hasAlmuerzo3 = true;
+            if ($code === 4) $hasAlmuerzo4 = true;
         }
+
         if ($hasAlmuerzo1) $horas[] = 12;
         if ($hasAlmuerzo2 || $hasAlmuerzo3) $horas[] = 13;
-        if ($hasAlmuerzo2 || $hasAlmuerzo3 || $hasAlmuerzo4) $horas[] = 14;
+        if ($hasAlmuerzo3 || $hasAlmuerzo4) $horas[] = 14;
         if ($hasAlmuerzo4) $horas[] = 15;
 
-        $horas = array_filter($horas, fn($h) => intval($h) !== 7);
-        $horas = array_unique($horas);
+        $horas = array_unique(array_filter($horas, fn($h) => intval($h) !== 7));
         sort($horas);
 
         $filas = [];
-        $todos = array_unique(array_merge(array_keys($resumen1), array_keys($resumen2['resumen']), array_keys($resumen3)));
+        $todos = array_unique(array_merge(
+            array_keys($resumen1),
+            array_keys($resumen2['resumen']),
+            array_keys($resumen3)
+        ));
 
         foreach ($usuarios as $usuario) {
-            $nombreUsuario = $this->normalizar($usuario->huellaRelacion->nombre_usuario ?? '');
-            $todos[] = $nombreUsuario;
+            $todos[] = $this->normalizar($usuario->huellaRelacion->nombre_usuario ?? '');
         }
+
         $todos = array_unique($todos);
-        
+
         $porCartera = [];
         foreach ($todos as $keyNorm) {
             if (empty(trim($keyNorm))) continue;
+
             $usuario = $this->buscarUsuarioPorNombreUsuarioHuella($keyNorm, $usuarios)
                 ?? $this->buscarUsuarioPorNombreCompleto($keyNorm, $usuarios);
 
-            $cartera = $usuario ? $usuario->cartera : '';
+            $cartera = $usuario->cartera ?? '';
+
             if (strtoupper(trim($cartera)) === 'LIDER') continue;
 
             $porCartera[$cartera][] = [
@@ -92,33 +94,23 @@ class ExcelController extends Controller
 
         foreach ($porCartera as $cartera => $asesores) {
             $contador = 1;
+
             foreach ($asesores as $info) {
                 $keyNorm = $info['keyNorm'];
                 $usuario = $info['usuario'];
                 $nombreReal = $usuario ? trim($usuario->nombres . ' ' . $usuario->apellidos) : '';
+
                 $tp = $tg = 0;
                 $valores = [];
                 $primerMarcacion = $resumen2['primerMarcacion'][$keyNorm] ?? '';
 
-                $almuerzoHora = null;
-                if ($usuario && isset($usuario->almuerzo)) {
-                    switch (intval($usuario->almuerzo)) {
-                        case 1:
-                            $almuerzoHora = 12;
-                            break;
-                        case 2:
-                            $almuerzoHora = 13;
-                            break;
-                        case 3:
-                            $almuerzoHora = 13;
-                            break;
-                        case 4:
-                            $almuerzoHora = 14;
-                            break;
-                        default:
-                            $almuerzoHora = null;
-                    }
-                }
+                $almuerzoHora = match (intval($usuario->almuerzo ?? 0)) {
+                    1 => 12,
+                    2 => 13,
+                    3 => 13,
+                    4 => 14,
+                    default => null,
+                };
 
                 foreach ($horas as $h) {
                     $p1 = $resumen1[$keyNorm][$h] ?? 0;
@@ -126,24 +118,20 @@ class ExcelController extends Controller
                     $productividad = $p1 + $p3;
                     $g = $resumen2['resumen'][$keyNorm][$h] ?? 0;
 
-                    if ($usuario && isset($usuario->almuerzo) && intval($usuario->almuerzo) === 1 && intval($h) === 13) {
-                        $productividad += ($resumen1[$keyNorm][12] ?? 0) + ($resumen3[$keyNorm][12] ?? 0);
-                        $g += ($resumen2['resumen'][$keyNorm][12] ?? 0);
-                    }
-
-                    if ($usuario && isset($usuario->almuerzo) && intval($usuario->almuerzo) === 2 && intval($h) === 14) {
-                        $productividad += ($resumen1[$keyNorm][13] ?? 0) + ($resumen3[$keyNorm][13] ?? 0);
-                        $g += ($resumen2['resumen'][$keyNorm][13] ?? 0);
-                    }
-
-                    if ($usuario && isset($usuario->almuerzo) && intval($usuario->almuerzo) === 3 && intval($h) === 14) {
-                        $productividad += ($resumen1[$keyNorm][13] ?? 0) + ($resumen3[$keyNorm][13] ?? 0);
-                        $g += ($resumen2['resumen'][$keyNorm][13] ?? 0);
-                    }
-
-                    if ($usuario && isset($usuario->almuerzo) && intval($usuario->almuerzo) === 4 && intval($h) === 15) {
-                        $productividad += ($resumen1[$keyNorm][14] ?? 0) + ($resumen3[$keyNorm][14] ?? 0);
-                        $g += ($resumen2['resumen'][$keyNorm][14] ?? 0);
+                    if ($usuario) {
+                        $alm = intval($usuario->almuerzo);
+                        if ($alm === 1 && $h == 13) {
+                            $productividad += ($resumen1[$keyNorm][12] ?? 0) + ($resumen3[$keyNorm][12] ?? 0);
+                            $g += ($resumen2['resumen'][$keyNorm][12] ?? 0);
+                        }
+                        if (in_array($alm, [2,3]) && $h == 14) {
+                            $productividad += ($resumen1[$keyNorm][13] ?? 0) + ($resumen3[$keyNorm][13] ?? 0);
+                            $g += ($resumen2['resumen'][$keyNorm][13] ?? 0);
+                        }
+                        if ($alm === 4 && $h == 15) {
+                            $productividad += ($resumen1[$keyNorm][14] ?? 0) + ($resumen3[$keyNorm][14] ?? 0);
+                            $g += ($resumen2['resumen'][$keyNorm][14] ?? 0);
+                        }
                     }
 
                     if ($almuerzoHora !== null && intval($h) === intval($almuerzoHora)) {
@@ -159,11 +147,15 @@ class ExcelController extends Controller
 
                 $valores[] = $tp;
                 $valores[] = $tg;
-                $novedad = array_sum($valores) > 0 ? 'SIN NOVEDAD' : 'NOVEDAD';
+
+                $novedad = array_sum(array_map(fn($x) => is_numeric($x) ? $x : 0, $valores)) > 0
+                    ? 'SIN NOVEDAD'
+                    : 'NOVEDAD';
 
                 $fila = [$contador, $keyNorm, $nombreReal, $cartera, $primerMarcacion];
                 $fila = array_merge($fila, $valores);
                 $fila[] = $novedad;
+
                 $filas[] = $fila;
                 $contador++;
             }
@@ -199,6 +191,7 @@ class ExcelController extends Controller
 
         foreach (array_slice($datos, 1) as $fila) {
             $nombre = trim($fila[$idxNombre] ?? '');
+
             if (stripos($nombre, 'Outsourcing NGSO -') === 0) {
                 $nombre = trim(substr($nombre, strlen('Outsourcing NGSO -')));
             }
@@ -234,7 +227,7 @@ class ExcelController extends Controller
             if (in_array($col, ['agente que atendio', 'agente que atendió', 'agente'])) {
                 $idxAgente = $i;
             }
-            if (in_array($col, ['fechahora', 'fecha hora', 'Fecha/hora'])) {
+            if (in_array($col, ['fechahora', 'fecha hora', 'fecha/hora'])) {
                 $idxFechaHora = $i;
             }
             if ($col === 'origen') {
@@ -258,25 +251,38 @@ class ExcelController extends Controller
             if (!$horaExtra || $horaExtra < 7 || $horaExtra > $horaLimite) continue;
 
             $clave = null;
+
             if ($agente !== '') {
                 $agNorm = $this->normalizar($agente);
                 $mejorUsuario = null;
                 $mejorPct = 0;
+
                 foreach ($usuarios as $u) {
                     $nombreBD = $this->normalizar(trim($u->nombres . ' ' . $u->apellidos));
                     similar_text($agNorm, $nombreBD, $pct);
+
                     if ($pct > $mejorPct) {
                         $mejorPct = $pct;
                         $mejorUsuario = $u;
                     }
                 }
+
                 if ($mejorPct >= 70 && $mejorUsuario) {
                     $clave = $this->normalizar($mejorUsuario->huellaRelacion->nombre_usuario ?? '');
                 }
             }
 
             if ($clave === null && $origen !== '') {
-                $usuarioPorExt = $usuarios->first(fn($u) => isset($u->extension) && $u->extension == $origen);
+
+                $usuarios->load('bestRelacion');
+
+                $usuarioPorExt = $usuarios->first(function ($u) use ($origen) {
+                return isset($u->bestRelacion) &&
+                    isset($u->bestRelacion->extension) &&
+                    $u->bestRelacion->extension == $origen;
+            });
+
+
                 if ($usuarioPorExt) {
                     $clave = $this->normalizar($usuarioPorExt->huellaRelacion->nombre_usuario ?? '');
                 }
@@ -284,6 +290,7 @@ class ExcelController extends Controller
 
             if ($clave === null && $agente !== '') {
                 $usuario = $this->buscarUsuarioPorNombreCompleto($agente, $usuarios);
+
                 if ($usuario) {
                     $clave = $this->normalizar($usuario->huellaRelacion->nombre_usuario ?? '');
                 }
@@ -351,5 +358,4 @@ class ExcelController extends Controller
 
         return $mayorSimilitud >= 70 ? $mejorCoincidencia : null;
     }
-    
 }

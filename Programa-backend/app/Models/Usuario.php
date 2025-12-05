@@ -15,10 +15,10 @@ class Usuario extends Model
         'numero_equipo',
         'equipo_usuario',
         'huella', 
+        'best',
         'correo',
-        'usuario_bestvoiper',
-        'extension',
-        'no_diadema'
+        'no_diadema',
+        'almuerzo'
     ];
 
     public function equipoUsuario()
@@ -33,5 +33,17 @@ class Usuario extends Model
     public function huellaRelacion()
     {
         return $this->belongsTo(Huella::class, 'huella', 'id');
+    }
+    public function best()
+    {
+        return $this->belongsTo(Usuarios_best::class, 'best');
+    }
+    public function bestRelacion()
+    {
+        return $this->belongsTo(Usuarios_best::class, 'best', 'id');
+    }
+    public function getExtensionAttribute()
+    {
+        return $this->bestRelacion->extension ?? null;
     }
 }
