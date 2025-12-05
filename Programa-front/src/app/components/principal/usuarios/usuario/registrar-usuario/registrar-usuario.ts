@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { UsuarioService } from '../../../../../services/usuarioService';
 import { EquipoService } from '../../../../../services/equipoService';
@@ -9,6 +9,8 @@ import { UsuarioModel } from '../../../../../modelos/usuariosmodel';
 import { EquipoModel } from '../../../../../modelos/equipoModel.model';
 import { HuellaModel } from '../../../../../modelos/huellaModel';
 import { map, startWith } from 'rxjs/operators';
+import { BestModelModel } from '../../../../../modelos/bestModel.model';
+import { BestService } from '../../../../../services/best-service';
 
 @Component({
   selector: 'app-registrar-usuario',
@@ -25,18 +27,21 @@ export class RegistrarUsuario implements OnInit {
   equiposDisponibles: EquipoModel[] = [];
   huellas: HuellaModel[] = [];
   huellasDisponibles: HuellaModel[] = [];
+  bests: BestModelModel[] = [];
+  bestsDisponibles: BestModelModel[] = []; 
   error: string = '';
   mensaje: string = '';
-
   listaCorreos: string[] = [];
   correosAsignados: string[] = [];
   correosFiltrados: string[] = [];
 
   constructor(
     private fb: FormBuilder,
+    private route: ActivatedRoute,
     private usuarioService: UsuarioService,
     private equipoService: EquipoService,
     private huellaService: HuellaService,
+    private bestService: BestService,
     private router: Router
   ) {
     this.registroForm = this.fb.group({
@@ -46,13 +51,12 @@ export class RegistrarUsuario implements OnInit {
       telefono: ['', Validators.required],
       cartera: ['', Validators.required],
       numero_equipo: ['', Validators.required],
-      equipo_usuario: ['', [Validators.pattern(/^\d+$/)]],
-      huella: ['', [Validators.pattern(/^\d+$/)]],
+      equipo_usuario: [],
+      huella: [],
+      best: [],
       correo: ['', [Validators.required, Validators.email]],
-      usuario_bestvoiper: ['', Validators.required],
-      extension: ['', Validators.required],
       no_diadema:['',Validators.required],
-
+      almuerzo: ['', Validators.required]
     });
   }
 
@@ -61,6 +65,7 @@ export class RegistrarUsuario implements OnInit {
     this.cargarUsuarios();
     this.cargarEquipos();
     this.cargarHuellas();
+    this.cargarBest();
 
     this.registroForm.get('correo')?.valueChanges
       .pipe(
@@ -75,8 +80,7 @@ export class RegistrarUsuario implements OnInit {
   generarCorreosBase(): void {
     this.listaCorreos = Array.from({ length: 70 }, (_, i) => `ellibertador${i + 1}@ngsoabogados.com`);
   }
-
-  cargarUsuarios(): void {
+   cargarUsuarios(): void {
     this.usuarioService.listaUsuarios().subscribe({
       next: (data) => {
         this.usuarios = data;
@@ -112,7 +116,9 @@ export class RegistrarUsuario implements OnInit {
           this.equipoService.verificarAsignacionEquipo(equipo.id).subscribe({
             next: (res) => {
               if (!res.asignado) {
-                this.equiposDisponibles.push(equipo);
+                if(!this.equiposDisponibles.some(e => e.id === equipo.id)){
+                  this.equiposDisponibles.push(equipo);
+                }
               }
               pendientes--;
             },
@@ -138,7 +144,9 @@ export class RegistrarUsuario implements OnInit {
           this.huellaService.verificarAsignacionHuella(huella.id).subscribe({
             next: (res) => {
               if (!res.asignado) {
-                this.huellasDisponibles.push(huella);
+                if (!this.huellasDisponibles.some(h => h.id === huella.id)){
+                  this.huellasDisponibles.push(huella);
+                }
               }
               pendientes--;
             },
@@ -150,6 +158,35 @@ export class RegistrarUsuario implements OnInit {
       },
       error: (error) => {
         console.error('Error al cargar los usuarios de huella')
+      }
+    });
+  }
+
+  cargarBest():void{
+    this.bestService.listaBest().subscribe({
+      next: (data) =>{
+        this.bests = data;
+        let pendientes = this.bests.length;
+        this.bestsDisponibles = [];
+        this.bests.forEach((best)=>{
+          this.bestService.verificarAsignacionBest(best.id).subscribe({
+            next: (res)=>{
+              const bestActualId = this.registroForm.get('best')?.value;
+              if(!res.asignado || best.id === bestActualId){
+                if(!this.bestsDisponibles.some(e => e.id === best.id)){
+                  this.bestsDisponibles.push(best);
+                }
+              }
+              pendientes--;
+            },
+            error:() =>{
+              pendientes --
+            }
+          });
+        });
+      },
+      error: () => {
+        console.error('Error al cargar los Usuarios de Bestvoiper');
       }
     });
   }

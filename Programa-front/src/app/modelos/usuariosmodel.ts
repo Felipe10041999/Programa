@@ -1,4 +1,3 @@
-
 export interface UsuarioModel {
     id: number
     nombres: string
@@ -18,10 +17,15 @@ export interface UsuarioModel {
         clave: string
         nombre_usuario: string
     }
+    best: {
+        nombre_usuario: String
+        extension: String
+        usuario: String
+        clave: String
+    }
     correo: string
-    usuario_bestvoiper: string
-    extension: string
     no_diadema: String
+    almuerzo: number
 
 }
 

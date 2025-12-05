@@ -6,6 +6,7 @@ import { UsuarioService } from '../../../services/usuarioService';
 import { EquipoService } from '../../../services/equipoService';
 import { HuellaService } from '../../../services/huellaService';
 import { of } from 'rxjs';
+import { BestService } from '../../../services/best-service';
 
 
 @Component({
@@ -15,6 +16,7 @@ import { of } from 'rxjs';
   templateUrl: './actualizacion.html',
   styleUrls: ['./actualizacion.css']
 })
+
 export class Actualizacion implements OnInit {
   editarForm!: FormGroup;
   usuarioEncontrado: boolean = false;
@@ -22,14 +24,17 @@ export class Actualizacion implements OnInit {
   successMessage: string = '';
   public equipoId: number | null = null;
   public huellaId: number | null = null;
+  public bestId: number | null = null;
   public equipo: any = null;
   public huella: any = null;
+  public best: any = null;
 
   constructor(
     private fb: FormBuilder,
     private usuariosService: UsuarioService,
     private equipoService: EquipoService,
     private huellaService: HuellaService,
+    private bestService: BestService,
     private router: Router,
     private route: ActivatedRoute 
   ) {}
@@ -48,12 +53,11 @@ export class Actualizacion implements OnInit {
       usuario_huella: ['', Validators.required],
       nombre_usuario_huella: ['', Validators.required],
       clave_huella: ['', Validators.required],
-      correo: ['', [Validators.required, Validators.email]],
+      nombre_usuario: ['', Validators.required],
       extension: ['', [Validators.required, Validators.minLength(2)]],
-      usuario_bestvoiper: ['', Validators.required]
+      correo: ['', [Validators.required, Validators.email]],
     });
 
-    
     const idParam = this.route.snapshot.paramMap.get('id');
     console.log('ID recibido por la ruta:', idParam);
 
@@ -68,12 +72,12 @@ export class Actualizacion implements OnInit {
     this.usuarioEncontrado = false;
     this.errorMessage = '';
     this.successMessage = '';
-
     this.usuariosService.obtenerUsuarioId(id).subscribe({
       next: usuario => {
         console.log('Usuario obtenido:', usuario);
         this.usuarioEncontrado = true;
         this.editarForm.patchValue(usuario);
+
         let equipoId: number | null = null;
         const uAny: any = usuario as any;
         const equipoObj = uAny.equipo_usuario ?? uAny.equipoUsuario ?? null;
@@ -91,10 +95,19 @@ export class Actualizacion implements OnInit {
           huellaId = uAny.huella;
         }
 
-        this.editarForm.patchValue(usuario);
+        let bestId: number | null = null;
+        const bestObj = uAny.best ?? uAny.Best ?? null;
+        if (bestObj && typeof bestObj === 'object'){
+          bestId = bestObj.id ?? null;
+        } else if(uAny.best && typeof uAny.best === 'number'){
+          bestId = uAny.best;
+        }
 
-  this.equipoId = equipoId;
-  this.huellaId = huellaId;
+        
+        this.editarForm.patchValue(usuario);
+        this.equipoId = equipoId;
+        this.huellaId = huellaId;
+        this.bestId = bestId;
 
         if (equipoId) {
           this.equipoService.obtenerUsuarioId(equipoId).subscribe({
@@ -122,6 +135,19 @@ export class Actualizacion implements OnInit {
             error: (err) => console.error('Error al cargar huella:', err)
           });
         }
+
+        if(bestId){
+          this.bestService.obtenerUsuarioId(bestId).subscribe({
+            next: (b) =>{
+              this.editarForm.patchValue({
+                nombre_usuario: (b as any).usuario ?? '',
+                extension: (b as any).extension ?? '' 
+              });
+              this.best = b;
+            },
+            error: (err) => console.error('Error al cargar bestVoIper', err)
+          });
+        }
       },
       error: err => {
         console.error('Error al obtener usuario:', err);
@@ -141,8 +167,9 @@ export class Actualizacion implements OnInit {
 
     const formData = this.editarForm.getRawValue(); 
     const cedula = formData.cedula;
-  const equipoId: number | null = this.equipoId ?? null;
-  const huellaId: number | null = this.huellaId ?? null;
+    const equipoId: number | null = this.equipoId ?? null;
+    const huellaId: number | null = this.huellaId ?? null;
+    const bestId: number | null = this.bestId ?? null;
 
     const runUpdateSequence = () => {
       const userPayload: any = {
@@ -155,8 +182,7 @@ export class Actualizacion implements OnInit {
         equipo_usuario: this.equipoId,
         huella: this.huellaId, 
         correo: formData.correo,
-        usuario_bestvoiper: formData.usuario_bestvoiper,
-        extension: formData.extension
+        best: this.bestId,
       };
 
       console.log('Enviando payload usuario:', userPayload);
@@ -203,6 +229,8 @@ export class Actualizacion implements OnInit {
             }
             runUpdateSequence();
           },
+
+
           error: (err: any) => {
             console.error('Error al actualizar/crear huella:', err);
             console.error('Status:', err.status, 'Body:', err.error);

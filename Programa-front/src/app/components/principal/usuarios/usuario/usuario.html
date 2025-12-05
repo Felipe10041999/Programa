@@ -40,8 +40,10 @@
                             <th>Clave huella</th>
                             <th>Nombre del usuario de huella</th>
                             <th>Correo</th>
-                            <th>Nombre de usuario BestVoIper</th>
+                            <th>Nombre usuario BestVoIper</th>
                             <th>Extensión</th>
+                            <th>Usuario BestVoIper</th>
+                            <th>Clave</th>
                             <th>Numero de diadema</th>
                             <th>Acciones</th>
                         </tr>
@@ -54,15 +56,17 @@
                             <td>{{ usuario.telefono }}</td>
                             <td>{{ usuario.cartera}}</td>
                             <td>{{ usuario.numero_equipo}}</td>
-                            <td>{{ usuario.equipo_usuario?.usuario || 'No aplica' }}</td>
-                            <td>{{ usuario.equipo_usuario?.clave || 'No aplica' }}</td>
-                            <td>{{ usuario.huella?.usuario || 'No aplica' }}</td>
-                            <td>{{ usuario.huella?.clave || 'No aplica' }}</td>
+                            <td>{{ usuario.equipo_usuario?.usuario || 'No aplica'}}</td>
+                            <td>{{ usuario.equipo_usuario?.clave || 'No aplica'}}</td>
+                            <td>{{ usuario.huella?.usuario || 'No aplica'}}</td>
+                            <td>{{ usuario.huella?.clave || 'No aplica'}}</td>
                             <td>{{ usuario.huella?.nombre_usuario || 'No aplica' }}</td>
-                            <td>{{ usuario.correo || 'No aplica' }}</td>
-                            <td>{{ usuario.usuario_bestvoiper || 'No aplica' }}</td>
-                            <td>{{ usuario.extension || 'No aplica' }}</td>
-                            <td>{{ usuario.no_diadema || 'No aplica' }}</td>
+                            <td>{{ usuario.correo}}</td>
+                            <td>{{ usuario.best?.nombre_usuario || 'No aplica'}}</td>
+                            <td>{{ usuario.best?.extension || 'No aplica'}}</td>
+                            <td>{{ usuario.best?.usuario || 'No aplica'}}</td>
+                            <td>{{ usuario.best?.clave || 'No aplica'}}</td>
+                            <td>{{ usuario.no_diadema}}</td>
                             <td>
                                 <button (click)="editarUsuario(usuario.id, usuario)" class="action-btn btn-editar">
                                     <i class="fas fa-edit"></i> Editar

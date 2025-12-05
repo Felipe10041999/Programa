@@ -23,6 +23,7 @@ export class Usuario implements OnInit{
   registrosPorPagina: number = 4;
   totalPaginas: number = 0;
   terminoBusqueda: string = '';
+  mostrarSoloSinCorreo: boolean = false;
   
 
   constructor(
@@ -46,9 +47,13 @@ export class Usuario implements OnInit{
     const termino = this.terminoBusqueda.toLowerCase().trim();
 
     this.usuariosFiltrados = this.usuarios.filter(usuario =>
-      usuario.nombres.toLowerCase().includes(termino) ||
-      usuario.apellidos.toLowerCase().includes(termino) 
+      (usuario.nombres || '').toLowerCase().includes(termino) ||
+      (usuario.apellidos || '').toLowerCase().includes(termino)
     );
+
+    if (this.mostrarSoloSinCorreo) {
+      this.usuariosFiltrados = this.usuariosFiltrados.filter(u => !u.correo || u.correo.toString().trim() === '');
+    }
  
     this.totalPaginas = Math.ceil(this.usuariosFiltrados.length / this.registrosPorPagina);
     this.paginaActual = 1;
@@ -66,6 +71,11 @@ export class Usuario implements OnInit{
       this.paginaActual = nuevaPagina;
       this.actualizarPaginacion();
     }
+  }
+
+  toggleMostrarSoloSinCorreo(): void {
+    this.mostrarSoloSinCorreo = !this.mostrarSoloSinCorreo;
+    this.filtrarUsuarios();
   }
   
   eliminarUsuario(id:number):void{
@@ -109,8 +119,10 @@ export class Usuario implements OnInit{
       'Nombre usuario huella': usuario.huella?.nombre_usuario ?? '',
       'Clave huella': usuario.huella?.clave ?? '',
       Correo: usuario.correo ?? '',
-      Extensión: usuario.extension ?? '',
-      'Usuario BestVoIper': usuario.usuario_bestvoiper ?? '',
+      'Nombre usuario BestVoIPer' : usuario.best?.nombre_usuario ?? '',
+      Extension : usuario.best?.extension ?? '',
+      'Usuario BestVoIper' : usuario.best?.usuario ?? '',
+      'Clave BestVoIper' : usuario.best?.clave ?? '',
       'No_diadema': usuario.no_diadema ?? ''
 
     }));

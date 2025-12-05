@@ -43,7 +43,8 @@ export class Equipo implements OnInit {
               this.buscar();
             }
           });
-        });      },
+        });
+      },
       error: (error) =>{
         console.error('Error al cargar usuarios: ',  error);
       }

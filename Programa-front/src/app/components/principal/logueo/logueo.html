@@ -12,7 +12,7 @@
            (drop)="onDrop($event)">
         
         <div class="upload-icon">
-          <i class="fas fa-file-excel"></i>
+          <i class="fas fa-paste"></i>
         </div>
         
         <h3>Selecciona tu archivo Excel</h3>
@@ -32,7 +32,7 @@
 
       <div class="file-info" *ngIf="archivoSeleccionado">
         <div class="file-details">
-          <i class="fas fa-file-excel"></i>
+          <i class="fas fa-paste"></i>
           <div class="file-text">
             <h4>{{ archivoSeleccionado.name }}</h4>
             <p>{{ (archivoSeleccionado.size / 1024 / 1024).toFixed(2) }} MB</p>

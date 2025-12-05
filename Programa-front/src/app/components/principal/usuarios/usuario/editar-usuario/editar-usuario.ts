@@ -9,6 +9,8 @@ import { UsuarioModel } from '../../../../../modelos/usuariosmodel';
 import { HuellaModel } from '../../../../../modelos/huellaModel';
 import { EquipoModel } from '../../../../../modelos/equipoModel.model';
 import { map, startWith } from 'rxjs/operators';
+import { BestModelModel } from '../../../../../modelos/bestModel.model';
+import { BestService } from '../../../../../services/best-service';
 
 @Component({
   selector: 'app-editar-usuario',
@@ -25,6 +27,8 @@ export class EditarUsuario implements OnInit {
   equiposDisponibles: EquipoModel[] = [];
   huellas: HuellaModel[] = [];
   huellasDisponibles: HuellaModel[] = [];
+  bests: BestModelModel[]=[];
+  bestsDisponibles: BestModelModel[]=[];
   error: string = '';
   mensaje: string = '';
   id: number = 0;
@@ -38,6 +42,7 @@ export class EditarUsuario implements OnInit {
     private servicio: UsuarioService,
     private equipoService: EquipoService,
     private huellaService: HuellaService,
+    private bestService: BestService,
     private router: Router
   ) {
     this.editarForm = this.fb.group({
@@ -47,13 +52,12 @@ export class EditarUsuario implements OnInit {
       telefono: ['', Validators.required],
       cartera: ['', Validators.required],
       numero_equipo: ['', Validators.required],
-      equipo_usuario: [''],
-      huella: [''],
+      equipo_usuario: [],
+      huella: [],
+      best:[],
       correo: ['', [Validators.required, Validators.email]],
-      usuario_bestvoiper: ['', Validators.required],
-      extension: ['', [Validators.required, Validators.minLength(2)]],
-      no_diadema: ['', Validators.required]
-
+      no_diadema: ['', Validators.required],
+      almuerzo: ['',Validators.required]
     });
   }
 
@@ -63,6 +67,7 @@ export class EditarUsuario implements OnInit {
     this.cargarUsuarios(); 
     this.cargarEquipos();
     this.cargarHuellas();
+    this.cargarBest();
 
     this.editarForm.get('correo')?.valueChanges
       .pipe(
@@ -78,7 +83,7 @@ export class EditarUsuario implements OnInit {
     this.listaCorreos = Array.from({ length: 70 }, (_, i) => `ellibertador${i + 1}@ngsoabogados.com`);
   }
 
-  cargarUsuarios() {
+  cargarUsuarios(): void {
     this.servicio.listaUsuarios().subscribe({
       next: (usuarios) => {
         this.usuarios = usuarios;
@@ -162,6 +167,35 @@ export class EditarUsuario implements OnInit {
       },
       error: () => {
         console.error('Error al cargar los usuarios de huella');
+      }
+    });
+  }
+
+  cargarBest():void{
+    this.bestService.listaBest().subscribe({
+      next: (data) =>{
+        this.bests = data;
+        let pendientes = this.bests.length;
+        this.bestsDisponibles = [];
+        this.bests.forEach((best)=>{
+          this.bestService.verificarAsignacionBest(best.id).subscribe({
+            next: (res)=>{
+              const bestActualId = this.editarForm.get('best')?.value;
+              if(!res.asignado || best.id === bestActualId){
+                if(!this.bestsDisponibles.some(e => e.id === best.id)){
+                  this.bestsDisponibles.push(best);
+                }
+              }
+              pendientes--;
+            },
+            error:() =>{
+              pendientes --
+            }
+          });
+        });
+      },
+      error: () => {
+        console.error('Error al cargar los Usuarios de Bestvoiper');
       }
     });
   }

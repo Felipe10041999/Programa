@@ -76,7 +76,7 @@
 .form-input:focus {
   outline: none;
   background: rgba(255, 255, 255, 0.3);
-  border-color: rgba(11, 11, 11, 0.8);
+  border-color: rgb(8, 8, 8);
   box-shadow: 0 0 20px rgb(255, 255, 255);
 }
 

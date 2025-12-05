@@ -54,7 +54,7 @@
 
                 <div class="form-group">
                     <label class="form-label">
-                        <i class="fas fa-phone"></i>Teléfono
+                        <i class="fas fa-mobile-alt"></i> Teléfono
                     </label>
                     <input 
                     type="text"
@@ -106,22 +106,19 @@
                         <i class="fas fa-user-circle"></i> Usuario de Equipo
                     </label>
                     <select class="form-input" formControlName="equipo_usuario">
-                        <option value="" style="color: black;">Seleccione un equipo</option>
+                        <option value="null" style="color: black;">Seleccione un equipo</option>
                         <option *ngFor="let equipo of equiposDisponibles" [value]="equipo.id" style="color: black;">
                             {{equipo.usuario}}
                         </option>
                     </select>
-                    <span class="error-message" *ngIf="registroForm.get('equipo_usuario')?.invalid && registroForm.get('equipo_usuario')?.touched">
-                        El usuario de huella es obligatorio 
-                    </span>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">
-                        <i class="fas fa-lock"></i> Huella
+                        <i class="fas fa-fingerprint"></i> Huella
                     </label>
                     <select class="form-input" formControlName="huella">
-                        <option value="" style="color: black;">Seleccionar usuario de huella</option>
+                        <option value="null" style="color: black;">Seleccionar usuario de huella</option>
                         <option *ngFor="let huella of huellasDisponibles" [value]="huella.id" style="color: black;">
                             {{ huella.nombre_usuario}}
                         </option> 
@@ -131,37 +128,19 @@
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">
-                        <i class="fas fa-fingerprint"></i> Usuario BestVoIper
+                        <i class="fas fa-phone"></i> Usuario BestVoIper
                     </label>
-                    <input 
-                    type="text"
-                    class="form-input"
-                    formControlName="usuario_bestvoiper"
-                    placeholder="Ingrese el nombre de usuario BestVoIper">
-                    <span class="error-message" *ngIf="registroForm.get('usuario_bestvoiper')!.invalid && registroForm.get('usuario_bestvoiper')!.touched">
-                        El nombre de usuario bestvoiper es obligatorio
-                    </span>
+                    <select class="form-input" formControlName="best" >
+                        <option value="null" style="color: black;"> Seleccione un usuarios de BestVoIper</option>
+                        <option *ngFor="let best of bestsDisponibles" [value]="best.id" style="color: black;">
+                            {{best.usuario}}
+                        </option>
+                    </select>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">
-                        <i class="fas fa-key"></i> Extensión
-                    </label>
-                    <input 
-                    type="text"
-                    class="form-input"
-                    formControlName="extension"
-                    placeholder="Ingrese el numero de extension">
-                    <span class="error-message" *ngIf="registroForm.get('extension')!.invalid && registroForm.get('extension')!.touched">
-                        la extension es obligatoria
-                    </span>
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">
-                        <i class="fas fa-key"></i> Correo
+                        <i class="fas fa-at"></i> Correo
                     </label>
                     <input 
                         type="text"
@@ -177,10 +156,13 @@
                         El correo es obligatorio y debe ser válido
                     </span>
                 </div>
+            </div>
+                
 
+            <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">
-                        <i class="fas fa-key"></i> Número de diadema
+                        <i class="fas fa-headset"></i> Número de diadema
                     </label>
                     <input 
                         type="text"
@@ -190,6 +172,22 @@
                         >                   
                     <span class="error-message" *ngIf="registroForm.get('no_diadema')?.invalid && registroForm.get('no_diadema')?.touched">
                         El numero de diadema es obligatorio y debe ser válido
+                    </span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-utensils"></i> Hora de almuerzo
+                    </label>
+                    <select class="form-input" formControlName="almuerzo">
+                        <option value="null" style="color: black;">Seleccione una hora de almuerzo</option>
+                        <option value="1" style="color: black;">12:30</option>
+                        <option value="2" style="color: black;">13:00</option>
+                        <option value="3" style="color: black;">13:30</option>
+                        <option value="4" style="color: black;">14:00</option>
+                    </select>
+                    <span class="error-message" *ngIf="registroForm.get('almuerzo')!.invalid && registroForm.get('almuerzo')!.touched">
+                        La hora de almuerzo es obligatoria
                     </span>
                 </div>
             </div>

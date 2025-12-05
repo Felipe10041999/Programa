@@ -25,6 +25,9 @@ export class Usuarios {
   irUsuarios(){
     this.router.navigate(['/usuario'])
   }
+  irBest(){
+    this.router.navigate(['/best'])
+  }
   irPrincipal(){
     this.router.navigate(['']);
   }
