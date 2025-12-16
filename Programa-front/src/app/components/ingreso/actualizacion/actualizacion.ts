@@ -48,13 +48,15 @@ export class Actualizacion implements OnInit {
       telefono: ['', Validators.required],
       cartera: ['', Validators.required],
       numero_equipo: ['', Validators.required],
-      usuario_equipo: ['', Validators.required],
-      clave_equipo: ['', Validators.required],
-      usuario_huella: ['', Validators.required],
-      nombre_usuario_huella: ['', Validators.required],
-      clave_huella: ['', Validators.required],
-      nombre_usuario: ['', Validators.required],
-      extension: ['', [Validators.required, Validators.minLength(2)]],
+      usuario_equipo: [''],
+      clave_equipo: [''],
+      usuario_huella: [''],
+      nombre_usuario_huella: [''],
+      clave_huella: [''],
+      nombre_usuario: [''],
+      extension: [''],
+      clave_best:[''],
+      usuario:[''],
       correo: ['', [Validators.required, Validators.email]],
     });
 
@@ -141,7 +143,9 @@ export class Actualizacion implements OnInit {
             next: (b) =>{
               this.editarForm.patchValue({
                 nombre_usuario: (b as any).usuario ?? '',
-                extension: (b as any).extension ?? '' 
+                extension: (b as any).extension ?? '' ,
+                clave_best: (b as any ).clave ?? '',
+                usuario: (b as any ).nombre_usuario
               });
               this.best = b;
             },
@@ -214,6 +218,7 @@ export class Actualizacion implements OnInit {
           const newEquipoId = (eqRes.usuario && eqRes.usuario.id) ?? eqRes.id ?? (eqRes.usuario?.id ?? null);
           if (newEquipoId) this.equipoId = newEquipoId;
         }
+
         const huellaOperacion$ = huellaId ? this.huellaService.editarHuella(huellaId, {
           id: huellaId,
           usuario: formData.usuario_huella,
@@ -230,13 +235,30 @@ export class Actualizacion implements OnInit {
             runUpdateSequence();
           },
 
-
           error: (err: any) => {
             console.error('Error al actualizar/crear huella:', err);
             console.error('Status:', err.status, 'Body:', err.error);
             this.errorMessage = 'Error al actualizar/crear huella: ' + (err.error?.mensaje || err.message || JSON.stringify(err.error));
           }
         });
+
+        const bestOperacion$ = bestId ? this.bestService.editarBest(bestId, {
+          id: bestId,
+          nombre_usuario: formData.nombre_usuario,
+          usuario: formData.usuario,
+          clave: formData.clave_best,
+          extension: formData.extension
+        }) : (formData.nombre_usuario ? this.bestService.registrarBest({ id: 0 as any,nombre_usuario: formData.nombre_usuario, extension: formData.extension, usuario: formData.usuario, clave: formData.clave_best}as any): of(null))
+
+        bestOperacion$.subscribe({
+          next: (bRes: any) => {
+            if(!bestId && bRes){
+              const newBestId = (bRes.usuario && bRes.usuario.id) ?? bRes.id ?? (bRes.usuario?.id ?? null);
+              if(newBestId) this.bestId = newBestId;
+            }
+            runUpdateSequence();
+          }
+        })
       },
       error: (err: any) => {
         console.error('Error al actualizar/crear equipo:', err);
