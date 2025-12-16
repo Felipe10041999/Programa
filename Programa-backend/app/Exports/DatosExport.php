@@ -176,7 +176,7 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
                             $sheet->getStyle($cell)->getFill()->setFillType('solid')->getStartColor()->setARGB($bgColor);
                             $sheet->getStyle($cell)->getAlignment()->setHorizontal('center');
                             $sheet->getStyle($cell)->getAlignment()->setVertical('center');
-                            $sheet->getStyle($cell)->getFont()->getColor()->setARGB('FF000000'); // black text
+                            $sheet->getStyle($cell)->getFont()->getColor()->setARGB('FF000000'); 
                             $sheet->getStyle($cell)->getFont()->setBold(true);
                             continue;
                         }
@@ -186,11 +186,11 @@ class DatosExport implements FromCollection, WithHeadings, WithStyles, WithColum
                         }
                         if (is_numeric($value) && $col >= $colStart && ($col - $colStart) % 2 == 0) {
                             if ($value >= 1 && $value <= 3) {
-                                $sheet->getStyle($cell)->getFill()->setFillType('solid')->getStartColor()->setARGB('FFFF0000'); // Rojo
+                                $sheet->getStyle($cell)->getFill()->setFillType('solid')->getStartColor()->setARGB('FFFF0000'); 
                             } elseif ($value >= 4 && $value <= 6) {
-                                $sheet->getStyle($cell)->getFill()->setFillType('solid')->getStartColor()->setARGB('FFFFFF00'); // Amarillo
+                                $sheet->getStyle($cell)->getFill()->setFillType('solid')->getStartColor()->setARGB('FFFFFF00'); 
                             } elseif ($value >= 7) {
-                                $sheet->getStyle($cell)->getFill()->setFillType('solid')->getStartColor()->setARGB('FF00FF00'); // Verde
+                                $sheet->getStyle($cell)->getFill()->setFillType('solid')->getStartColor()->setARGB('FF00FF00'); 
                             }
                         }
                     }

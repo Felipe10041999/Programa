@@ -62,8 +62,8 @@ export class LogueoService {
 
   validarArchivoExcel(archivo: File): boolean {
     const tiposValidos = [
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
-      'application/vnd.ms-excel' // .xls
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 
+      'application/vnd.ms-excel' 
     ];
     
     return tiposValidos.includes(archivo.type);

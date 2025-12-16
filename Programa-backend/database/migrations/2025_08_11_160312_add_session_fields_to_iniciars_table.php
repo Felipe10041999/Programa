@@ -12,15 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('iniciars', function (Blueprint $table) {
-            // Hacer usuario_id nullable para permitir sesiones independientes
             $table->foreignId('usuario_id')->nullable()->change();
             
-            // Agregar nuevos campos para gestión de sesiones
             $table->string('token_sesion', 100)->nullable()->unique()->after('usuario_id');
             $table->timestamp('ultimo_acceso')->nullable()->after('token_sesion');
             $table->enum('estado_sesion', ['activa', 'cerrada', 'expirada'])->default('activa')->after('ultimo_acceso');
-            
-            // Agregar índices para mejor rendimiento
             $table->index(['token_sesion', 'estado_sesion']);
             $table->index('ultimo_acceso');
         });

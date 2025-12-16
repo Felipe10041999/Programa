@@ -54,12 +54,13 @@ Route::post('/best', [Usuarios_best::class, 'Registrar']);
 Route::put('/best/{id}',[Usuarios_best::class, 'Actualizar']);
 Route::delete('/best/{id}',[Usuarios_best::class,'Eliminar']);
 
+//Endpoint hora de logueo
 Route::post('/archivologueo/subir', [Archivologueo::class, 'subir']);
-
+//Endpoint Informe juridico
 Route::post('/juridico/sumar-duracion', [Juridico::class, 'subir']);
-
+//Endpoint informe gestiones nuevas
 Route::post('/gestiones-nuevos', [NuevosController::class, 'gestionesNuevos']);
-
+//Informe de gestiones por horas
 Route::post('/procesar-excel', [ExcelController::class, 'procesar']);
 
 

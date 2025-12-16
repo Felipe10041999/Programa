@@ -20,8 +20,6 @@ export interface UploadResponse {
 })
 export class JuridicoService {
 
-  // URL del endpoint backend — apunta al método que suma duración
-  // Se deja absoluto apuntando a Laravel en el puerto por defecto; si usas proxy o env, cámbialo por una variable de entorno.
   private apiUrl = 'http://192.168.112.18:8000/api/juridico/sumar-duracion';
 
   constructor(private http: HttpClient) { }

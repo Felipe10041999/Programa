@@ -149,12 +149,12 @@ class JuridicoExport implements FromArray, WithHeadings, WithStyles, WithEvents
         for ($row = 2; $row <= $highestRow; $row++) {
             for ($col = $startColIndexNum; $col <= $endColIndexNum; $col++) {
                 $cellRef = Coordinate::stringFromColumnIndex($col) . $row;
-                $cellVal = $sheet->getCell($cellRef)->getCalculatedValue(); // Usar CalculatedValue
+                $cellVal = $sheet->getCell($cellRef)->getCalculatedValue(); 
 
                 if (is_string($cellVal) && strtoupper(trim($cellVal)) === 'ALMUERZO') {
                     $sheet->getStyle($cellRef)->getFill()
                         ->setFillType(Fill::FILL_SOLID)
-                        ->getStartColor()->setARGB('FFFF00FF'); // Magenta fuerte
+                        ->getStartColor()->setARGB('FFFF00FF'); 
                     $sheet->getStyle($cellRef)->getFont()->setBold(true);
                 }
             }
