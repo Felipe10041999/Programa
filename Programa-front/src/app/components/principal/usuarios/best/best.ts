@@ -57,7 +57,8 @@ export class Best implements OnInit {
     const termino = this.terminoBusqueda.toLocaleLowerCase().trim();
 
     this.bestsFiltrados = this.bests.filter(bests =>
-      bests.nombre_usuario.toLocaleLowerCase().includes(termino)
+      bests.nombre_usuario.toLocaleLowerCase().includes(termino)||
+      bests.extension.toLocaleLowerCase().includes(termino)
     );
     this.totalPaginas = Math.ceil (this.bestsFiltrados.length / this.registroPorPagina)
     this.paginaActual = 1;
